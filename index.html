@@ -199,8 +199,8 @@ const ASSET=()=>col('IT Asset No'), LOC=()=>col('Location');
 document.querySelectorAll('.modes button').forEach(b=>b.addEventListener('click',()=>setMode(+b.id.slice(1))));
 
 // ===== ตั้งค่าการเชื่อมต่อ (แก้ 2 บรรทัดนี้หลัง Deploy Apps Script) =====
-const API_URL='https://script.google.com/macros/s/AKfycbwxRevUh7j_oIu_wzF6GwfLR6q_SHSfgOqf_qITt-3i7WrayrpPFjw0uPjpRq7tD_U/exec';
-const API_TOKEN='AKfycbwxRevUh7j_oIu_wzF6GwfLR6q_SHSfgOqf_qITt-3i7WrayrpPFjw0uPjpRq7tD_U';
+const API_URL='https://script.google.com/macros/s/AKfycbzO6R8uCKhRFmz9kBfFL9T6CVlUIv_CJrpG2gMpEGUi7ZrGoHgCspgv6AQ4bXUhXyY4/exec';
+const API_TOKEN='asset2026xyz';           // ต้องตรงกับ TOKEN ใน Code.gs
 
 // ผู้แก้ไข (เก็บในเครื่อง ถามครั้งแรกครั้งเดียว) ใช้บันทึกในชีตประวัติ
 function editorName(){
@@ -226,28 +226,7 @@ function makeRun(ok,fail){
   }});
 }
 
-if(API_URL.indexOf('PASTE_')===0){
-  // ยังไม่ได้ตั้งค่า API_URL: ใช้ข้อมูลตัวอย่างเพื่อทดลองหน้าจอ
-  (function(){
-    const HD=['การตรวจเครื่อง','Status','IT Asset No','Location','ผู้ถือครอง','หมายเหตุ','Window','MS Office','Keyoffice','Antivirus','Program Other','Model','Serial No','Computername','CPU','Ram','Mainboard','Harddisk'];
-    const mk=(n,c,st,loc,who,win,off,av)=>({n,v:[c,st,'NB-1-61-'+n,loc,who,'',win,off,'',av,'','Model X','SN'+n,'PC'+n,'i5','8GB','','256GB']});
-    const rows=[mk(1,'ตรวจแล้ว','ใช้งาน','SDF-RD','นิจวรรณ','Windows 10','MS Office 2016','AntiVirus Avira'),
-      mk(2,'','เสีย','KH-QC','สมชาย','Windows 10','MS Office 2016','AntiVirus Windows Defender'),
-      mk(3,'ตรวจแล้ว','ใช้งาน','KH-QC','สมหญิง','Windows 10','','AntiVirus Avira')];
-    const mockRun=(ok,fail)=>new Proxy({},{get:(t,k)=>k==='withSuccessHandler'?f=>mockRun(f,fail):k==='withFailureHandler'?f=>mockRun(ok,f):
-      (...a)=>setTimeout(()=>{
-        if(k==='getData')ok({headers:HD,rows});
-        else if(k==='saveRow')ok({saved:Object.keys(a[2]).length});
-        else ok([]);
-      },150)});
-    window.google={script:{run:mockRun()}};
-    const bar=document.getElementById('errbar');
-    bar.style.display='block';bar.style.background='#92400e';
-    bar.textContent='โหมดทดลอง: ยังไม่ได้ตั้งค่า API_URL (ข้อมูลเป็นตัวอย่าง บันทึกไม่ได้จริง)';
-  })();
-}else{
-  window.google={script:{run:makeRun()}};
-}
+window.google={script:{run:makeRun()}};
 try{
   google.script.run.withSuccessHandler(d=>{
     try{H=d.headers;R=d.rows;init();}
@@ -369,9 +348,9 @@ function save(){
   $('sv').disabled=true;$('hs').disabled=true;m.className='';m.textContent='กำลังบันทึก…';
   google.script.run.withSuccessHandler(r=>{
     Object.keys(ch).forEach(i=>cur.v[i]=ch[i]);
-    $('sv').disabled=false;m.className='ok';m.textContent='บันทึกแล้ว '+r.saved+' ช่อง';
+    $('sv').disabled=false;$('hs').disabled=false;m.className='ok';m.textContent='บันทึกแล้ว '+r.saved+' ช่อง';
     $('panel').querySelectorAll('.chg').forEach(x=>x.classList.remove('chg'));
-  }).withFailureHandler(e=>{$('sv').disabled=false;m.className='bad';m.textContent=e.message;})
+  }).withFailureHandler(e=>{$('sv').disabled=false;$('hs').disabled=false;m.className='bad';m.textContent='บันทึกไม่สำเร็จ: '+((e&&e.message)||e);})
   .saveRow(cur.n,cur.v[ASSET()],ch);
 }
 
@@ -495,10 +474,6 @@ function loadOcr(){return new Promise((ok,no)=>{
   const s=document.createElement('script');
   s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
   s.onload=ok;s.onerror=()=>no(new Error('โหลดตัวอ่านข้อความไม่สำเร็จ (ตรวจอินเทอร์เน็ต)'));document.head.appendChild(s);});}
-function busy(msg){
-  $('vid').style.display='none';$('qrlive').style.display='none';$('camPhoto').style.display='none';
-  $('camMsg').textContent=msg;$('camMsg').style.display='block';$('cam').style.display='flex';
-}
 const norm=t=>String(t||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 const fuzz=t=>norm(t).replace(/[OQD]/g,'0').replace(/[IL]/g,'1').replace(/Z/g,'2').replace(/S/g,'5').replace(/B/g,'8');
 // หาค่าในข้อมูลจริงที่ตรงกับข้อความที่อ่านได้ (รหัส Asset / Computername / Serial)
@@ -517,29 +492,43 @@ function matchAsset(text){
   for(const [k,v] of loose){if(k.length>=6&&allf.indexOf(k)>-1)return v;}
   return null;
 }
-async function ocrFile(f){
-  await loadOcr();
-  const img=await shrink(f,1800);
-  const w=await Tesseract.createWorker('eng',1,{logger:m=>{
-    if(m.status==='recognizing text')busy('กำลังอ่านข้อความ… '+Math.round(m.progress*100)+'%');
-    else if(/loading|initializ/.test(m.status))busy('กำลังเตรียมตัวอ่านข้อความ (ครั้งแรกอาจนาน)…');}});
-  try{
+// แสดงสถานะในช่องค้นหาโดยตรง (ไม่มีหน้าต่างบัง) แล้วใส่ผลลัพธ์ลงช่องทันทีที่อ่านเสร็จ
+let ph0=null;
+function ocrStatus(msg){const el=$(scanTarget);if(!el)return;if(ph0===null)ph0=el.placeholder;el.value='';el.placeholder=msg;el.readOnly=true;}
+function ocrDone(){const el=$(scanTarget);if(!el)return;el.readOnly=false;if(ph0!==null){el.placeholder=ph0;ph0=null;}}
+// เก็บตัวอ่านไว้ใช้ซ้ำ และโหลดล่วงหน้าตั้งแต่กดปุ่ม 🔤 (ระหว่างที่ผู้ใช้กำลังถ่ายรูป) ครั้งต่อไปจึงเร็วมาก
+let ocrW=null,ocrP=null;
+function getWorker(){
+  if(ocrW)return Promise.resolve(ocrW);
+  if(ocrP)return ocrP;
+  ocrP=(async()=>{
+    await loadOcr();
+    const w=await Tesseract.createWorker('eng',1,{logger:m=>{
+      if(m.status==='recognizing text'&&ph0!==null)ocrStatus('กำลังอ่านข้อความ… '+Math.round(m.progress*100)+'%');}});
     await w.setParameters({tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_./ ',preserve_interword_spaces:'1'});
-    const r=await w.recognize(img.canvas);
-    return String(r.data.text||'');
-  }finally{try{await w.terminate();}catch(e){}}
+    ocrW=w;return w;
+  })();
+  ocrP.catch(()=>{ocrP=null;});
+  return ocrP;
 }
 async function runOcr(f){
-  busy('กำลังเตรียมอ่านข้อความ…');
+  stopCam();
+  ocrStatus('กำลังอ่านข้อความ…');
   try{
-    const text=await ocrFile(f);
-    const hit=matchAsset(text);
-    stopCam();
-    if(hit){applyVal(scanTarget,hit);return;}
-    const guess=(text.match(/[A-Za-z0-9][A-Za-z0-9\-]{4,}/g)||[]).sort((x,y)=>y.length-x.length)[0];
-    if(guess&&confirm('ไม่พบรหัสที่ตรงกับข้อมูล\nอ่านได้ว่า: '+guess+'\nใช้ค่านี้ค้นหาไหม?')){applyVal(scanTarget,guess);}
-    else if(!guess)alert('อ่านข้อความจากรูปไม่ได้ ลองถ่ายใหม่ให้ใกล้ ชัด แสงพอ และให้ตัวหนังสืออยู่กลางภาพ');
-  }catch(e){stopCam();alert((e&&e.message)||'อ่านข้อความไม่สำเร็จ');}
+    const w=await getWorker();
+    const img=await shrink(f,1500);
+    const r=await w.recognize(img.canvas);
+    const text=String(r.data.text||'');
+    ocrDone();
+    let hit=matchAsset(text);
+    if(!hit){ // ไม่ตรงกับข้อมูลในระบบ -> ใส่ข้อความที่อ่านได้ลงช่องเลย ให้ผู้ใช้เห็นและแก้เองได้
+      const up=text.toUpperCase();
+      const toks=up.match(/[A-Z0-9]+(?:-[A-Z0-9]+){2,}/g)||up.match(/[A-Z0-9][A-Z0-9\-]{3,}/g)||[];
+      hit=toks.sort((x,y)=>y.length-x.length)[0];
+    }
+    if(hit)applyVal(scanTarget,hit);
+    else alert('อ่านข้อความจากรูปไม่ได้ ลองถ่ายใหม่ให้ใกล้ ชัด แสงพอ และให้ตัวหนังสืออยู่กลางภาพ');
+  }catch(e){ocrDone();alert((e&&e.message)||'อ่านข้อความไม่สำเร็จ');}
 }
 
 fileIn.onchange=async()=>{
@@ -553,6 +542,7 @@ fileIn.onchange=async()=>{
 };
 document.querySelectorAll('[data-ocr]').forEach(b=>b.onclick=()=>{
   scanTarget=b.dataset.ocr;ocrMode=true;
+  getWorker().catch(()=>{}); // โหลดตัวอ่านล่วงหน้า ระหว่างที่ผู้ใช้ถ่ายรูป
   fileIn.removeAttribute('capture'); // ให้เลือกได้ทั้งถ่ายรูปและเลือกจากแกลเลอรี
   fileIn.click();
 });
