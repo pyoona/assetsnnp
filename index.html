@@ -307,7 +307,7 @@ header{font-weight:700;font-size:19px;letter-spacing:.2px}
 })();
 // [ชื่อคอลัมน์ใน Sheet, ชื่อที่แสดง, ชนิด (d=Dropdown, t=จิ้มแล้วแก้ไขได้, r=แสดงอย่างเดียว), 1=ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ]
 const GROUPS = [
-  ['ข้อมูล', [['การตรวจเครื่อง','การตรวจเครื่อง','d'],['StatusN','StatusN','d'],['IT Asset No','รหัส Asset','r'],['Computername','Computername','t'],['Location','Location','d'],['IP','IP','t'],['ผู้ถือครอง','ผู้ถือครอง','c'],['หมายเหตุ','หมายเหตุ','t']]],
+  ['ข้อมูล', [['การตรวจเครื่อง','การตรวจเครื่อง','d'],['StatusN','StatusN','d'],['IT Asset No','รหัส Asset','r'],['Computername','Computername','t'],['Location','Location','d'],['IP Address','IP Address','t'],['ผู้ถือครอง','ผู้ถือครอง','c'],['หมายเหตุ','หมายเหตุ','t']]],
   ['Software', [['Window','Window','d'],['MS Office','MS Office','d'],['Keyoffice','Keyoffice','c'],['Antivirus','Antivirus','d'],['Program Other','Program Other','t']]],
   ['Hardware', [['Model','Model','r'],['Serial No','Serial No','t'],['CPU','CPU','d'],['Ram','Ram','d'],['Mainboard','Mainboard','d'],['Harddisk','Harddisk','d']]]
 ];
@@ -316,7 +316,14 @@ const branchOf=v=>String(v||'').trim().split('-')[0].toUpperCase();
 let H=[], R=[], cur=null, mode=1; const OPTS={};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const col=(n,last)=>last?H.lastIndexOf(n):H.indexOf(n);
+const col=(n,last)=>{
+  const i=last?H.lastIndexOf(n):H.indexOf(n);
+  if(i>=0)return i;
+  // ชื่อสำรอง: ชีตใช้ "IP Address"; ถ้ายังไม่ได้เปลี่ยนชื่อ Status ตัวที่ 2 เป็น StatusN ให้ใช้ Status ตัวท้ายแทน
+  if(n==='IP')return H.indexOf('IP Address');
+  if(n==='StatusN'){const x=H.indexOf('Status'),y=H.lastIndexOf('Status');return y>x?y:-1;}
+  return -1;
+};
 const ASSET=()=>col('IT Asset No'), LOC=()=>col('Location');
 // ผูกปุ่มโหมดไว้ก่อนสุด เพื่อให้กดได้เสมอ แม้ส่วนอื่นของสคริปต์จะมีปัญหา
 document.querySelectorAll('.modes>button').forEach(b=>b.addEventListener('click',()=>setMode(+b.id.slice(1))));
@@ -324,7 +331,7 @@ document.querySelectorAll('.modes>button').forEach(b=>b.addEventListener('click'
 // ===== ตั้งค่าตรงนี้ =====
 // วาง Web app URL ของ Apps Script (ลงท้ายด้วย /exec) เพื่อใช้ข้อมูลจริงเมื่อเปิดจาก GitHub Pages
 // ถ้าเว้นว่างไว้ และไม่ได้เปิดผ่าน Apps Script จะเข้าโหมดทดลอง (ข้อมูลตัวอย่าง)
-const API_URL='';
+const API_URL='https://script.google.com/macros/s/AKfycbyOdL1b0D0MvccuSDTm2Eqs_lwjzMsckvv7mbljuDyIZrGcCx1Xh7vRb0zNPaxDLd6X/exec';
 // ========================
 const IN_GAS=!!(window.google&&google.script&&google.script.run);
 
