@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IT Asset</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14213d;--mut:#5b6478;--line:#d5dbe6;--bg:#f2f5fa;--card:#fff;--acc:#12308f;--hi:#12308f;--ok:#15803d;--err:#b91c1c}
+*{box-sizing:border-box}
+body{margin:0;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+header{background:var(--ink);color:#fff;padding:14px 18px;font-weight:600;font-size:18px}
+main{max-width:1000px;margin:0 auto;padding:14px}
+.modes{display:flex;gap:8px;margin-bottom:12px}
+.modes button{flex:1;padding:12px;border:2px solid var(--ink);background:#fff;font:inherit;font-weight:600;border-radius:8px;cursor:pointer;color:var(--ink)}
+.modes button.on{background:var(--hi);border-color:var(--hi);color:#fff}
+.bar[hidden]{display:none}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.bar>*{flex:1 1 180px}
+input,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.in{display:flex;gap:6px}
+.ic{flex:0 0 44px;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:18px;cursor:pointer}
+.ic.rec{background:var(--err);color:#fff}
+.grid[hidden],.list[hidden]{display:none}
+.grid.one{grid-template-columns:minmax(0,1fr)!important}
+.fld{flex:1 1 220px}
+.fld[hidden]{display:none}
+#assetbar{margin-bottom:10px}
+#left{min-width:0}
+.fld>label{font-weight:600;color:var(--ink);font-size:14px;margin-bottom:5px}
+.bar .fld{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+#bar2 .fld{background:var(--hi);border-color:#0a1f63}
+#bar2 .fld>label{color:#fff}
+input[readonly]{background:#eef0f4;color:var(--mut)}
+select:disabled{background:#eef0f4}
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media(min-width:860px){.grid{grid-template-columns:340px minmax(0,1fr)}}
+.list{background:var(--card);border:1px solid var(--line);border-radius:10px;max-height:70vh;overflow:auto}
+.list .head{padding:8px 12px;font-size:13px;color:var(--mut);border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff}
+.it{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+.it:hover{background:#eef3ff}.it.sel{background:#f8cbad;color:var(--ink)}.it.sel span{color:var(--mut)}
+.it b{display:block}.it span{color:var(--mut);font-size:13px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+.empty{color:var(--mut);padding:30px;text-align:center}
+.ttl{font-size:18px;font-weight:600;margin:0 0 2px}
+.sub{color:var(--mut);margin:0 0 12px}
+.sec{background:#a9d08e;color:var(--ink);padding:6px 10px;font-weight:600;border-radius:6px;margin:16px 0 10px}
+.f{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+label{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
+.chg input{border-color:var(--acc);background:#f1f5ff}
+.chk{border:2px solid #2563eb;background:#e8f1ff;border-radius:10px;padding:6px 10px 10px}
+.chk>label{color:#12308f;font-weight:600}
+.savebox{flex:0 0 auto!important;align-self:center;position:relative;display:flex}
+.savebox button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:8px 18px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+#msg{position:absolute;right:0;top:100%;margin-top:4px;font-size:13px;white-space:nowrap}
+.savebox{gap:6px}
+.savebox button.alt{background:#fff;color:var(--ink);border:1px solid var(--line)}
+#hist{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:8;padding:12px}
+#hist .box{background:#fff;border-radius:12px;max-width:760px;width:100%;max-height:85vh;display:flex;flex-direction:column}
+#hist .hd{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);font-weight:600}
+#hist .hd button{border:0;background:none;font-size:20px;cursor:pointer}
+#hist .bd{overflow:auto;padding:0 16px 12px}
+#hist table{border-collapse:collapse;width:100%;font-size:14px}
+#hist th,#hist td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+#hist th{position:sticky;top:0;background:#fff;color:var(--mut);font-weight:500}
+.old{color:var(--err);text-decoration:line-through}.new{color:var(--ok)}
+.savebox button:disabled{opacity:.5;cursor:default}
+#msg{font-weight:500}.ok{color:var(--ok)}.bad{color:var(--err)}
+#cam{position:fixed;inset:0;background:#000d;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:9}
+#cam video{max-width:92vw;max-height:70vh;border-radius:10px}
+#cam button{padding:10px 24px;border-radius:8px;border:0;font:inherit}
+
+/* ตัวกรอง (โหมดที่ 3) */
+#bar3 .fld{flex:1 1 100%}
+.fh{display:flex;justify-content:flex-start;align-items:center;margin-bottom:8px;font-weight:600}
+.fh button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;color:var(--ink)}
+#fwrap{display:flex;flex-direction:column;gap:14px}
+#fbox,#fres{min-width:0}
+#fres .grid{grid-template-columns:minmax(0,1fr)}
+#fres .list{max-height:32vh}
+@media(min-width:861px){
+  #fwrap{flex-direction:row;align-items:flex-start}
+  #fbox{flex:0 0 auto;max-width:45%}
+  #fres{flex:1 1 0}
+}
+.fg{margin-bottom:10px}
+.fg>b{display:inline-block;font-size:14px;margin-bottom:8px;padding:6px 16px;background:#e1ecff;color:#12308f;border:2px solid #9ec5fe;border-radius:8px;font-weight:600}
+.fo{display:flex;flex-wrap:wrap;gap:6px 16px;max-height:120px;overflow:auto}
+.fo label{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink);margin:0;cursor:pointer}
+.fo input{width:18px;height:18px;padding:0;accent-color:var(--acc)}
+
+@media(max-width:640px){
+  body{font-size:16px}
+  header{padding:12px 14px;font-size:17px}
+  main{padding:10px}
+  input,select{font-size:16px;padding:12px}
+  .modes{gap:6px}.modes button{padding:12px 6px;font-size:15px}
+  .bar{gap:6px;margin-bottom:10px}
+  #bar1 .fld{flex:1 1 calc(50% - 3px);min-width:0;padding:6px 8px;border-radius:8px}
+  #bar2 .fld{flex:1 1 100%;padding:6px 8px}
+  .fld>label{font-size:12px;margin-bottom:3px}
+  .bar select,.bar input{font-size:14px;padding:7px 8px}
+  .fo input{width:18px;height:18px;padding:0}
+  .fo{flex-wrap:nowrap;gap:8px;max-height:none;overflow-x:auto;overflow-y:hidden;padding:2px 2px 8px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .fo::-webkit-scrollbar{height:6px}
+  .fo::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+  .fo label{flex:0 0 auto;scroll-snap-align:start;white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px}
+  .fo label:has(input:checked){background:#e8f1ff;border-color:var(--acc);font-weight:600;color:var(--acc)}
+  .bar .ic{flex:0 0 40px;font-size:16px}
+  .savebox{flex:1 1 100%!important;align-self:stretch;gap:6px}
+  .savebox button{flex:1;padding:8px;font-size:14px}
+  #msg{position:static;margin:0;align-self:center;white-space:normal;flex:1}
+  .list{max-height:38vh}
+  .it{padding:14px 12px}
+  .panel{padding:12px}
+  .f{grid-template-columns:1fr}
+  .ic{flex:0 0 48px}
+  #hist{padding:0;align-items:flex-end}
+  #hist .box{max-width:none;border-radius:14px 14px 0 0;max-height:88vh}
+  #hist th:nth-child(4),#hist td:nth-child(4){display:none}
+  #hist table{font-size:13px}
+}
+@supports(padding:max(0px)){main{padding-bottom:max(14px,env(safe-area-inset-bottom))}}
+</style>
+</head>
+<body>
+<header>IT Asset <small style="font-weight:400;opacity:.6;font-size:12px">v7</small></header>
+<div id="errbar" style="display:none;background:#b91c1c;color:#fff;padding:8px 14px;font-size:13px;white-space:pre-wrap;word-break:break-all"></div>
+<main>
+  <div class="modes">
+    <button id="m1" class="on">เลือกตามสาขา</button>
+    <button id="m2">ค้นหา</button>
+    <button id="m3">Filter</button>
+  </div>
+
+  <div class="bar" id="bar1">
+    <div class="fld"><label>สาขา</label><select id="loc"></select></div>
+    <div class="fld"><label>Location</label><select id="loc2" disabled></select></div>
+    <div class="savebox" id="savebox"><button id="sv" disabled>Save</button><button id="hs" class="alt" disabled>ประวัติ</button><span id="msg"></span></div>
+  </div>
+  <div class="bar" id="bar2" hidden>
+    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง"><button class="ic" data-mic="q2" title="พูด">🎤</button><button class="ic" data-scan="q2" title="สแกน">▦</button></div></div>
+  </div>
+  <div class="bar" id="bar3" hidden>
+    <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"></div></div>
+  </div>
+
+  <div class="grid" id="grid">
+    <div id="left">
+      <div class="list" id="list"><div class="empty">กำลังโหลดข้อมูล…</div></div>
+    </div>
+    <div class="panel" id="panel"><div class="empty">เลือกเครื่องเพื่อดูและแก้ไข</div></div>
+  </div>
+</main>
+
+<div id="hist"><div class="box"><div class="hd"><span id="hdt">ประวัติการแก้ไข</span><button id="hx" title="ปิด">✕</button></div><div class="bd" id="hbd"></div></div></div>
+<div id="cam"><video id="vid" playsinline muted></video><button id="camx">ปิดกล้อง</button></div>
+<div id="dls"></div>
+<div id="qrtmp" style="position:absolute;left:-9999px;width:300px"></div>
+
+<script>
+// สลับโหมดแบบอิสระ: ทำงานได้แม้สคริปต์หลักมีปัญหา
+(function(){
+  var btns=document.querySelectorAll('.modes button');
+  for(var i=0;i<btns.length;i++){(function(b){
+    b.addEventListener('click',function(){
+      var m=b.id.slice(1);
+      for(var k=1;k<=3;k++){
+        var bt=document.getElementById('m'+k),br=document.getElementById('bar'+k);
+        if(bt)bt.className=(k==m?'on':'');
+        if(br)br[k==m?'removeAttribute':'setAttribute']('hidden','');
+      }
+    });
+  })(btns[i]);}
+})();
+</script>
+<script>
+// แสดงข้อผิดพลาดบนหน้าจอ (ไว้ตรวจสอบกรณีปุ่มไม่ทำงาน)
+(function(){
+  function show(m){var b=document.getElementById('errbar');if(!b)return;b.style.display='block';b.textContent+=(b.textContent?'\n':'')+m;}
+  window.addEventListener('error',function(e){show('Error: '+e.message+' (บรรทัด '+e.lineno+')');});
+  window.addEventListener('unhandledrejection',function(e){show('Error: '+(e.reason&&e.reason.message||e.reason));});
+})();
+// [ชื่อคอลัมน์ใน Sheet, ชื่อที่แสดง, ชนิด (d=Dropdown, t=จิ้มแล้วแก้ไขได้, r=แสดงอย่างเดียว), 1=ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ]
+const GROUPS = [
+  ['ข้อมูล', [['การตรวจเครื่อง','การตรวจเครื่อง','d'],['Status','Status','d',1],['IT Asset No','รหัส Asset','r'],['Location','Location','d'],['ผู้ถือครอง','ผู้ถือครอง','t'],['หมายเหตุ','หมายเหตุ','t']]],
+  ['Software', [['Window','Window','d'],['MS Office','MS Office','d'],['Keyoffice','Keyoffice','d'],['Antivirus','Antivirus','d'],['Program Other','Program Other','t']]],
+  ['Hardware', [['Model','Model','r'],['Serial No','Serial No','t'],['Computername','Computername','t'],['CPU','CPU','d'],['Ram','Ram','d'],['Mainboard','Mainboard','d'],['Harddisk','Harddisk','d']]]
+];
+const BRANCHES=['SNNP','SDF','SSF','KH','SRI'];
+const branchOf=v=>String(v||'').trim().split('-')[0].toUpperCase();
+let H=[], R=[], cur=null, mode=1; const OPTS={};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const col=(n,last)=>last?H.lastIndexOf(n):H.indexOf(n);
+const ASSET=()=>col('IT Asset No'), LOC=()=>col('Location');
+// ผูกปุ่มโหมดไว้ก่อนสุด เพื่อให้กดได้เสมอ แม้ส่วนอื่นของสคริปต์จะมีปัญหา
+document.querySelectorAll('.modes button').forEach(b=>b.addEventListener('click',()=>setMode(+b.id.slice(1))));
+
+// ===== ตั้งค่าการเชื่อมต่อ (แก้ 2 บรรทัดนี้หลัง Deploy Apps Script) =====
+const API_URL='PASTE_WEB_APP_URL_HERE';   // https://script.google.com/macros/s/AKfycbzO6R8uCKhRFmz9kBfFL9T6CVlUIv_CJrpG2gMpEGUi7ZrGoHgCspgv6AQ4bXUhXyY4/exec
+const API_TOKEN='asset2026xyz';              // ต้องตรงกับ TOKEN ใน Code.gs
+
+// ผู้แก้ไข (เก็บในเครื่อง ถามครั้งแรกครั้งเดียว) ใช้บันทึกในชีตประวัติ
+function editorName(){
+  let u='';try{u=localStorage.getItem('editor')||'';}catch(e){}
+  if(!u){u=(prompt('ใส่ชื่อ/อีเมลของคุณ (ใช้บันทึกในประวัติการแก้ไข)')||'').trim();
+    try{if(u)localStorage.setItem('editor',u);}catch(e){}}
+  return u;
+}
+
+// ทำให้โค้ดเดิมที่เรียก google.script.run ใช้งานได้ต่อ โดยส่งผ่าน fetch ไปที่ Apps Script
+function makeRun(ok,fail){
+  return new Proxy({},{get:(t,k)=>{
+    if(k==='withSuccessHandler')return f=>makeRun(f,fail);
+    if(k==='withFailureHandler')return f=>makeRun(ok,f);
+    return (...args)=>{
+      if(k==='saveRow')args.push(editorName());
+      fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({fn:k,args:args,token:API_TOKEN})})
+        .then(r=>{if(!r.ok)throw new Error('เซิร์ฟเวอร์ตอบกลับ '+r.status);return r.json();})
+        .then(d=>{if(d&&d.error)throw new Error(d.error);ok&&ok(d);})
+        .catch(e=>fail?fail(e):console.error(e));
+    };
+  }});
+}
+
+if(API_URL.indexOf('PASTE_')===0){
+  // ยังไม่ได้ตั้งค่า API_URL: ใช้ข้อมูลตัวอย่างเพื่อทดลองหน้าจอ
+  (function(){
+    const HD=['การตรวจเครื่อง','Status','IT Asset No','Location','ผู้ถือครอง','หมายเหตุ','Window','MS Office','Keyoffice','Antivirus','Program Other','Model','Serial No','Computername','CPU','Ram','Mainboard','Harddisk'];
+    const mk=(n,c,st,loc,who,win,off,av)=>({n,v:[c,st,'NB-1-61-'+n,loc,who,'',win,off,'',av,'','Model X','SN'+n,'PC'+n,'i5','8GB','','256GB']});
+    const rows=[mk(1,'ตรวจแล้ว','ใช้งาน','SDF-RD','นิจวรรณ','Windows 10','MS Office 2016','AntiVirus Avira'),
+      mk(2,'','เสีย','KH-QC','สมชาย','Windows 10','MS Office 2016','AntiVirus Windows Defender'),
+      mk(3,'ตรวจแล้ว','ใช้งาน','KH-QC','สมหญิง','Windows 10','','AntiVirus Avira')];
+    const mockRun=(ok,fail)=>new Proxy({},{get:(t,k)=>k==='withSuccessHandler'?f=>mockRun(f,fail):k==='withFailureHandler'?f=>mockRun(ok,f):
+      (...a)=>setTimeout(()=>{
+        if(k==='getData')ok({headers:HD,rows});
+        else if(k==='saveRow')ok({saved:Object.keys(a[2]).length});
+        else ok([]);
+      },150)});
+    window.google={script:{run:mockRun()}};
+    const bar=document.getElementById('errbar');
+    bar.style.display='block';bar.style.background='#92400e';
+    bar.textContent='โหมดทดลอง: ยังไม่ได้ตั้งค่า API_URL (ข้อมูลเป็นตัวอย่าง บันทึกไม่ได้จริง)';
+  })();
+}else{
+  window.google={script:{run:makeRun()}};
+}
+try{
+  google.script.run.withSuccessHandler(d=>{
+    try{H=d.headers;R=d.rows;init();}
+    catch(e){$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>';}
+  }).withFailureHandler(e=>$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>').getData();
+}catch(e){$('list').innerHTML='<div class="empty bad">เชื่อมต่อ Google Apps Script ไม่ได้: '+esc(e.message)+'</div>';}
+// ถ้าโหลดนานเกิน 20 วินาที ให้แจ้งสาเหตุที่เป็นไปได้ แทนที่จะค้างที่ "กำลังโหลด"
+setTimeout(()=>{
+  if(!H.length&&$('list').textContent.indexOf('กำลังโหลด')>-1)
+    $('list').innerHTML='<div class="empty bad">โหลดข้อมูลไม่สำเร็จ\nตรวจสอบ API_URL / API_TOKEN, ชื่อชีต Asset01 และว่า Deploy Apps Script เป็นเวอร์ชันใหม่ (Anyone) แล้ว</div>';
+},20000);
+
+// ตัวกรอง: [ชื่อคอลัมน์, 1=ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ]
+const FILTERS=[['การตรวจเครื่อง'],['Status',1],['Location'],['Window'],['MS Office'],['Antivirus']];
+let FIL=[],SEL={};
+function buildFilters(){
+  FIL=[];SEL={};
+  let h='<div class="fh"><span></span><button id="fclr" type="button">ล้างทั้งหมด</button></div>';
+  FILTERS.forEach(f=>{
+    const i=col(f[0],f[1]); if(i<0)return;
+    FIL.push(i);SEL[i]=new Set();
+    const vals=[...new Set(R.map(r=>String(r.v[i]??'').trim()))].sort((a,b)=>a.localeCompare(b));
+    h+=`<div class="fg"><b>${f[0]}</b><div class="fo">`+
+      vals.map(v=>`<label><input type="checkbox" data-f="${i}" value="${esc(v)}">${v?esc(v):'(ว่าง)'}</label>`).join('')+
+      '</div></div>';
+  });
+  $('fbox').innerHTML=h;
+}
+$('fbox').onchange=e=>{
+  const t=e.target; if(t.dataset.f===undefined)return;
+  const s=SEL[t.dataset.f]; t.checked?s.add(t.value):s.delete(t.value);
+  render();
+};
+$('fbox').onclick=e=>{
+  if(e.target.id!=='fclr')return;
+  FIL.forEach(i=>SEL[i].clear());
+  $('fbox').querySelectorAll('input').forEach(x=>x.checked=false);
+  render();
+};
+
+function init(){
+  $('loc').innerHTML='<option value="">— เลือกสาขา —</option>'+BRANCHES.map(l=>`<option>${esc(l)}</option>`).join('');
+  $('loc2').innerHTML='<option value="">— เลือก Location —</option>';
+  // ตัวเลือก Dropdown ดึงจากค่าที่มีอยู่ใน Sheet
+  GROUPS.forEach(g=>g[1].forEach(f=>{
+    if(f[2]!=='d')return;
+    const i=col(f[0],f[3]); if(i<0)return;
+    OPTS[i]=[...new Set(R.map(r=>r.v[i]).filter(Boolean))].sort();
+  }));
+  buildFilters();
+  render();
+}
+
+function render(){
+  const g=$('grid');
+  if(mode==1){
+    const l2=$('loc2').value;
+    $('list').hidden=false;g.classList.remove('one');
+    g.hidden=!l2;
+    if(!l2)return;
+    const rows=R.filter(r=>r.v[LOC()]===l2);
+    $('list').innerHTML=`<div class="head">รหัส Asset ทั้งหมด — ${rows.length} รายการ</div>`+(rows.map(r=>
+      `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
+    return;
+  }
+  if(mode==3){
+    $('list').hidden=false;g.classList.remove('one');
+    const act=FIL.filter(i=>SEL[i].size);
+    g.hidden=!act.length;
+    if(!act.length)return;
+    const rows=R.filter(r=>act.every(i=>SEL[i].has(String(r.v[i]??'').trim())));
+    $('list').innerHTML=`<div class="head">${rows.length} รายการ</div>`+(rows.slice(0,200).map(r=>
+      `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b><span>${esc(r.v[LOC()])} · ${esc(r.v[col('ผู้ถือครอง')])}</span></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
+    return;
+  }
+  $('list').hidden=false;g.classList.remove('one');
+  const q=$('q2').value.trim().toLowerCase();
+  g.hidden=!q;
+  if(!q)return;
+  const ix=['IT Asset No','Computername','Serial No','ผู้ถือครอง'].map(n=>col(n));
+  const rows=R.filter(r=>ix.some(i=>String(r.v[i]).toLowerCase().includes(q)));
+  $('list').innerHTML=`<div class="head">${rows.length} รายการ</div>`+(rows.slice(0,200).map(r=>
+    `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b><span>${esc(r.v[LOC()])} · ${esc(r.v[col('ผู้ถือครอง')])}</span></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
+  if(rows.length===1)open(rows[0].n);
+}
+
+$('list').onclick=e=>{const d=e.target.closest('.it');if(d)open(+d.dataset.n);};
+
+function open(n){
+  cur=R.find(r=>r.n===n);
+  document.querySelectorAll('.it').forEach(x=>x.classList.toggle('sel',+x.dataset.n===n));
+  $('grid').hidden=false;
+  let h=`<p class="ttl">${esc(cur.v[ASSET()])}</p><p class="sub">${esc(cur.v[LOC()])}</p>`;
+  GROUPS.forEach(g=>{
+    h+=`<div class="sec">${g[0]}</div><div class="f">`;
+    g[1].forEach(f=>{
+      const i=col(f[0],f[3]); if(i<0)return;
+      const v=cur.v[i]; let c;
+      if(f[2]==='d'){
+        const o=(OPTS[i]||[]).slice(); if(v&&!o.includes(v))o.push(v);
+        c=`<select data-i="${i}"><option value=""></option>${o.map(x=>`<option${x===v?' selected':''}>${esc(x)}</option>`).join('')}</select>`;
+      }else c=`<input data-i="${i}" value="${esc(v)}"${f[2]==='r'?' readonly':''}>`;
+      h+=`<div${(f[0]==='การตรวจเครื่อง'||f[0]==='Status')?' class="chk"':''}><label>${f[1]}</label>${c}</div>`;
+    });
+    h+='</div>';
+  });
+  $('panel').innerHTML=h;
+  $('panel').onclick=null;
+  $('panel').oninput=e=>{if(e.target.dataset.i)e.target.parentNode.classList.toggle('chg',e.target.value!==cur.v[e.target.dataset.i]);};
+  $('sv').disabled=false;$('hs').disabled=false;$('msg').textContent='';
+  if(window.innerWidth<860)$('panel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function save(){
+  const ch={};
+  $('panel').querySelectorAll('input[data-i],select[data-i]').forEach(x=>{if(!x.readOnly&&x.value!==cur.v[x.dataset.i])ch[x.dataset.i]=x.value;});
+  const m=$('msg');
+  if(!Object.keys(ch).length){m.className='';m.textContent='ยังไม่มีการแก้ไข';return;}
+  $('sv').disabled=true;$('hs').disabled=true;m.className='';m.textContent='กำลังบันทึก…';
+  google.script.run.withSuccessHandler(r=>{
+    Object.keys(ch).forEach(i=>cur.v[i]=ch[i]);
+    $('sv').disabled=false;m.className='ok';m.textContent='บันทึกแล้ว '+r.saved+' ช่อง';
+    $('panel').querySelectorAll('.chg').forEach(x=>x.classList.remove('chg'));
+  }).withFailureHandler(e=>{$('sv').disabled=false;m.className='bad';m.textContent=e.message;})
+  .saveRow(cur.n,cur.v[ASSET()],ch);
+}
+
+// โหมด
+$('sv').onclick=save;
+$('hs').onclick=()=>{
+  if(!cur)return;
+  $('hdt').textContent='ประวัติการแก้ไข — '+cur.v[ASSET()];
+  $('hbd').innerHTML='<div class="empty">กำลังโหลด…</div>';$('hist').style.display='flex';
+  google.script.run.withSuccessHandler(rs=>{
+    $('hbd').innerHTML=rs.length?'<table><tr><th>วันที่แก้ไข</th><th>ช่อง</th><th>ค่าเดิม → ค่าใหม่</th><th>ผู้แก้ไข</th></tr>'+rs.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[2])}</td><td><span class="old">${esc(r[3])||'(ว่าง)'}</span> → <span class="new">${esc(r[4])||'(ว่าง)'}</span></td><td>${esc(r[5])}</td></tr>`).join('')+'</table>':'<div class="empty">ยังไม่มีประวัติการแก้ไข</div>';
+  }).withFailureHandler(e=>$('hbd').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>').getHistory(cur.v[ASSET()]);
+};
+$('hx').onclick=()=>$('hist').style.display='none';
+$('hist').onclick=e=>{if(e.target.id==='hist')$('hist').style.display='none';};
+// PC + โหมด Filter: ย้ายรายการ/หน้าแก้ไขไปไว้ข้างตัวกรอง / มือถือและโหมดอื่น: อยู่ด้านล่างตามเดิม
+const PCQ=window.matchMedia('(min-width:861px)');
+function placeGrid(){
+  (mode==3&&PCQ.matches?$('fres'):document.querySelector('main')).appendChild($('grid'));
+}
+PCQ.addEventListener?PCQ.addEventListener('change',placeGrid):PCQ.addListener(placeGrid);
+function setMode(m){
+  mode=m;cur=null;$('sv').disabled=true;$('hs').disabled=true;$('msg').textContent='';
+  $('bar'+m).appendChild($('savebox'));
+  placeGrid();
+  [1,2,3].forEach(k=>{$('m'+k).classList.toggle('on',m==k);$('bar'+k).hidden=m!=k;});
+  render();
+}
+function fillLoc2(){
+  const b=$('loc').value;
+  const locs=[...new Set(R.filter(r=>branchOf(r.v[LOC()])===b).map(r=>r.v[LOC()]))].sort();
+  $('loc2').disabled=!b;
+  $('loc2').innerHTML='<option value="">— เลือก Location —</option>'+locs.map(x=>`<option>${esc(x)}</option>`).join('');
+  fillAsset();
+}
+function fillAsset(){
+  cur=null;$('sv').disabled=true;$('hs').disabled=true;
+  $('panel').innerHTML='<div class="empty">เลือกรหัส Asset เพื่อดูและแก้ไข</div>';
+  render();
+}
+$('loc').onchange=fillLoc2;
+$('loc2').onchange=fillAsset;
+$('q2').oninput=render;
+// เลือกรหัสจากการพูด/สแกน แล้วเติมสาขา+Location ให้อัตโนมัติ
+function pickAsset(t){
+  t=String(t).trim().toLowerCase();
+  const r=R.find(x=>String(x.v[ASSET()]).toLowerCase()===t)||R.find(x=>String(x.v[ASSET()]).toLowerCase().includes(t));
+  if(!r){alert('ไม่พบรหัส Asset: '+t);return;}
+  $('loc').value=branchOf(r.v[LOC()]);
+  if($('loc').value!==branchOf(r.v[LOC()])){alert('รหัสนี้อยู่นอก 5 สาขาที่แสดง ลองใช้ "ค้นหา"');return;}
+  fillLoc2();$('loc2').value=r.v[LOC()];fillAsset();open(r.n);render();
+}
+function applyVal(id,t){$(id).value=t;render();}
+
+// ปุ่มพูดไมค์ (ถ้าไมค์ถูกบล็อกใน Apps Script จะให้ใช้ไมค์บนคีย์บอร์ดแทน)
+document.querySelectorAll('[data-mic]').forEach(b=>b.onclick=()=>{
+  const id=b.dataset.mic;
+  const fallback=()=>{b.classList.remove('rec');$(id).focus();alert('หน้านี้ไม่ได้รับสิทธิ์ใช้ไมค์โดยตรง (ข้อจำกัดของ Google Apps Script)\nกดไอคอนไมค์บนคีย์บอร์ดมือถือเพื่อพูดแทนได้เลย');};
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){fallback();return;}
+  const rc=new SR();rc.lang='th-TH';rc.interimResults=false;
+  b.classList.add('rec');
+  rc.onresult=e=>{const t=e.results[0][0].transcript.replace(/\s+/g,'').toUpperCase();applyVal(id,t);};
+  rc.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed')fallback();else{b.classList.remove('rec');if(e.error!=='no-speech'&&e.error!=='aborted')alert('ไมค์ผิดพลาด: '+e.error);}};
+  rc.onend=()=>b.classList.remove('rec');
+  try{rc.start();}catch(e){fallback();}
+});
+
+// ปุ่มสแกน: กล้องสด -> ถ้าถูกบล็อก ใช้ถ่ายรูปแล้วอ่านรหัสจากรูปแทน
+let stream=null,scanning=false,scanTarget=null;
+function stopCam(){scanning=false;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$('cam').style.display='none';}
+$('camx').onclick=stopCam;
+const fileIn=document.createElement('input');
+fileIn.type='file';fileIn.accept='image/*';fileIn.setAttribute('capture','environment');fileIn.hidden=true;
+document.body.appendChild(fileIn);
+function loadLib(){return new Promise((ok,no)=>{
+  if(window.Html5Qrcode)return ok();
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js';
+  s.onload=ok;s.onerror=()=>no(new Error('โหลดตัวสแกนไม่สำเร็จ'));document.head.appendChild(s);});}
+async function decodeFile(f){
+  if('BarcodeDetector' in window){
+    try{const c=await new BarcodeDetector().detect(await createImageBitmap(f));if(c.length)return c[0].rawValue;}catch(e){}
+  }
+  await loadLib();
+  const h=new Html5Qrcode('qrtmp');
+  try{return await h.scanFile(f,false);}finally{try{h.clear();}catch(e){}}
+}
+fileIn.onchange=async()=>{
+  const f=fileIn.files[0];fileIn.value='';if(!f)return;
+  try{applyVal(scanTarget,String(await decodeFile(f)).trim());}
+  catch(e){alert('อ่านรหัสจากรูปไม่ได้ ลองถ่ายใหม่ให้ใกล้และชัดขึ้น');}
+};
+document.querySelectorAll('[data-scan]').forEach(b=>b.onclick=async()=>{
+  scanTarget=b.dataset.scan;
+  if(!('BarcodeDetector' in window)||!navigator.mediaDevices){fileIn.click();return;}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+  }catch(e){fileIn.click();return;}
+  const v=$('vid');v.srcObject=stream;await v.play();$('cam').style.display='flex';
+  const det=new BarcodeDetector();scanning=true;
+  (async function loop(){
+    while(scanning){
+      try{const c=await det.detect(v);if(c.length){const t=c[0].rawValue.trim();stopCam();applyVal(b.dataset.scan,t);return;}}catch(e){}
+      await new Promise(r=>setTimeout(r,250));
+    }
+  })();
+});
+</script>
+</body>
+</html>
