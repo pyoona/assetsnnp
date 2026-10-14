@@ -321,6 +321,36 @@ const ASSET=()=>col('IT Asset No'), LOC=()=>col('Location');
 // ผูกปุ่มโหมดไว้ก่อนสุด เพื่อให้กดได้เสมอ แม้ส่วนอื่นของสคริปต์จะมีปัญหา
 document.querySelectorAll('.modes>button').forEach(b=>b.addEventListener('click',()=>setMode(+b.id.slice(1))));
 
+if(!(window.google&&google.script&&google.script.run)){
+  // ไม่ได้เปิดผ่าน Google Apps Script: ใช้ข้อมูลตัวอย่างเพื่อทดลองหน้าจอ
+  (function(){
+    const HD=['IT Asset No','Ax Asset No','Status','Assetname','Model','Serial No','Computername','CPU','Ram','Mainboard','Harddisk','VGA','IP Address','Lan Mac address','Wireless Mac address','Start Date','EmpId','ผู้ถือครอง','Location','Window','MS Office','Pdf Reader','Zip','Antivirus','Teamviewer','Browser','Dynamic AX','Forticlient','Keyoffice','Program Other','Costcenter','Costcenter_Name','Remark','เครื่องเช่า','เครื่องที่คุณดิวเลือก','เครื่องไม่ส่งAudit','StatusN','การตรวจเครื่อง','หมายเหตุ','ประเภท Asset','สาขา'];
+    const mk=(n,asset,loc,who,win,off,av,key,st,chk,type)=>{
+      const v=HD.map(()=>'');const set=(h,x)=>{v[HD.indexOf(h)]=x;};
+      set('IT Asset No',asset);set('Status','NM');set('Assetname',asset);set('Model','Model X');set('Serial No','SN'+n);
+      set('Computername','PC'+n);set('CPU','Intel(R) Core(TM) i5');set('Ram','8.0 GB');set('Mainboard','ASUS X407UF');
+      set('Harddisk','Samsung SSD 500GB');set('IP Address','192.168.1.'+(10+n));set('Start Date','31/03/65');
+      set('EmpId',123450+n);set('ผู้ถือครอง',who);set('Location',loc);set('Window',win);set('MS Office',off);
+      set('Antivirus',av);set('Keyoffice',key);set('Costcenter','2101'+n);set('Costcenter_Name',loc);
+      set('เครื่องไม่ส่งAudit','N');set('StatusN',st);set('การตรวจเครื่อง',chk);set('ประเภท Asset',type);set('สาขา',branchOf(loc));
+      return {n,v};
+    };
+    const rows=[mk(1,'NB-1-61-1','SDF-RD','นิจวรรณ','Windows 10','MS Office 2016','AntiVirus Avira','GWN8F-6J9KK-QM3YD-WGV6M-B4G7X','ใช้งาน','ตรวจแล้ว','Asset'),
+      mk(2,'PC-1-61-2','KH-QC','สมชาย','Windows 10','MS Office 2016','AntiVirus Windows Defender','TVBGK-N4JMH-KBJ6R-YXDRH-KHJYK','เสีย','','Asset'),
+      mk(3,'PC-1-61-3','KH-QC','สมหญิง','Windows 10','','AntiVirus Avira','','ใช้งาน','ตรวจแล้ว','Asset'),
+      mk(4,'เช่า-004','KH-QC','สมศรี','Windows 10','MS Office 2016','AntiVirus Avira','','ใช้งาน','ตรวจแล้ว','เครื่องเช่า')];
+    const mockRun=(ok,fail)=>new Proxy({},{get:(t,k)=>k==='withSuccessHandler'?f=>mockRun(f,fail):k==='withFailureHandler'?f=>mockRun(ok,f):
+      (...a)=>setTimeout(()=>{
+        if(k==='getData')ok({headers:HD,rows});
+        else if(k==='saveRow')ok({saved:Object.keys(a[2]).length});
+        else ok([]);
+      },150)});
+    window.google={script:{run:mockRun()}};
+    const bar=document.getElementById('errbar');
+    bar.style.display='block';bar.style.background='#92400e';
+    bar.textContent='โหมดทดลอง: ไม่ได้เชื่อมต่อ Google Sheet (ข้อมูลเป็นตัวอย่าง บันทึกไม่ได้จริง)';
+  })();
+}
 try{
   google.script.run.withSuccessHandler(d=>{
     try{H=d.headers;R=d.rows;init();}
