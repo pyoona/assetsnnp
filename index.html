@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+<base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IT Asset</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<title>IT Asset SNNP</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#14213d;--mut:#5b6478;--line:#d5dbe6;--bg:#f2f5fa;--card:#fff;--acc:#12308f;--hi:#12308f;--ok:#15803d;--err:#b91c1c}
+:root{--ink:#0b1426;--mut:#3f485c;--line:#d5dbe6;--bg:#f2f5fa;--card:#fff;--acc:#12308f;--hi:#12308f;--ok:#15803d;--err:#b91c1c}
 *{box-sizing:border-box}
-body{margin:0;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+body{margin:0;font-family:'Sarabun',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
 header{background:var(--ink);color:#fff;padding:14px 18px;font-weight:600;font-size:18px}
-main{max-width:1000px;margin:0 auto;padding:14px}
-.modes{display:flex;gap:8px;margin-bottom:12px}
-.modes button{flex:1;padding:12px;border:2px solid var(--ink);background:#fff;font:inherit;font-weight:600;border-radius:8px;cursor:pointer;color:var(--ink)}
+main{max-width:1400px;margin:0;padding:14px}
+.top{display:flex;align-items:flex-start;gap:14px;margin-bottom:12px}
+.bars{flex:1 1 0;min-width:0}
+.modes{display:flex;flex-direction:column;align-items:flex-start;gap:6px;flex:0 0 auto}
+.modes button{flex:0 0 auto;width:120px;padding:6px 12px;border:2px solid var(--ink);background:#fff;font:inherit;font-size:13px;font-weight:600;border-radius:6px;cursor:pointer;color:var(--ink);text-align:left}
 .modes button.on{background:var(--hi);border-color:var(--hi);color:#fff}
 .bar[hidden]{display:none}
 .bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
@@ -35,7 +38,7 @@ input:focus,select:focus,button:focus-visible{outline:3px solid var(--acc);outli
 input[readonly]{background:#eef0f4;color:var(--mut)}
 select:disabled{background:#eef0f4}
 .grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
-@media(min-width:860px){.grid{grid-template-columns:340px minmax(0,1fr)}}
+@media(min-width:641px){.grid{grid-template-columns:340px minmax(0,1fr)}}
 .list{background:var(--card);border:1px solid var(--line);border-radius:10px;max-height:70vh;overflow:auto}
 .list .head{padding:8px 12px;font-size:13px;color:var(--mut);border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff}
 .it{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}
@@ -71,19 +74,33 @@ label{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
 #cam video{max-width:92vw;max-height:70vh;border-radius:10px}
 #cam button{padding:10px 24px;border-radius:8px;border:0;font:inherit}
 
+/* ปรับขนาดแถบตัวเลือกให้กะทัดรัด (เดสก์ท็อป) */
+@media(min-width:641px){
+  .bar{gap:6px;margin-bottom:10px}
+  .bar>*{flex:1 1 140px}
+  .bar .fld{padding:5px 8px;border-radius:8px}
+  .fld>label{font-size:12px;margin-bottom:2px}
+  .bar select,.bar input{font-size:13px;padding:5px 8px;border-radius:6px}
+  .ic{flex:0 0 34px;font-size:15px;border-radius:6px}
+  .savebox button{padding:6px 12px;font-size:13px;border-radius:6px}
+}
+
 /* ตัวกรอง (โหมดที่ 3) */
-#bar3 .fld{flex:1 1 100%}
+#bar3 .fld{flex:1 1 100%;min-width:0}
 .fh{display:flex;justify-content:flex-start;align-items:center;margin-bottom:8px;font-weight:600}
 .fh button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;color:var(--ink)}
 #fwrap{display:flex;flex-direction:column;gap:14px}
 #fbox,#fres{min-width:0}
 #fres .grid{grid-template-columns:minmax(0,1fr)}
 #fres .list{max-height:32vh}
-@media(min-width:861px){
+@media(min-width:641px){
   #fwrap{flex-direction:row;align-items:flex-start}
   #fbox{flex:0 0 auto;max-width:45%}
   #fres{flex:1 1 0}
 }
+.fx{margin-top:6px}
+.fx button{background:#15803d;color:#fff;border:0;border-radius:8px;padding:9px 18px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.fx button:disabled{opacity:.45;cursor:default}
 .fg{margin-bottom:10px}
 .fg>b{display:inline-block;font-size:14px;margin-bottom:8px;padding:6px 16px;background:#e1ecff;color:#12308f;border:2px solid #9ec5fe;border-radius:8px;font-weight:600}
 .fo{display:flex;flex-wrap:wrap;gap:6px 16px;max-height:120px;overflow:auto}
@@ -95,9 +112,10 @@ label{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
   header{padding:12px 14px;font-size:17px}
   main{padding:10px}
   input,select{font-size:16px;padding:12px}
-  .modes{gap:6px}.modes button{padding:12px 6px;font-size:15px}
+  .top{flex-direction:column;gap:8px}.bars{width:100%;flex:none}
+  .modes{flex-direction:row;width:100%;gap:6px}.modes button{flex:1;width:auto;min-width:0;padding:9px 6px;font-size:14px;text-align:center}
   .bar{gap:6px;margin-bottom:10px}
-  #bar1 .fld{flex:1 1 calc(50% - 3px);min-width:0;padding:6px 8px;border-radius:8px}
+  #bar1 .fld{flex:1 1 calc(33.333% - 4px);min-width:0;padding:6px 8px;border-radius:8px}
   #bar2 .fld{flex:1 1 100%;padding:6px 8px}
   .fld>label{font-size:12px;margin-bottom:3px}
   .bar select,.bar input{font-size:14px;padding:7px 8px}
@@ -121,29 +139,133 @@ label{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
   #hist th:nth-child(4),#hist td:nth-child(4){display:none}
   #hist table{font-size:13px}
 }
+/* ปรับให้เล็กลงอีก: ปุ่มและตัวอักษรของตัวกรอง/ปุ่มบันทึก (ทุกหน้าจอ) */
+.fh{margin-bottom:6px}
+.fh button{padding:3px 10px;font-size:12px;border-radius:6px}
+.fg{margin-bottom:6px}
+.fg>b{font-size:12px;padding:2px 10px;margin-bottom:4px;border-width:1px;border-radius:6px}
+.fo{gap:4px 12px}
+.fo label{font-size:12px;gap:4px}
+.fo input{width:14px;height:14px}
+.fx button{padding:5px 12px;font-size:12px;border-radius:6px}
+.savebox button{padding:5px 12px;font-size:12px;border-radius:6px}
+#msg{font-size:12px}
+@media(max-width:640px){
+  .fo{gap:6px}
+  .fo label{padding:3px 8px}
+  .fo input{width:14px;height:14px}
+  .savebox button{padding:6px;font-size:12px}
+  .it{padding:10px 12px}
+}
+/* ปุ่ม Save / ประวัติ ต่อจากปุ่ม Filter */
+.modes .savebox{flex:0 0 auto!important;align-self:flex-start;width:120px;flex-direction:column;align-items:stretch;gap:6px;margin-top:4px}
+.modes .savebox button{width:100%;text-align:center;border:0}
+.modes .savebox button.alt{border:1px solid var(--line)}
+.modes #msg{position:static;margin:0;white-space:normal;text-align:center}
+@media(max-width:640px){
+  .modes{flex-wrap:wrap}
+  .modes .savebox{flex:1 1 100%!important;width:100%;flex-direction:row;align-items:center;margin-top:0}
+  .modes .savebox button{flex:1;width:auto}
+  .modes #msg{flex:1 1 100%}
+}
+/* ช่องเลือกจากรายการหรือพิมพ์เพิ่มเอง (Keyoffice, ผู้ถือครอง) */
+.cb{position:relative}
+.cb input{width:100%;padding-right:26px}
+.cbb{position:absolute;right:1px;top:1px;bottom:1px;width:24px;border:0;border-left:1px solid var(--line);background:#eef0f4;color:var(--ink);border-radius:0 5px 5px 0;cursor:pointer;font-size:12px;padding:0}
+.cbl{position:absolute;left:0;right:0;top:100%;z-index:30;max-height:220px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.15);margin-top:2px}
+.cbl .o{padding:6px 10px;font-size:13px;cursor:pointer;border-bottom:1px solid #eef0f4;word-break:break-all}
+.cbl .o:hover{background:#eef3ff}
+.cbl .no{padding:6px 10px;font-size:12px;color:var(--mut)}
+#xl{background:#15803d!important;color:#fff}
+#xl:disabled{opacity:.45}
+/* ทุกโหมดบนคอม: รายการย่อให้สั้น, Software/Hardware อยู่ข้างรายการ */
+@media(min-width:641px){
+  #grid.grid{grid-template-columns:240px minmax(0,1fr);grid-template-areas:"list p1";gap:8px;align-items:start}
+  #grid #left{grid-area:list;position:sticky;top:8px}
+  #grid #panel{grid-area:p1}
+  #grid #panel2{display:none}
+  #grid .list{max-height:calc(100vh - 16px)}
+  #fres .list{height:calc(100vh - 16px)}
+  #grid .head{padding:4px 10px;font-size:12px}
+  #grid .it{padding:5px 10px}
+  #grid .it b{font-size:13px}
+  #grid .it span{font-size:12px}
+  #grid .panel{padding:10px 12px}
+  #grid .ttl{font-size:14px;display:inline}
+  #grid .sub{display:inline;margin:0 0 4px 8px;font-size:13px}
+  #grid #panel .sec{padding:2px 8px;margin:8px 0 5px;font-size:13px;border-radius:5px}
+  #grid #panel .f{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:5px 8px}
+  #grid #panel label{font-size:11px;margin-bottom:1px;line-height:1.2}
+  #grid #panel input,#grid #panel select{padding:3px 6px;font-size:12px;border-radius:5px;height:26px}
+  #grid #panel .chk{padding:3px 6px 5px;border-width:1px;border-radius:6px}
+  #grid #panel .chk>label{font-size:11px}
+  #grid #panel2 .sec:first-child{margin-top:0}
+}
+/* สรุปจำนวน (ใต้ปุ่ม Save/ประวัติ) */
+#stats{width:150px;margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px}
+#stats .r{display:flex;justify-content:space-between;align-items:baseline;gap:6px;padding:3px 0;border-bottom:1px solid #eef0f4}
+#stats .r{white-space:nowrap}
+#stats .r,#stats .r b,#stats .r.s,#stats .r.s b{color:#0033ff;font-weight:700}
+#stats .r:last-child{border-bottom:0}
+#stats .r b{font-size:15px;color:var(--acc)}
+#stats .r.s{padding-left:10px;color:var(--mut)}
+#stats .r.s b{font-size:13px;color:var(--ink)}
+@media(max-width:640px){#stats{width:100%;flex:1 1 100%}}
 @supports(padding:max(0px)){main{padding-bottom:max(14px,env(safe-area-inset-bottom))}}
+
+.fg>b label{display:inline;margin:0;font-size:inherit;color:inherit;font-weight:inherit;cursor:pointer}
+.fg>b input{width:18px;height:18px;padding:0;margin:0 8px 0 0;vertical-align:-3px;accent-color:var(--acc)}
+.fsec{background:#a9d08e;color:var(--ink);padding:5px 10px;font-weight:700;border-radius:6px;margin:14px 0 10px;font-size:14.5px}
+/* ปรับความคมชัด/อ่านง่าย */
+html{-webkit-text-size-adjust:100%}
+body{font-size:17px;line-height:1.5;font-weight:400;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;letter-spacing:0}
+input,select,button,textarea{font-family:inherit;color:var(--ink)}
+input,select{font-size:16px;line-height:1.4;border-color:#aeb8cc}
+label{font-size:14px;color:var(--mut);font-weight:500;margin-bottom:4px}
+.fld>label{font-size:14.5px;font-weight:600}
+#bar2 .fld>label{color:#fff}
+.it span,.list .head,.sub{font-size:14px}
+.it b{font-weight:600;font-size:15.5px}
+.ttl{font-size:20px;font-weight:700}
+.sec{font-weight:700;font-size:15.5px}
+header{font-weight:700;font-size:19px;letter-spacing:.2px}
+.modes button{font-size:14px}
+#hist table{font-size:14.5px}
+#hist th{color:var(--ink);font-weight:600}
+.fo label,.fg>b,.fh button{font-size:14.5px}
+@media(max-width:640px){
+  .fld>label,label{font-size:13.5px}
+  .bar select,.bar input{font-size:15px}
+  #hist table{font-size:14px}
+}
 </style>
 </head>
 <body>
-<header>IT Asset <small style="font-weight:400;opacity:.6;font-size:12px">v7</small></header>
+<header>IT Asset SNNP <small style="font-weight:400;opacity:.6;font-size:12px">v10</small></header>
 <div id="errbar" style="display:none;background:#b91c1c;color:#fff;padding:8px 14px;font-size:13px;white-space:pre-wrap;word-break:break-all"></div>
 <main>
+  <div class="top">
   <div class="modes">
     <button id="m1" class="on">เลือกตามสาขา</button>
     <button id="m2">ค้นหา</button>
     <button id="m3">Filter</button>
+    <div class="savebox" id="savebox"><button id="sv" disabled>Save</button><button id="hs" class="alt" disabled>ประวัติ</button><button id="xl" class="xl" type="button">Print to Excel</button><span id="msg"></span></div>
+    <div id="stats"></div>
   </div>
+  <div class="bars">
 
   <div class="bar" id="bar1">
+    <div class="fld"><label>ประเภท Asset</label><select id="typ"></select></div>
     <div class="fld"><label>สาขา</label><select id="loc"></select></div>
     <div class="fld"><label>Location</label><select id="loc2" disabled></select></div>
-    <div class="savebox" id="savebox"><button id="sv" disabled>Save</button><button id="hs" class="alt" disabled>ประวัติ</button><span id="msg"></span></div>
   </div>
   <div class="bar" id="bar2" hidden>
-    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง"><button class="ic" data-mic="q2" title="พูด">🎤</button><button class="ic" data-scan="q2" title="สแกน">▦</button><button class="ic" data-ocr="q2" title="สแกนข้อความ (ถ่ายรูปแล้วอ่านตัวหนังสือ)">🔤</button></div></div>
+    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง"><button class="ic" data-mic="q2" title="พูด">🎤</button><button class="ic" data-scan="q2" title="สแกน">▦</button></div></div>
   </div>
   <div class="bar" id="bar3" hidden>
     <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"></div></div>
+  </div>
+  </div>
   </div>
 
   <div class="grid" id="grid">
@@ -151,18 +273,19 @@ label{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
       <div class="list" id="list"><div class="empty">กำลังโหลดข้อมูล…</div></div>
     </div>
     <div class="panel" id="panel"><div class="empty">เลือกเครื่องเพื่อดูและแก้ไข</div></div>
+    <div class="panel" id="panel2" hidden></div>
   </div>
 </main>
 
 <div id="hist"><div class="box"><div class="hd"><span id="hdt">ประวัติการแก้ไข</span><button id="hx" title="ปิด">✕</button></div><div class="bd" id="hbd"></div></div></div>
-<div id="cam"><video id="vid" playsinline muted></video><div id="qrlive" style="width:92vw;max-width:480px"></div><div id="camMsg" style="color:#fff;text-align:center;padding:0 16px;display:none"></div><button id="camPhoto" style="display:none">📷 ถ่ายรูปแล้วอ่านรหัส</button><button id="camx">ปิดกล้อง</button></div>
+<div id="cam"><video id="vid" playsinline muted></video><button id="camx">ปิดกล้อง</button></div>
 <div id="dls"></div>
 <div id="qrtmp" style="position:absolute;left:-9999px;width:300px"></div>
 
 <script>
 // สลับโหมดแบบอิสระ: ทำงานได้แม้สคริปต์หลักมีปัญหา
 (function(){
-  var btns=document.querySelectorAll('.modes button');
+  var btns=document.querySelectorAll('.modes>button');
   for(var i=0;i<btns.length;i++){(function(b){
     b.addEventListener('click',function(){
       var m=b.id.slice(1);
@@ -184,9 +307,9 @@ label{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
 })();
 // [ชื่อคอลัมน์ใน Sheet, ชื่อที่แสดง, ชนิด (d=Dropdown, t=จิ้มแล้วแก้ไขได้, r=แสดงอย่างเดียว), 1=ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ]
 const GROUPS = [
-  ['ข้อมูล', [['การตรวจเครื่อง','การตรวจเครื่อง','d'],['Status','Status','d',1],['IT Asset No','รหัส Asset','r'],['Location','Location','d'],['ผู้ถือครอง','ผู้ถือครอง','t'],['หมายเหตุ','หมายเหตุ','t']]],
-  ['Software', [['Window','Window','d'],['MS Office','MS Office','d'],['Keyoffice','Keyoffice','d'],['Antivirus','Antivirus','d'],['Program Other','Program Other','t']]],
-  ['Hardware', [['Model','Model','r'],['Serial No','Serial No','t'],['Computername','Computername','t'],['CPU','CPU','d'],['Ram','Ram','d'],['Mainboard','Mainboard','d'],['Harddisk','Harddisk','d']]]
+  ['ข้อมูล', [['การตรวจเครื่อง','การตรวจเครื่อง','d'],['StatusN','StatusN','d'],['IT Asset No','รหัส Asset','r'],['Computername','Computername','t'],['Location','Location','d'],['IP','IP','t'],['ผู้ถือครอง','ผู้ถือครอง','c'],['หมายเหตุ','หมายเหตุ','t']]],
+  ['Software', [['Window','Window','d'],['MS Office','MS Office','d'],['Keyoffice','Keyoffice','c'],['Antivirus','Antivirus','d'],['Program Other','Program Other','t']]],
+  ['Hardware', [['Model','Model','r'],['Serial No','Serial No','t'],['CPU','CPU','d'],['Ram','Ram','d'],['Mainboard','Mainboard','d'],['Harddisk','Harddisk','d']]]
 ];
 const BRANCHES=['SNNP','SDF','SSF','KH','SRI'];
 const branchOf=v=>String(v||'').trim().split('-')[0].toUpperCase();
@@ -196,108 +319,193 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const col=(n,last)=>last?H.lastIndexOf(n):H.indexOf(n);
 const ASSET=()=>col('IT Asset No'), LOC=()=>col('Location');
 // ผูกปุ่มโหมดไว้ก่อนสุด เพื่อให้กดได้เสมอ แม้ส่วนอื่นของสคริปต์จะมีปัญหา
-document.querySelectorAll('.modes button').forEach(b=>b.addEventListener('click',()=>setMode(+b.id.slice(1))));
+document.querySelectorAll('.modes>button').forEach(b=>b.addEventListener('click',()=>setMode(+b.id.slice(1))));
 
-// ===== ตั้งค่าการเชื่อมต่อ (แก้ 2 บรรทัดนี้หลัง Deploy Apps Script) =====
-const API_URL='https://script.google.com/macros/s/AKfycbwxRevUh7j_oIu_wzF6GwfLR6q_SHSfgOqf_qITt-3i7WrayrpPFjw0uPjpRq7tD_U/exec';
-const API_TOKEN='AKfycbwxRevUh7j_oIu_wzF6GwfLR6q_SHSfgOqf_qITt-3i7WrayrpPFjw0uPjpRq7tD_U';           // ต้องตรงกับ TOKEN ใน Code.gs
-
-// ผู้แก้ไข (เก็บในเครื่อง ถามครั้งแรกครั้งเดียว) ใช้บันทึกในชีตประวัติ
-function editorName(){
-  let u='';try{u=localStorage.getItem('editor')||'';}catch(e){}
-  if(!u){u=(prompt('ใส่ชื่อ/อีเมลของคุณ (ใช้บันทึกในประวัติการแก้ไข)')||'').trim();
-    try{if(u)localStorage.setItem('editor',u);}catch(e){}}
-  return u;
-}
-
-// ทำให้โค้ดเดิมที่เรียก google.script.run ใช้งานได้ต่อ โดยส่งผ่าน fetch ไปที่ Apps Script
-function makeRun(ok,fail){
-  return new Proxy({},{get:(t,k)=>{
-    if(k==='withSuccessHandler')return f=>makeRun(f,fail);
-    if(k==='withFailureHandler')return f=>makeRun(ok,f);
-    return (...args)=>{
-      if(k==='saveRow')args.push(editorName());
-      fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
-        body:JSON.stringify({fn:k,args:args,token:API_TOKEN})})
-        .then(r=>{if(!r.ok)throw new Error('เซิร์ฟเวอร์ตอบกลับ '+r.status);return r.json();})
-        .then(d=>{if(d&&d.error)throw new Error(d.error);ok&&ok(d);})
-        .catch(e=>fail?fail(e):console.error(e));
-    };
-  }});
-}
-
-window.google={script:{run:makeRun()}};
 try{
   google.script.run.withSuccessHandler(d=>{
     try{H=d.headers;R=d.rows;init();}
     catch(e){$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>';}
   }).withFailureHandler(e=>$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>').getData();
 }catch(e){$('list').innerHTML='<div class="empty bad">เชื่อมต่อ Google Apps Script ไม่ได้: '+esc(e.message)+'</div>';}
-// ถ้าโหลดนานเกิน 20 วินาที ให้แจ้งสาเหตุที่เป็นไปได้ แทนที่จะค้างที่ "กำลังโหลด"
-setTimeout(()=>{
-  if(!H.length&&$('list').textContent.indexOf('กำลังโหลด')>-1)
-    $('list').innerHTML='<div class="empty bad">โหลดข้อมูลไม่สำเร็จ\nตรวจสอบ API_URL / API_TOKEN, ชื่อชีต Asset01 และว่า Deploy Apps Script เป็นเวอร์ชันใหม่ (Anyone) แล้ว</div>';
-},20000);
 
-// ตัวกรอง: [ชื่อคอลัมน์, 1=ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ]
-const FILTERS=[['การตรวจเครื่อง'],['Status',1],['Location'],['Window'],['MS Office'],['Antivirus']];
-let FIL=[],SEL={};
+// ประเภท Asset มี 2 ชนิด: "เครื่องเช่า" และ "Asset"
+// ดูจากคอลัมน์ "ประเภท Asset" (หรือ ประเภท / Asset Type / Type) ถ้ามี ไม่เช่นนั้นดูจากรหัส Asset
+// ถ้าข้อความมีคำว่า "เช่า" หรือ "rent" = เครื่องเช่า นอกนั้น = Asset
+const TYPECOLS=['ประเภท Asset','ประเภท','Asset Type','Type'];
+const ASSET_TYPES=['เครื่องเช่า','Asset SNNP'];
+let TI=-1;
+const typeOf=r=>/เช่า|rent/i.test(String(TI>=0?r.v[TI]:r.v[ASSET()])??'')?'เครื่องเช่า':'Asset SNNP';
+const locOf=r=>String(r.v[LOC()]??'').trim();
+
+// ตัวกรอง (เรียงตามนี้): k=ชื่อที่แสดง, c=ชื่อคอลัมน์, l=1 ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ, g=ฟังก์ชันดึงค่าเอง
+const FILTERS=[
+  {k:'ประเภท Asset',g:typeOf,all:1},
+  {k:'สาขา',g:r=>branchOf(r.v[LOC()])},
+  {k:'Location',c:'Location'},
+  {k:'StatusN',c:'StatusN'},
+  {k:'การตรวจเครื่อง',c:'การตรวจเครื่อง'},
+  {k:'Window',c:'Window'},
+  {k:'MS Office',c:'MS Office'},
+  {k:'Antivirus',c:'Antivirus'},
+  {k:'ผู้ถือครอง',c:'ผู้ถือครอง',sec:'ข้อมูลเครื่อง'},
+  {k:'IP',c:'IP',sec:'ข้อมูลเครื่อง'}
+];
+let FIL=[],SEL=[];
+const ALL='__ALL__', HAS='__HAS__';
 function buildFilters(){
-  FIL=[];SEL={};
-  let h='<div class="fh"><span></span><button id="fclr" type="button">ล้างทั้งหมด</button></div>';
+  FIL=[];SEL=[];
+  let h='<div class="fh"><button id="fclr" type="button">ล้างทั้งหมด</button></div>';
+  let lastSec='';
   FILTERS.forEach(f=>{
-    const i=col(f[0],f[1]); if(i<0)return;
-    FIL.push(i);SEL[i]=new Set();
-    const vals=[...new Set(R.map(r=>String(r.v[i]??'').trim()))].sort((a,b)=>a.localeCompare(b));
-    h+=`<div class="fg"><b>${f[0]}</b><div class="fo">`+
-      vals.map(v=>`<label><input type="checkbox" data-f="${i}" value="${esc(v)}">${v?esc(v):'(ว่าง)'}</label>`).join('')+
+    let get=f.g;
+    if(!get){const i=col(f.c,f.l); if(i<0)return; get=r=>String(r.v[i]??'').trim();}
+    if(f.sec&&f.sec!==lastSec){h+=`<div class="fsec">${f.sec}</div>`;}
+    lastSec=f.sec||'';
+    const j=FIL.length; FIL.push({k:f.k,get}); SEL.push(new Set());
+    if(f.sec){
+      // ติ๊กอย่างเดียว ไม่แสดงรายการ: ติ๊ก = กรองเฉพาะเครื่องที่มีข้อมูลในช่องนั้น
+      const g0=get; FIL[j].get=r=>g0(r)?HAS:'';
+      h+=`<div class="fg"><b><label><input type="checkbox" data-tg="${j}">${f.k}</label></b></div>`;
+      return;
+    }
+    const vals=[...new Set(R.map(get))].sort((a,b)=>a.localeCompare(b));
+    h+=`<div class="fg"><b>${f.k}</b><div class="fo">`+
+      (f.all?`<label><input type="checkbox" data-f="${j}" value="${ALL}">ทั้งหมด</label>`:'')+
+      vals.map(v=>`<label><input type="checkbox" data-f="${j}" value="${esc(v)}">${v?esc(v):'(ว่าง)'}</label>`).join('')+
       '</div></div>';
   });
   $('fbox').innerHTML=h;
 }
+// แถวที่ผ่านตัวกรอง (null = ยังไม่ได้เลือกตัวกรองใด)
+function filterRows(){
+  const act=SEL.map((s,j)=>s.size?j:-1).filter(j=>j>=0);
+  if(!act.length)return null;
+  return R.filter(r=>act.every(j=>SEL[j].has(ALL)||SEL[j].has(FIL[j].get(r))));
+}
 $('fbox').onchange=e=>{
-  const t=e.target; if(t.dataset.f===undefined)return;
-  const s=SEL[t.dataset.f]; t.checked?s.add(t.value):s.delete(t.value);
+  const t=e.target;
+  if(t.dataset.tg!==undefined){
+    const st=SEL[+t.dataset.tg]; st.clear(); if(t.checked)st.add(HAS);
+    render();return;
+  }
+  if(t.dataset.f===undefined)return;
+  const s=SEL[+t.dataset.f];
+  if(t.checked){
+    // "ทั้งหมด" กับตัวเลือกอื่นในกลุ่มเดียวกันเลือกพร้อมกันไม่ได้
+    t.closest('.fo').querySelectorAll('input').forEach(x=>{
+      if(x!==t&&((t.value===ALL)||(x.value===ALL))){x.checked=false;s.delete(x.value);}
+    });
+    s.add(t.value);
+  }else s.delete(t.value);
   render();
 };
 $('fbox').onclick=e=>{
-  if(e.target.id!=='fclr')return;
-  FIL.forEach(i=>SEL[i].clear());
-  $('fbox').querySelectorAll('input').forEach(x=>x.checked=false);
-  render();
+  if(e.target.id==='fclr'){
+    SEL.forEach(s=>s.clear());
+    $('fbox').querySelectorAll('input').forEach(x=>x.checked=false);
+    render();
+  }
 };
+$('xl').onclick=exportExcel;
 
+// Print to Excel: ส่งออกเฉพาะรายการที่ผ่านตัวกรอง
+let xlsxP=null;
+function loadXlsx(){
+  if(window.XLSX)return Promise.resolve();
+  if(!xlsxP)xlsxP=new Promise((ok,no)=>{
+    const sc=document.createElement('script');
+    sc.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    sc.onload=ok;sc.onerror=()=>{xlsxP=null;no(new Error('โหลดตัวสร้าง Excel ไม่สำเร็จ'));};
+    document.head.appendChild(sc);
+  });
+  return xlsxP;
+}
+function saveBlob(blob,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+}
+async function exportExcel(){
+  const rows=R; if(!rows||!rows.length)return; // ส่งออกทุกรายการ ไม่เกี่ยวกับ Filter
+  const cols=[];
+  // ดึงทุกคอลัมน์จาก Google Sheet (Asset01) ตามลำดับเดิม ไม่เพิ่มคอลัมน์อื่น
+  H.forEach((h,i)=>cols.push([String(h||'').trim()||('คอลัมน์ '+(i+1)),r=>r.v[i]]));
+  const data=[cols.map(c=>c[0])].concat(rows.map(r=>cols.map(c=>{const v=c[1](r);return typeof v==='number'?v:String(v??'');})));
+  const d=new Date(),p2=n=>String(n).padStart(2,'0');
+  const name='IT_Asset_'+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+'_'+p2(d.getHours())+p2(d.getMinutes());
+  const m=$('msg'); m.className='';m.textContent='กำลังสร้างไฟล์ Excel…';
+  try{
+    await loadXlsx();
+    const ws=XLSX.utils.aoa_to_sheet(data);
+    ws['!cols']=cols.map((c,j)=>({wch:Math.min(40,Math.max(10,...data.slice(0,200).map(r=>String(r[j]).length)))}));
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'IT Asset');
+    XLSX.writeFile(wb,name+'.xlsx');
+  }catch(err){
+    // สำรอง: ถ้าโหลดตัวสร้าง .xlsx ไม่ได้ ให้ส่งออกเป็น .xls (เปิดใน Excel ได้)
+    const t='<html><head><meta charset="utf-8"></head><body><table border="1">'+
+      data.map((r,i)=>'<tr>'+r.map(v=>(i?'<td style="mso-number-format:\'@\'">':'<th>')+esc(v)+(i?'</td>':'</th>')).join('')+'</tr>').join('')+
+      '</table></body></html>';
+    saveBlob(new Blob(['\ufeff'+t],{type:'application/vnd.ms-excel;charset=utf-8'}),name+'.xls');
+  }
+  m.className='ok';m.textContent='ส่งออก '+rows.length+' รายการ';
+}
+
+const isNB=r=>/NB|note\s*book|laptop|โน้ตบุ๊ก|โน๊ตบุ๊ก/i.test([r.v[ASSET()],r.v[col('Model')],r.v[col('Computername')]].join(' '));
+function buildStats(){
+  const ci=col('การตรวจเครื่อง');
+  const rent=R.filter(r=>typeOf(r)==='เครื่องเช่า');
+  const nb=rent.filter(isNB).length;
+  const row=(t,n,s)=>`<div class="r${s==1?' s':s==2?' t':''}"><span>${t}</span><b>${n}</b></div>`;
+  $('stats').innerHTML=
+    row('คอมพิวเตอร์ทั้งหมด',R.length,2)+
+    row('เครื่องเช่า',rent.length)+
+    row('- PC',rent.length-nb,1)+
+    row('- Notebook',nb,1)+
+    row('Asset SNNP',R.filter(r=>typeOf(r)==='Asset SNNP').length)+
+    row('ตรวจแล้ว',R.filter(r=>String(r.v[ci]??'').trim()==='ตรวจแล้ว').length)+
+    row('ว่าง',R.filter(r=>!String(r.v[ci]??'').trim()).length);
+}
 function init(){
+  TI=TYPECOLS.map(n=>H.indexOf(n)).find(i=>i>=0)??-1;
+  $('typ').innerHTML='<option value="">ทั้งหมด</option>'+ASSET_TYPES.map(x=>`<option>${esc(x)}</option>`).join('');
   $('loc').innerHTML='<option value="">— เลือกสาขา —</option>'+BRANCHES.map(l=>`<option>${esc(l)}</option>`).join('');
   $('loc2').innerHTML='<option value="">— เลือก Location —</option>';
   // ตัวเลือก Dropdown ดึงจากค่าที่มีอยู่ใน Sheet
   GROUPS.forEach(g=>g[1].forEach(f=>{
-    if(f[2]!=='d')return;
+    if(f[2]!=='d'&&f[2]!=='c')return;
     const i=col(f[0],f[3]); if(i<0)return;
     OPTS[i]=[...new Set(R.map(r=>r.v[i]).filter(Boolean))].sort();
   }));
   buildFilters();
+  buildStats();
   render();
 }
 
-function render(){
+function render(){render0();fitList();}
+function fitList(){
+  const l=$('list');
+  if(PCQ.matches&&mode!=3&&!$('grid').hidden){l.style.height=Math.max(200,window.innerHeight-l.getBoundingClientRect().top-12)+'px';}
+  else l.style.height='';
+}
+window.addEventListener('resize',fitList);
+function render0(){
   const g=$('grid');
   if(mode==1){
     const l2=$('loc2').value;
     $('list').hidden=false;g.classList.remove('one');
     g.hidden=!l2;
     if(!l2)return;
-    const rows=R.filter(r=>r.v[LOC()]===l2);
+    const ty=$('typ').value;
+    const rows=R.filter(r=>r.v[LOC()]===l2&&(!ty||typeOf(r)===ty));
     $('list').innerHTML=`<div class="head">รหัส Asset ทั้งหมด — ${rows.length} รายการ</div>`+(rows.map(r=>
-      `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
+      `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b><span>${esc(r.v[col('ผู้ถือครอง')])}</span></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
     return;
   }
   if(mode==3){
     $('list').hidden=false;g.classList.remove('one');
-    const act=FIL.filter(i=>SEL[i].size);
-    g.hidden=!act.length;
-    if(!act.length)return;
-    const rows=R.filter(r=>act.every(i=>SEL[i].has(String(r.v[i]??'').trim())));
+    const rows=filterRows();
+    g.hidden=!rows;
+    if(!rows)return;
     $('list').innerHTML=`<div class="head">${rows.length} รายการ</div>`+(rows.slice(0,200).map(r=>
       `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b><span>${esc(r.v[LOC()])} · ${esc(r.v[col('ผู้ถือครอง')])}</span></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
     return;
@@ -320,7 +528,10 @@ function open(n){
   document.querySelectorAll('.it').forEach(x=>x.classList.toggle('sel',+x.dataset.n===n));
   $('grid').hidden=false;
   let h=`<p class="ttl">${esc(cur.v[ASSET()])}</p><p class="sub">${esc(cur.v[LOC()])}</p>`;
-  GROUPS.forEach(g=>{
+  // โหมด Filter บนคอม: Software/Hardware แยกไปวางในช่อง #panel2 ข้างรายการ
+  const split=false; let h2='';
+  GROUPS.forEach((g,gi)=>{
+    const h0=h; h='';
     h+=`<div class="sec">${g[0]}</div><div class="f">`;
     g[1].forEach(f=>{
       const i=col(f[0],f[3]); if(i<0)return;
@@ -328,29 +539,61 @@ function open(n){
       if(f[2]==='d'){
         const o=(OPTS[i]||[]).slice(); if(v&&!o.includes(v))o.push(v);
         c=`<select data-i="${i}"><option value=""></option>${o.map(x=>`<option${x===v?' selected':''}>${esc(x)}</option>`).join('')}</select>`;
+      }else if(f[2]==='c'){
+        c=`<div class="cb"><input data-i="${i}" value="${esc(v)}" autocomplete="off"><button type="button" class="cbb" tabindex="-1" aria-label="เลือกจากรายการ">▾</button><div class="cbl" hidden></div></div>`;
       }else c=`<input data-i="${i}" value="${esc(v)}"${f[2]==='r'?' readonly':''}>`;
-      h+=`<div${(f[0]==='การตรวจเครื่อง'||f[0]==='Status')?' class="chk"':''}><label>${f[1]}</label>${c}</div>`;
+      h+=`<div${(f[0]==='การตรวจเครื่อง'||f[0]==='StatusN')?' class="chk"':''}><label>${f[1]}</label>${c}</div>`;
     });
     h+='</div>';
+    h=h0+h;
   });
   $('panel').innerHTML=h;
+  $('panel2').innerHTML=h2;$('panel2').hidden=!split;
+  const onIn=e=>{if(e.target.dataset.i)e.target.closest('.f>div').classList.toggle('chg',e.target.value!==cur.v[e.target.dataset.i]);};
   $('panel').onclick=null;
-  $('panel').oninput=e=>{if(e.target.dataset.i)e.target.parentNode.classList.toggle('chg',e.target.value!==cur.v[e.target.dataset.i]);};
+  $('panel').oninput=onIn;$('panel2').oninput=onIn;
   $('sv').disabled=false;$('hs').disabled=false;$('msg').textContent='';
-  if(window.innerWidth<860)$('panel').scrollIntoView({behavior:'smooth',block:'start'});
+  if(window.innerWidth<641)$('panel').scrollIntoView({behavior:'smooth',block:'start'});
 }
+
+// Dropdown แบบเลือกจากรายการหรือพิมพ์เพิ่มเอง
+(function(){
+  const pn=$('panel');
+  function fill(cb,filter){
+    const inp=cb.querySelector('input'),l=cb.querySelector('.cbl');
+    const q=(filter||'').trim().toLowerCase();
+    const o=(OPTS[inp.dataset.i]||[]).filter(x=>!q||String(x).toLowerCase().includes(q)).slice(0,300);
+    l.innerHTML=o.length?o.map(x=>`<div class="o">${esc(x)}</div>`).join(''):'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>';
+    l.hidden=false;
+  }
+  function closeAll(except){document.querySelectorAll('#panel .cbl').forEach(l=>{if(l.parentNode!==except)l.hidden=true;});}
+  pn.addEventListener('click',e=>{
+    const cb=e.target.closest('.cb'); if(!cb)return;
+    const l=cb.querySelector('.cbl');
+    if(e.target.closest('.cbb')){
+      if(l.hidden){closeAll(cb);fill(cb,'');}else l.hidden=true;
+    }else if(e.target.classList.contains('o')){
+      const inp=cb.querySelector('input'); inp.value=e.target.textContent;
+      inp.dispatchEvent(new Event('input',{bubbles:true})); l.hidden=true;
+    }
+  });
+  pn.addEventListener('input',e=>{
+    const cb=e.target.closest('.cb'); if(cb&&e.isTrusted){closeAll(cb);fill(cb,e.target.value);}
+  });
+  document.addEventListener('click',e=>{if(!e.target.closest('.cb'))closeAll(null);});
+})();
 
 function save(){
   const ch={};
-  $('panel').querySelectorAll('input[data-i],select[data-i]').forEach(x=>{if(!x.readOnly&&x.value!==cur.v[x.dataset.i])ch[x.dataset.i]=x.value;});
+  document.querySelectorAll('#panel input[data-i],#panel select[data-i],#panel2 input[data-i],#panel2 select[data-i]').forEach(x=>{if(!x.readOnly&&x.value!==cur.v[x.dataset.i])ch[x.dataset.i]=x.value;});
   const m=$('msg');
   if(!Object.keys(ch).length){m.className='';m.textContent='ยังไม่มีการแก้ไข';return;}
   $('sv').disabled=true;$('hs').disabled=true;m.className='';m.textContent='กำลังบันทึก…';
   google.script.run.withSuccessHandler(r=>{
     Object.keys(ch).forEach(i=>cur.v[i]=ch[i]);
-    $('sv').disabled=false;$('hs').disabled=false;m.className='ok';m.textContent='บันทึกแล้ว '+r.saved+' ช่อง';
-    $('panel').querySelectorAll('.chg').forEach(x=>x.classList.remove('chg'));
-  }).withFailureHandler(e=>{$('sv').disabled=false;$('hs').disabled=false;m.className='bad';m.textContent='บันทึกไม่สำเร็จ: '+((e&&e.message)||e);})
+    $('sv').disabled=false;m.className='ok';m.textContent='บันทึกแล้ว '+r.saved+' ช่อง';
+    document.querySelectorAll('#panel .chg,#panel2 .chg').forEach(x=>x.classList.remove('chg'));
+  }).withFailureHandler(e=>{$('sv').disabled=false;m.className='bad';m.textContent=e.message;})
   .saveRow(cur.n,cur.v[ASSET()],ch);
 }
 
@@ -367,21 +610,24 @@ $('hs').onclick=()=>{
 $('hx').onclick=()=>$('hist').style.display='none';
 $('hist').onclick=e=>{if(e.target.id==='hist')$('hist').style.display='none';};
 // PC + โหมด Filter: ย้ายรายการ/หน้าแก้ไขไปไว้ข้างตัวกรอง / มือถือและโหมดอื่น: อยู่ด้านล่างตามเดิม
-const PCQ=window.matchMedia('(min-width:861px)');
+const PCQ=window.matchMedia('(min-width:641px)');
 function placeGrid(){
-  (mode==3&&PCQ.matches?$('fres'):document.querySelector('main')).appendChild($('grid'));
+  (PCQ.matches?(mode==3?$('fres'):document.querySelector('.bars')):document.querySelector('main')).appendChild($('grid'));
+  if(cur)open(cur.n);
+  fitList(); // จัดตำแหน่ง Software/Hardware ใหม่เมื่อขนาดจอเปลี่ยน
 }
 PCQ.addEventListener?PCQ.addEventListener('change',placeGrid):PCQ.addListener(placeGrid);
+placeGrid();
 function setMode(m){
-  mode=m;cur=null;$('sv').disabled=true;$('hs').disabled=true;$('msg').textContent='';
-  $('bar'+m).appendChild($('savebox'));
+  mode=m;cur=null;$('panel2').hidden=true;$('sv').disabled=true;$('hs').disabled=true;$('msg').textContent='';
   placeGrid();
   [1,2,3].forEach(k=>{$('m'+k).classList.toggle('on',m==k);$('bar'+k).hidden=m!=k;});
   render();
 }
 function fillLoc2(){
   const b=$('loc').value;
-  const locs=[...new Set(R.filter(r=>branchOf(r.v[LOC()])===b).map(r=>r.v[LOC()]))].sort();
+  const ty=$('typ').value;
+  const locs=[...new Set(R.filter(r=>branchOf(r.v[LOC()])===b&&(!ty||typeOf(r)===ty)).map(r=>r.v[LOC()]))].sort();
   $('loc2').disabled=!b;
   $('loc2').innerHTML='<option value="">— เลือก Location —</option>'+locs.map(x=>`<option>${esc(x)}</option>`).join('');
   fillAsset();
@@ -392,6 +638,7 @@ function fillAsset(){
   render();
 }
 $('loc').onchange=fillLoc2;
+$('typ').onchange=fillLoc2;
 $('loc2').onchange=fillAsset;
 $('q2').oninput=render;
 // เลือกรหัสจากการพูด/สแกน แล้วเติมสาขา+Location ให้อัตโนมัติ
@@ -399,6 +646,7 @@ function pickAsset(t){
   t=String(t).trim().toLowerCase();
   const r=R.find(x=>String(x.v[ASSET()]).toLowerCase()===t)||R.find(x=>String(x.v[ASSET()]).toLowerCase().includes(t));
   if(!r){alert('ไม่พบรหัส Asset: '+t);return;}
+  $('typ').value='';
   $('loc').value=branchOf(r.v[LOC()]);
   if($('loc').value!==branchOf(r.v[LOC()])){alert('รหัสนี้อยู่นอก 5 สาขาที่แสดง ลองใช้ "ค้นหา"');return;}
   fillLoc2();$('loc2').value=r.v[LOC()];fillAsset();open(r.n);render();
@@ -419,175 +667,45 @@ document.querySelectorAll('[data-mic]').forEach(b=>b.onclick=()=>{
   try{rc.start();}catch(e){fallback();}
 });
 
-// ปุ่มสแกน: กล้องสด (Android: BarcodeDetector / iPhone: html5-qrcode) -> ถ้าไม่ได้ ใช้ถ่ายรูปแล้วอ่านรหัสจากรูป
-let stream=null,scanning=false,scanTarget=null,live=null;
-function stopCam(){
-  scanning=false;
-  if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;
-  if(live){const l=live;live=null;l.stop().then(()=>{try{l.clear();}catch(e){}}).catch(()=>{});}
-  $('vid').style.display='';$('qrlive').style.display='none';
-  $('camMsg').style.display='none';$('camPhoto').style.display='none';
-  $('cam').style.display='none';
-}
+// ปุ่มสแกน: กล้องสด -> ถ้าถูกบล็อก ใช้ถ่ายรูปแล้วอ่านรหัสจากรูปแทน
+let stream=null,scanning=false,scanTarget=null;
+function stopCam(){scanning=false;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$('cam').style.display='none';}
 $('camx').onclick=stopCam;
 const fileIn=document.createElement('input');
 fileIn.type='file';fileIn.accept='image/*';fileIn.setAttribute('capture','environment');fileIn.hidden=true;
 document.body.appendChild(fileIn);
-$('camPhoto').onclick=()=>fileIn.click();
-
 function loadLib(){return new Promise((ok,no)=>{
   if(window.Html5Qrcode)return ok();
   const s=document.createElement('script');
   s.src='https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js';
-  s.onload=ok;s.onerror=()=>no(new Error('โหลดตัวสแกนไม่สำเร็จ (ตรวจอินเทอร์เน็ต)'));document.head.appendChild(s);});}
-
-// ย่อรูปจากกล้องมือถือ (12MP+) ก่อนอ่าน ช่วยให้อ่านติดง่ายขึ้นมาก
-async function shrink(f,max){
-  const bmp=await createImageBitmap(f);
-  const k=Math.min(1,max/Math.max(bmp.width,bmp.height));
-  const c=document.createElement('canvas');
-  c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
-  c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
-  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.92));
-  return {canvas:c,file:new File([blob],'scan.jpg',{type:'image/jpeg'})};
-}
+  s.onload=ok;s.onerror=()=>no(new Error('โหลดตัวสแกนไม่สำเร็จ'));document.head.appendChild(s);});}
 async function decodeFile(f){
-  let img=null;
-  for(const max of [1600,1000]){
-    try{img=await shrink(f,max);}catch(e){img=null;}
-    if(!img)continue;
-    if('BarcodeDetector' in window){
-      try{const c=await new BarcodeDetector().detect(img.canvas);if(c.length)return c[0].rawValue;}catch(e){}
-    }
-    try{
-      await loadLib();
-      const h=new Html5Qrcode('qrtmp');
-      try{return await h.scanFile(img.file,false);}finally{try{h.clear();}catch(e){}}
-    }catch(e){ if(String(e.message||'').indexOf('โหลดตัวสแกน')>-1)throw e; }
+  if('BarcodeDetector' in window){
+    try{const c=await new BarcodeDetector().detect(await createImageBitmap(f));if(c.length)return c[0].rawValue;}catch(e){}
   }
-  throw new Error('อ่านรหัสจากรูปไม่ได้');
+  await loadLib();
+  const h=new Html5Qrcode('qrtmp');
+  try{return await h.scanFile(f,false);}finally{try{h.clear();}catch(e){}}
 }
-// ---------- อ่านข้อความธรรมดา (OCR) ----------
-let ocrMode=false;
-function loadOcr(){return new Promise((ok,no)=>{
-  if(window.Tesseract)return ok();
-  const s=document.createElement('script');
-  s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
-  s.onload=ok;s.onerror=()=>no(new Error('โหลดตัวอ่านข้อความไม่สำเร็จ (ตรวจอินเทอร์เน็ต)'));document.head.appendChild(s);});}
-const norm=t=>String(t||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-const fuzz=t=>norm(t).replace(/[OQD]/g,'0').replace(/[IL]/g,'1').replace(/Z/g,'2').replace(/S/g,'5').replace(/B/g,'8');
-// หาค่าในข้อมูลจริงที่ตรงกับข้อความที่อ่านได้ (รหัส Asset / Computername / Serial)
-function matchAsset(text){
-  const cols=['IT Asset No','Computername','Serial No'].map(n=>col(n)).filter(i=>i>=0);
-  const toks=(String(text).toUpperCase().match(/[A-Z0-9][A-Z0-9\-_.\/]{3,}/g)||[]);
-  const cand=[...toks,norm(text)];
-  const exact=new Map(),loose=new Map();
-  R.forEach(r=>cols.forEach(i=>{const v=String(r.v[i]||'').trim();if(!v)return;
-    if(!exact.has(norm(v)))exact.set(norm(v),v);if(!loose.has(fuzz(v)))loose.set(fuzz(v),v);}));
-  for(const c of cand){if(exact.has(norm(c)))return exact.get(norm(c));}
-  for(const c of cand){if(loose.has(fuzz(c)))return loose.get(fuzz(c));}
-  // ข้อความยาวที่มีรหัสรวมอยู่ในนั้น
-  const all=norm(text),allf=fuzz(text);
-  for(const [k,v] of exact){if(k.length>=6&&all.indexOf(k)>-1)return v;}
-  for(const [k,v] of loose){if(k.length>=6&&allf.indexOf(k)>-1)return v;}
-  return null;
-}
-// แสดงสถานะในช่องค้นหาโดยตรง (ไม่มีหน้าต่างบัง) แล้วใส่ผลลัพธ์ลงช่องทันทีที่อ่านเสร็จ
-let ph0=null;
-function ocrStatus(msg){const el=$(scanTarget);if(!el)return;if(ph0===null)ph0=el.placeholder;el.value='';el.placeholder=msg;el.readOnly=true;}
-function ocrDone(){const el=$(scanTarget);if(!el)return;el.readOnly=false;if(ph0!==null){el.placeholder=ph0;ph0=null;}}
-// เก็บตัวอ่านไว้ใช้ซ้ำ และโหลดล่วงหน้าตั้งแต่กดปุ่ม 🔤 (ระหว่างที่ผู้ใช้กำลังถ่ายรูป) ครั้งต่อไปจึงเร็วมาก
-let ocrW=null,ocrP=null;
-function getWorker(){
-  if(ocrW)return Promise.resolve(ocrW);
-  if(ocrP)return ocrP;
-  ocrP=(async()=>{
-    await loadOcr();
-    const w=await Tesseract.createWorker('eng',1,{logger:m=>{
-      if(m.status==='recognizing text'&&ph0!==null)ocrStatus('กำลังอ่านข้อความ… '+Math.round(m.progress*100)+'%');}});
-    await w.setParameters({tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_./ ',preserve_interword_spaces:'1'});
-    ocrW=w;return w;
-  })();
-  ocrP.catch(()=>{ocrP=null;});
-  return ocrP;
-}
-async function runOcr(f){
-  stopCam();
-  ocrStatus('กำลังอ่านข้อความ…');
-  try{
-    const w=await getWorker();
-    const img=await shrink(f,1500);
-    const r=await w.recognize(img.canvas);
-    const text=String(r.data.text||'');
-    ocrDone();
-    let hit=matchAsset(text);
-    if(!hit){ // ไม่ตรงกับข้อมูลในระบบ -> ใส่ข้อความที่อ่านได้ลงช่องเลย ให้ผู้ใช้เห็นและแก้เองได้
-      const up=text.toUpperCase();
-      const toks=up.match(/[A-Z0-9]+(?:-[A-Z0-9]+){2,}/g)||up.match(/[A-Z0-9][A-Z0-9\-]{3,}/g)||[];
-      hit=toks.sort((x,y)=>y.length-x.length)[0];
-    }
-    if(hit)applyVal(scanTarget,hit);
-    else alert('อ่านข้อความจากรูปไม่ได้ ลองถ่ายใหม่ให้ใกล้ ชัด แสงพอ และให้ตัวหนังสืออยู่กลางภาพ');
-  }catch(e){ocrDone();alert((e&&e.message)||'อ่านข้อความไม่สำเร็จ');}
-}
-
 fileIn.onchange=async()=>{
   const f=fileIn.files[0];fileIn.value='';if(!f)return;
-  if(ocrMode){ocrMode=false;fileIn.setAttribute('capture','environment');await runOcr(f);return;}
-  try{const t=String(await decodeFile(f)).trim();stopCam();applyVal(scanTarget,t);}
-  catch(e){
-    if(e&&/โหลดตัวสแกน/.test(e.message||'')){alert(e.message);return;}
-    await runOcr(f); // อ่านบาร์โค้ด/QR ไม่ได้ -> ลองอ่านเป็นตัวหนังสือ
-  }
+  try{applyVal(scanTarget,String(await decodeFile(f)).trim());}
+  catch(e){alert('อ่านรหัสจากรูปไม่ได้ ลองถ่ายใหม่ให้ใกล้และชัดขึ้น');}
 };
-document.querySelectorAll('[data-ocr]').forEach(b=>b.onclick=()=>{
-  scanTarget=b.dataset.ocr;ocrMode=true;
-  getWorker().catch(()=>{}); // โหลดตัวอ่านล่วงหน้า ระหว่างที่ผู้ใช้ถ่ายรูป
-  fileIn.removeAttribute('capture'); // ให้เลือกได้ทั้งถ่ายรูปและเลือกจากแกลเลอรี
-  fileIn.click();
-});
-
-// กล้องใช้ไม่ได้ -> แสดงสาเหตุ + ปุ่มถ่ายรูป (ปุ่มนี้ผู้ใช้กดเอง เบราว์เซอร์จึงไม่บล็อก)
-function camFail(why){
-  $('vid').style.display='none';$('qrlive').style.display='none';
-  $('camMsg').textContent=why;$('camMsg').style.display='block';
-  $('camPhoto').style.display='';$('cam').style.display='flex';
-}
-
 document.querySelectorAll('[data-scan]').forEach(b=>b.onclick=async()=>{
   scanTarget=b.dataset.scan;
-  const inApp=/Line\/|FBAN|FBAV|Instagram|MicroMessenger/i.test(navigator.userAgent);
-  if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    camFail(inApp?'เบราว์เซอร์ในแอป (LINE/Facebook) ใช้กล้องสดไม่ได้ แนะนำเปิดลิงก์ใน Chrome หรือ Safari หรือกดถ่ายรูปด้านล่าง':'เครื่องนี้เปิดกล้องสดไม่ได้ กดถ่ายรูปเพื่ออ่านรหัสแทน');
-    return;
-  }
+  if(!('BarcodeDetector' in window)||!navigator.mediaDevices){fileIn.click();return;}
   try{
-    if('BarcodeDetector' in window){
-      stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
-      const v=$('vid');v.style.display='';$('qrlive').style.display='none';
-      v.srcObject=stream;await v.play();$('cam').style.display='flex';
-      $('camPhoto').style.display='';
-      const det=new BarcodeDetector();scanning=true;
-      (async function loop(){
-        while(scanning){
-          try{const c=await det.detect(v);if(c.length){const t=c[0].rawValue.trim();stopCam();applyVal(scanTarget,t);return;}}catch(e){}
-          await new Promise(r=>setTimeout(r,250));
-        }
-      })();
-    }else{
-      // iPhone / เบราว์เซอร์ที่ไม่มี BarcodeDetector
-      await loadLib();
-      $('vid').style.display='none';$('qrlive').style.display='block';$('cam').style.display='flex';
-      $('camPhoto').style.display='';
-      live=new Html5Qrcode('qrlive');
-      await live.start({facingMode:'environment'},{fps:10,qrbox:{width:260,height:200}},
-        t=>{const v=String(t).trim();stopCam();applyVal(scanTarget,v);},()=>{});
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+  }catch(e){fileIn.click();return;}
+  const v=$('vid');v.srcObject=stream;await v.play();$('cam').style.display='flex';
+  const det=new BarcodeDetector();scanning=true;
+  (async function loop(){
+    while(scanning){
+      try{const c=await det.detect(v);if(c.length){const t=c[0].rawValue.trim();stopCam();applyVal(b.dataset.scan,t);return;}}catch(e){}
+      await new Promise(r=>setTimeout(r,250));
     }
-  }catch(e){
-    stopCam();
-    const denied=e&&(e.name==='NotAllowedError'||/permission|denied/i.test(String(e)));
-    camFail(denied?'ยังไม่ได้อนุญาตให้ใช้กล้อง: กดไอคอนกุญแจข้าง URL แล้วอนุญาตกล้อง หรือกดถ่ายรูปด้านล่าง':'เปิดกล้องสดไม่ได้ ('+((e&&e.message)||e)+') กดถ่ายรูปด้านล่างแทน');
-  }
+  })();
 });
 </script>
 </body>
