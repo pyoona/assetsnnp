@@ -1,118 +1,804 @@
-/**
- * API สำหรับหน้า IT Asset ที่เปิดจาก GitHub Pages
- * วางไฟล์นี้ในโปรเจกต์ Apps Script ที่ผูกกับชีต Asset
- *
- * ตั้งค่าก่อนใช้:
- *  1) Project Settings -> Script Properties -> เพิ่ม TOKEN = รหัสผ่านที่ตั้งเอง (ยาว ๆ เดายาก)
- *  2) Deploy -> New deployment -> Web app
- *       Execute as: Me
- *       Who has access: Anyone
- *  3) คัดลอก Web app URL (ลงท้าย /exec) ไปใส่ที่ API_URL ใน index.html
- *
- * ถ้าโปรเจกต์มี doPost อยู่แล้ว ให้รวมโค้ดเข้าด้วยกัน (มี doPost ได้ตัวเดียว)
- * ถ้ามี doGet เดิมอยู่แล้ว ไม่ต้องแก้ คงไว้ได้เลย
- */
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IT Asset SNNP</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0b1426;--mut:#3f485c;--line:#d5dbe6;--bg:#f2f5fa;--card:#fff;--acc:#12308f;--hi:#12308f;--ok:#15803d;--err:#b91c1c}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Sarabun',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+header{background:var(--ink);color:#fff;padding:14px 18px;font-weight:600;font-size:18px}
+main{max-width:1400px;margin:0;padding:14px}
+.top{display:flex;align-items:flex-start;gap:14px;margin-bottom:12px}
+.bars{flex:1 1 0;min-width:0}
+.modes{display:flex;flex-direction:column;align-items:flex-start;gap:6px;flex:0 0 auto}
+.modes button{flex:0 0 auto;width:120px;padding:6px 12px;border:2px solid var(--ink);background:#fff;font:inherit;font-size:13px;font-weight:600;border-radius:6px;cursor:pointer;color:var(--ink);text-align:left}
+.modes button.on{background:var(--hi);border-color:var(--hi);color:#fff}
+.bar[hidden]{display:none}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.bar>*{flex:1 1 180px}
+input,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.in{display:flex;gap:6px}
+.ic{flex:0 0 44px;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:18px;cursor:pointer}
+.ic.rec{background:var(--err);color:#fff}
+.grid[hidden],.list[hidden]{display:none}
+.grid.one{grid-template-columns:minmax(0,1fr)!important}
+.fld{flex:1 1 220px}
+.fld[hidden]{display:none}
+#assetbar{margin-bottom:10px}
+#left{min-width:0}
+.fld>label{font-weight:600;color:var(--ink);font-size:14px;margin-bottom:5px}
+.bar .fld{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+#bar2 .fld{background:var(--hi);border-color:#0a1f63}
+#bar2 .fld>label{color:#fff}
+input[readonly]{background:#eef0f4;color:var(--mut)}
+select:disabled{background:#eef0f4}
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media(min-width:641px){.grid{grid-template-columns:340px minmax(0,1fr)}}
+.list{background:var(--card);border:1px solid var(--line);border-radius:10px;max-height:70vh;overflow:auto}
+.list .head{padding:8px 12px;font-size:13px;color:var(--mut);border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff}
+.it{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+.it:hover{background:#eef3ff}.it.sel{background:#f8cbad;color:var(--ink)}.it.sel span{color:var(--mut)}
+.it b{display:block}.it span{color:var(--mut);font-size:13px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+.empty{color:var(--mut);padding:30px;text-align:center}
+.ttl{font-size:18px;font-weight:600;margin:0 0 2px}
+.sub{color:var(--mut);margin:0 0 12px}
+.sec{background:#a9d08e;color:var(--ink);padding:6px 10px;font-weight:600;border-radius:6px;margin:16px 0 10px}
+.f{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+label{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
+.chg input{border-color:var(--acc);background:#f1f5ff}
+.chk{border:2px solid #2563eb;background:#e8f1ff;border-radius:10px;padding:6px 10px 10px}
+.chk>label{color:#12308f;font-weight:600}
+.savebox{flex:0 0 auto!important;align-self:center;position:relative;display:flex}
+.savebox button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:8px 18px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+#msg{position:absolute;right:0;top:100%;margin-top:4px;font-size:13px;white-space:nowrap}
+.savebox{gap:6px}
+.savebox button.alt{background:#fff;color:var(--ink);border:1px solid var(--line)}
+#hist{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:8;padding:12px}
+#hist .box{background:#fff;border-radius:12px;max-width:760px;width:100%;max-height:85vh;display:flex;flex-direction:column}
+#hist .hd{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);font-weight:600}
+#hist .hd button{border:0;background:none;font-size:20px;cursor:pointer}
+#hist .bd{overflow:auto;padding:0 16px 12px}
+#hist table{border-collapse:collapse;width:100%;font-size:14px}
+#hist th,#hist td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+#hist th{position:sticky;top:0;background:#fff;color:var(--mut);font-weight:500}
+.old{color:var(--err);text-decoration:line-through}.new{color:var(--ok)}
+.savebox button:disabled{opacity:.5;cursor:default}
+#msg{font-weight:500}.ok{color:var(--ok)}.bad{color:var(--err)}
+#cam{position:fixed;inset:0;background:#000d;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:9}
+#cam video{max-width:92vw;max-height:70vh;border-radius:10px}
+#cam button{padding:10px 24px;border-radius:8px;border:0;font:inherit}
 
-var SHEET_NAME = 'Asset01';
-var HISTORY_NAME = 'History';
-var ASSET_COL = 'IT Asset No';
-var TZ = 'Asia/Bangkok';
+/* ปรับขนาดแถบตัวเลือกให้กะทัดรัด (เดสก์ท็อป) */
+@media(min-width:641px){
+  .bar{gap:6px;margin-bottom:10px}
+  .bar>*{flex:1 1 140px}
+  .bar .fld{padding:5px 8px;border-radius:8px}
+  .fld>label{font-size:12px;margin-bottom:2px}
+  .bar select,.bar input{font-size:13px;padding:5px 8px;border-radius:6px}
+  .ic{flex:0 0 34px;font-size:15px;border-radius:6px}
+  .savebox button{padding:6px 12px;font-size:13px;border-radius:6px}
+}
 
-// ชื่อฟังก์ชันที่หน้าเว็บเรียก -> ฟังก์ชันจริงในไฟล์นี้
-var API = {
-  getData: apiGetData,
-  saveRow: apiSaveRow,
-  getHistory: apiGetHistory
+/* ตัวกรอง (โหมดที่ 3) */
+#bar3 .fld{flex:1 1 100%;min-width:0}
+.fh{display:flex;justify-content:flex-start;align-items:center;margin-bottom:8px;font-weight:600}
+.fh button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;color:var(--ink)}
+#fwrap{display:flex;flex-direction:column;gap:14px}
+#fbox,#fres{min-width:0}
+#fres .grid{grid-template-columns:minmax(0,1fr)}
+#fres .list{max-height:32vh}
+@media(min-width:641px){
+  #fwrap{flex-direction:row;align-items:flex-start}
+  #fbox{flex:0 0 auto;max-width:45%}
+  #fres{flex:1 1 0}
+}
+.fx{margin-top:6px}
+.fx button{background:#15803d;color:#fff;border:0;border-radius:8px;padding:9px 18px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.fx button:disabled{opacity:.45;cursor:default}
+.fg{margin-bottom:10px}
+.fg>b{display:inline-block;font-size:14px;margin-bottom:8px;padding:6px 16px;background:#e1ecff;color:#12308f;border:2px solid #9ec5fe;border-radius:8px;font-weight:600}
+.fo{display:flex;flex-wrap:wrap;gap:6px 16px;max-height:120px;overflow:auto}
+.fo label{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink);margin:0;cursor:pointer}
+.fo input{width:18px;height:18px;padding:0;accent-color:var(--acc)}
+
+@media(max-width:640px){
+  body{font-size:16px}
+  header{padding:12px 14px;font-size:17px}
+  main{padding:10px}
+  input,select{font-size:16px;padding:12px}
+  .top{flex-direction:column;gap:8px}.bars{width:100%;flex:none}
+  .modes{flex-direction:row;width:100%;gap:6px}.modes button{flex:1;width:auto;min-width:0;padding:9px 6px;font-size:14px;text-align:center}
+  .bar{gap:6px;margin-bottom:10px}
+  #bar1 .fld{flex:1 1 calc(33.333% - 4px);min-width:0;padding:6px 8px;border-radius:8px}
+  #bar2 .fld{flex:1 1 100%;padding:6px 8px}
+  .fld>label{font-size:12px;margin-bottom:3px}
+  .bar select,.bar input{font-size:14px;padding:7px 8px}
+  .fo input{width:18px;height:18px;padding:0}
+  .fo{flex-wrap:nowrap;gap:8px;max-height:none;overflow-x:auto;overflow-y:hidden;padding:2px 2px 8px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .fo::-webkit-scrollbar{height:6px}
+  .fo::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+  .fo label{flex:0 0 auto;scroll-snap-align:start;white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px}
+  .fo label:has(input:checked){background:#e8f1ff;border-color:var(--acc);font-weight:600;color:var(--acc)}
+  .bar .ic{flex:0 0 40px;font-size:16px}
+  .savebox{flex:1 1 100%!important;align-self:stretch;gap:6px}
+  .savebox button{flex:1;padding:8px;font-size:14px}
+  #msg{position:static;margin:0;align-self:center;white-space:normal;flex:1}
+  .list{max-height:38vh}
+  .it{padding:14px 12px}
+  .panel{padding:12px}
+  .f{grid-template-columns:1fr}
+  .ic{flex:0 0 48px}
+  #hist{padding:0;align-items:flex-end}
+  #hist .box{max-width:none;border-radius:14px 14px 0 0;max-height:88vh}
+  #hist th:nth-child(4),#hist td:nth-child(4){display:none}
+  #hist table{font-size:13px}
+}
+/* ปรับให้เล็กลงอีก: ปุ่มและตัวอักษรของตัวกรอง/ปุ่มบันทึก (ทุกหน้าจอ) */
+.fh{margin-bottom:6px}
+.fh button{padding:3px 10px;font-size:12px;border-radius:6px}
+.fg{margin-bottom:6px}
+.fg>b{font-size:12px;padding:2px 10px;margin-bottom:4px;border-width:1px;border-radius:6px}
+.fo{gap:4px 12px}
+.fo label{font-size:12px;gap:4px}
+.fo input{width:14px;height:14px}
+.fx button{padding:5px 12px;font-size:12px;border-radius:6px}
+.savebox button{padding:5px 12px;font-size:12px;border-radius:6px}
+#msg{font-size:12px}
+@media(max-width:640px){
+  .fo{gap:6px}
+  .fo label{padding:3px 8px}
+  .fo input{width:14px;height:14px}
+  .savebox button{padding:6px;font-size:12px}
+  .it{padding:10px 12px}
+}
+/* ปุ่ม Save / ประวัติ ต่อจากปุ่ม Filter */
+.modes .savebox{flex:0 0 auto!important;align-self:flex-start;width:120px;flex-direction:column;align-items:stretch;gap:6px;margin-top:4px}
+.modes .savebox button{width:100%;text-align:center;border:0}
+.modes .savebox button.alt{border:1px solid var(--line)}
+.modes #msg{position:static;margin:0;white-space:normal;text-align:center}
+@media(max-width:640px){
+  .modes{flex-wrap:wrap}
+  .modes .savebox{flex:1 1 100%!important;width:100%;flex-direction:row;align-items:center;margin-top:0}
+  .modes .savebox button{flex:1;width:auto}
+  .modes #msg{flex:1 1 100%}
+}
+/* ช่องเลือกจากรายการหรือพิมพ์เพิ่มเอง (Keyoffice, ผู้ถือครอง) */
+.cb{position:relative}
+.cb input{width:100%;padding-right:26px}
+.cbb{position:absolute;right:1px;top:1px;bottom:1px;width:24px;border:0;border-left:1px solid var(--line);background:#eef0f4;color:var(--ink);border-radius:0 5px 5px 0;cursor:pointer;font-size:12px;padding:0}
+.cbl{position:absolute;left:0;right:0;top:100%;z-index:30;max-height:220px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.15);margin-top:2px}
+.cbl .o{padding:6px 10px;font-size:13px;cursor:pointer;border-bottom:1px solid #eef0f4;word-break:break-all}
+.cbl .o:hover{background:#eef3ff}
+.cbl .no{padding:6px 10px;font-size:12px;color:var(--mut)}
+#xl{background:#15803d!important;color:#fff}
+#xl:disabled{opacity:.45}
+/* ทุกโหมดบนคอม: รายการย่อให้สั้น, Software/Hardware อยู่ข้างรายการ */
+@media(min-width:641px){
+  #grid.grid{grid-template-columns:240px minmax(0,1fr);grid-template-areas:"list p1";gap:8px;align-items:start}
+  #grid #left{grid-area:list;position:sticky;top:8px}
+  #grid #panel{grid-area:p1}
+  #grid #panel2{display:none}
+  #grid .list{max-height:calc(100vh - 16px)}
+  #fres .list{height:calc(100vh - 16px)}
+  #grid .head{padding:4px 10px;font-size:12px}
+  #grid .it{padding:5px 10px}
+  #grid .it b{font-size:13px}
+  #grid .it span{font-size:12px}
+  #grid .panel{padding:10px 12px}
+  #grid .ttl{font-size:14px;display:inline}
+  #grid .sub{display:inline;margin:0 0 4px 8px;font-size:13px}
+  #grid #panel .sec{padding:2px 8px;margin:8px 0 5px;font-size:13px;border-radius:5px}
+  #grid #panel .f{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:5px 8px}
+  #grid #panel label{font-size:11px;margin-bottom:1px;line-height:1.2}
+  #grid #panel input,#grid #panel select{padding:3px 6px;font-size:12px;border-radius:5px;height:26px}
+  #grid #panel .chk{padding:3px 6px 5px;border-width:1px;border-radius:6px}
+  #grid #panel .chk>label{font-size:11px}
+  #grid #panel2 .sec:first-child{margin-top:0}
+}
+/* สรุปจำนวน (ใต้ปุ่ม Save/ประวัติ) */
+#stats{width:150px;margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px}
+#stats .r{display:flex;justify-content:space-between;align-items:baseline;gap:6px;padding:3px 0;border-bottom:1px solid #eef0f4}
+#stats .r{white-space:nowrap}
+#stats .r,#stats .r b,#stats .r.s,#stats .r.s b{color:#0033ff;font-weight:700}
+#stats .r:last-child{border-bottom:0}
+#stats .r b{font-size:15px;color:var(--acc)}
+#stats .r.s{padding-left:10px;color:var(--mut)}
+#stats .r.s b{font-size:13px;color:var(--ink)}
+@media(max-width:640px){#stats{width:100%;flex:1 1 100%}}
+@supports(padding:max(0px)){main{padding-bottom:max(14px,env(safe-area-inset-bottom))}}
+
+.fg>b label{display:inline;margin:0;font-size:inherit;color:inherit;font-weight:inherit;cursor:pointer}
+.fg>b input{width:18px;height:18px;padding:0;margin:0 8px 0 0;vertical-align:-3px;accent-color:var(--acc)}
+.fsec{background:#a9d08e;color:var(--ink);padding:5px 10px;font-weight:700;border-radius:6px;margin:14px 0 10px;font-size:14.5px}
+/* ปรับความคมชัด/อ่านง่าย */
+html{-webkit-text-size-adjust:100%}
+body{font-size:17px;line-height:1.5;font-weight:400;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;letter-spacing:0}
+input,select,button,textarea{font-family:inherit;color:var(--ink)}
+input,select{font-size:16px;line-height:1.4;border-color:#aeb8cc}
+label{font-size:14px;color:var(--mut);font-weight:500;margin-bottom:4px}
+.fld>label{font-size:14.5px;font-weight:600}
+#bar2 .fld>label{color:#fff}
+.it span,.list .head,.sub{font-size:14px}
+.it b{font-weight:600;font-size:15.5px}
+.ttl{font-size:20px;font-weight:700}
+.sec{font-weight:700;font-size:15.5px}
+header{font-weight:700;font-size:19px;letter-spacing:.2px}
+.modes button{font-size:14px}
+#hist table{font-size:14.5px}
+#hist th{color:var(--ink);font-weight:600}
+.fo label,.fg>b,.fh button{font-size:14.5px}
+@media(max-width:640px){
+  .fld>label,label{font-size:13.5px}
+  .bar select,.bar input{font-size:15px}
+  #hist table{font-size:14px}
+}
+</style>
+</head>
+<body>
+<header>IT Asset SNNP <small style="font-weight:400;opacity:.6;font-size:12px">v10</small></header>
+<div id="errbar" style="display:none;background:#b91c1c;color:#fff;padding:8px 14px;font-size:13px;white-space:pre-wrap;word-break:break-all"></div>
+<main>
+  <div class="top">
+  <div class="modes">
+    <button id="m1" class="on">เลือกตามสาขา</button>
+    <button id="m2">ค้นหา</button>
+    <button id="m3">Filter</button>
+    <div class="savebox" id="savebox"><button id="sv" disabled>Save</button><button id="hs" class="alt" disabled>ประวัติ</button><button id="xl" class="xl" type="button">Print to Excel</button><span id="msg"></span></div>
+    <div id="stats"></div>
+  </div>
+  <div class="bars">
+
+  <div class="bar" id="bar1">
+    <div class="fld"><label>ประเภท Asset</label><select id="typ"></select></div>
+    <div class="fld"><label>สาขา</label><select id="loc"></select></div>
+    <div class="fld"><label>Location</label><select id="loc2" disabled></select></div>
+  </div>
+  <div class="bar" id="bar2" hidden>
+    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง"><button class="ic" data-mic="q2" title="พูด">🎤</button><button class="ic" data-scan="q2" title="สแกน">▦</button></div></div>
+  </div>
+  <div class="bar" id="bar3" hidden>
+    <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"></div></div>
+  </div>
+  </div>
+  </div>
+
+  <div class="grid" id="grid">
+    <div id="left">
+      <div class="list" id="list"><div class="empty">กำลังโหลดข้อมูล…</div></div>
+    </div>
+    <div class="panel" id="panel"><div class="empty">เลือกเครื่องเพื่อดูและแก้ไข</div></div>
+    <div class="panel" id="panel2" hidden></div>
+  </div>
+</main>
+
+<div id="hist"><div class="box"><div class="hd"><span id="hdt">ประวัติการแก้ไข</span><button id="hx" title="ปิด">✕</button></div><div class="bd" id="hbd"></div></div></div>
+<div id="cam"><video id="vid" playsinline muted></video><button id="camx">ปิดกล้อง</button></div>
+<div id="dls"></div>
+<div id="qrtmp" style="position:absolute;left:-9999px;width:300px"></div>
+
+<script>
+// สลับโหมดแบบอิสระ: ทำงานได้แม้สคริปต์หลักมีปัญหา
+(function(){
+  var btns=document.querySelectorAll('.modes>button');
+  for(var i=0;i<btns.length;i++){(function(b){
+    b.addEventListener('click',function(){
+      var m=b.id.slice(1);
+      for(var k=1;k<=3;k++){
+        var bt=document.getElementById('m'+k),br=document.getElementById('bar'+k);
+        if(bt)bt.className=(k==m?'on':'');
+        if(br)br[k==m?'removeAttribute':'setAttribute']('hidden','');
+      }
+    });
+  })(btns[i]);}
+})();
+</script>
+<script>
+// แสดงข้อผิดพลาดบนหน้าจอ (ไว้ตรวจสอบกรณีปุ่มไม่ทำงาน)
+(function(){
+  function show(m){var b=document.getElementById('errbar');if(!b)return;b.style.display='block';b.textContent+=(b.textContent?'\n':'')+m;}
+  window.addEventListener('error',function(e){show('Error: '+e.message+' (บรรทัด '+e.lineno+')');});
+  window.addEventListener('unhandledrejection',function(e){show('Error: '+(e.reason&&e.reason.message||e.reason));});
+})();
+// [ชื่อคอลัมน์ใน Sheet, ชื่อที่แสดง, ชนิด (d=Dropdown, t=จิ้มแล้วแก้ไขได้, r=แสดงอย่างเดียว), 1=ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ]
+const GROUPS = [
+  ['ข้อมูล', [['การตรวจเครื่อง','การตรวจเครื่อง','d'],['StatusN','StatusN','d'],['IT Asset No','รหัส Asset','r'],['Computername','Computername','t'],['Location','Location','d'],['IP','IP','t'],['ผู้ถือครอง','ผู้ถือครอง','c'],['หมายเหตุ','หมายเหตุ','t']]],
+  ['Software', [['Window','Window','d'],['MS Office','MS Office','d'],['Keyoffice','Keyoffice','c'],['Antivirus','Antivirus','d'],['Program Other','Program Other','t']]],
+  ['Hardware', [['Model','Model','r'],['Serial No','Serial No','t'],['CPU','CPU','d'],['Ram','Ram','d'],['Mainboard','Mainboard','d'],['Harddisk','Harddisk','d']]]
+];
+const BRANCHES=['SNNP','SDF','SSF','KH','SRI'];
+const branchOf=v=>String(v||'').trim().split('-')[0].toUpperCase();
+let H=[], R=[], cur=null, mode=1; const OPTS={};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const col=(n,last)=>last?H.lastIndexOf(n):H.indexOf(n);
+const ASSET=()=>col('IT Asset No'), LOC=()=>col('Location');
+// ผูกปุ่มโหมดไว้ก่อนสุด เพื่อให้กดได้เสมอ แม้ส่วนอื่นของสคริปต์จะมีปัญหา
+document.querySelectorAll('.modes>button').forEach(b=>b.addEventListener('click',()=>setMode(+b.id.slice(1))));
+
+// ===== ตั้งค่าตรงนี้ =====
+// วาง Web app URL ของ Apps Script (ลงท้ายด้วย /exec) เพื่อใช้ข้อมูลจริงเมื่อเปิดจาก GitHub Pages
+// ถ้าเว้นว่างไว้ และไม่ได้เปิดผ่าน Apps Script จะเข้าโหมดทดลอง (ข้อมูลตัวอย่าง)
+const API_URL='';
+// ========================
+const IN_GAS=!!(window.google&&google.script&&google.script.run);
+
+if(!IN_GAS&&API_URL){
+  // เปิดจากที่อื่น (เช่น GitHub Pages): เรียก Apps Script ผ่าน URL ด้วย fetch แต่ใช้รูปแบบเดียวกับ google.script.run
+  (function(){
+    const LS={get:k=>{try{return localStorage.getItem(k);}catch(e){return null;}},
+              set:(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}},
+              del:k=>{try{localStorage.removeItem(k);}catch(e){}}};
+    // ช่องใส่รหัสผ่านในหน้าเว็บ (ไม่ใช้ prompt() เพราะบางเบราว์เซอร์/แอปในมือถือบล็อกไว้)
+    let pend=null;
+    function creds(){
+      const key=LS.get('asset_key'),who=LS.get('asset_who');
+      if(key&&who!==null)return Promise.resolve({key,who:who||''});
+      if(pend)return pend;
+      pend=new Promise(res=>{
+        const d=document.createElement('div');
+        d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+        d.innerHTML='<div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:340px;box-shadow:0 8px 30px rgba(0,0,0,.3)">'+
+          '<div style="font-weight:700;font-size:16px;margin-bottom:12px">เข้าใช้งาน IT Asset</div>'+
+          '<label style="display:block;margin-bottom:3px">รหัสผ่าน</label>'+
+          '<input id="lg_k" type="password" autocomplete="current-password" style="width:100%;margin-bottom:10px">'+
+          '<label style="display:block;margin-bottom:3px">ชื่อของคุณ (ใช้บันทึกในประวัติการแก้ไข)</label>'+
+          '<input id="lg_w" type="text" style="width:100%;margin-bottom:14px">'+
+          '<button id="lg_b" type="button" style="width:100%;background:var(--acc);color:#fff;border:0;border-radius:8px;padding:10px;font:inherit;font-weight:600;cursor:pointer">เข้าใช้งาน</button>'+
+          '<div id="lg_e" style="color:#b91c1c;font-size:12px;margin-top:8px;min-height:14px"></div></div>';
+        document.body.appendChild(d);
+        const k=d.querySelector('#lg_k'),w=d.querySelector('#lg_w'),e=d.querySelector('#lg_e');
+        if(LS.get('asset_who'))w.value=LS.get('asset_who');
+        k.focus();
+        const go=()=>{
+          if(!k.value.trim()){e.textContent='กรุณาใส่รหัสผ่าน';return;}
+          LS.set('asset_key',k.value.trim());LS.set('asset_who',w.value.trim());
+          d.remove();pend=null;res({key:k.value.trim(),who:w.value.trim()});
+        };
+        d.querySelector('#lg_b').onclick=go;
+        d.onkeydown=ev=>{if(ev.key==='Enter')go();};
+      });
+      return pend;
+    }
+    const call=async(fn,args)=>{
+      const c=await creds();
+      const res=await fetch(API_URL,{method:'POST',redirect:'follow',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({fn,args,key:c.key,editor:c.who})});
+      const j=await res.json();
+      if(!j.ok){
+        if(j.error==='unauthorized'){LS.del('asset_key');throw new Error('รหัสผ่านไม่ถูกต้อง รีเฟรชหน้าแล้วใส่ใหม่');}
+        throw new Error(j.error||'เกิดข้อผิดพลาด');
+      }
+      return j.data;
+    };
+    const run=(ok,fail)=>new Proxy({},{get:(t,k)=>k==='withSuccessHandler'?f=>run(f,fail):k==='withFailureHandler'?f=>run(ok,f):
+      (...a)=>{call(k,a).then(d=>ok&&ok(d)).catch(e=>fail?fail(e):console.error(e));}});
+    window.google={script:{run:run()}};
+  })();
+}
+
+if(!IN_GAS&&!API_URL){
+  // ไม่ได้เปิดผ่าน Google Apps Script: ใช้ข้อมูลตัวอย่างเพื่อทดลองหน้าจอ
+  (function(){
+    const HD=['IT Asset No','Ax Asset No','Status','Assetname','Model','Serial No','Computername','CPU','Ram','Mainboard','Harddisk','VGA','IP Address','Lan Mac address','Wireless Mac address','Start Date','EmpId','ผู้ถือครอง','Location','Window','MS Office','Pdf Reader','Zip','Antivirus','Teamviewer','Browser','Dynamic AX','Forticlient','Keyoffice','Program Other','Costcenter','Costcenter_Name','Remark','เครื่องเช่า','เครื่องที่คุณดิวเลือก','เครื่องไม่ส่งAudit','StatusN','การตรวจเครื่อง','หมายเหตุ','ประเภท Asset','สาขา'];
+    const mk=(n,asset,loc,who,win,off,av,key,st,chk,type)=>{
+      const v=HD.map(()=>'');const set=(h,x)=>{v[HD.indexOf(h)]=x;};
+      set('IT Asset No',asset);set('Status','NM');set('Assetname',asset);set('Model','Model X');set('Serial No','SN'+n);
+      set('Computername','PC'+n);set('CPU','Intel(R) Core(TM) i5');set('Ram','8.0 GB');set('Mainboard','ASUS X407UF');
+      set('Harddisk','Samsung SSD 500GB');set('IP Address','192.168.1.'+(10+n));set('Start Date','31/03/65');
+      set('EmpId',123450+n);set('ผู้ถือครอง',who);set('Location',loc);set('Window',win);set('MS Office',off);
+      set('Antivirus',av);set('Keyoffice',key);set('Costcenter','2101'+n);set('Costcenter_Name',loc);
+      set('เครื่องไม่ส่งAudit','N');set('StatusN',st);set('การตรวจเครื่อง',chk);set('ประเภท Asset',type);set('สาขา',branchOf(loc));
+      return {n,v};
+    };
+    const rows=[mk(1,'NB-1-61-1','SDF-RD','นิจวรรณ','Windows 10','MS Office 2016','AntiVirus Avira','GWN8F-6J9KK-QM3YD-WGV6M-B4G7X','ใช้งาน','ตรวจแล้ว','Asset'),
+      mk(2,'PC-1-61-2','KH-QC','สมชาย','Windows 10','MS Office 2016','AntiVirus Windows Defender','TVBGK-N4JMH-KBJ6R-YXDRH-KHJYK','เสีย','','Asset'),
+      mk(3,'PC-1-61-3','KH-QC','สมหญิง','Windows 10','','AntiVirus Avira','','ใช้งาน','ตรวจแล้ว','Asset'),
+      mk(4,'เช่า-004','KH-QC','สมศรี','Windows 10','MS Office 2016','AntiVirus Avira','','ใช้งาน','ตรวจแล้ว','เครื่องเช่า')];
+    const mockRun=(ok,fail)=>new Proxy({},{get:(t,k)=>k==='withSuccessHandler'?f=>mockRun(f,fail):k==='withFailureHandler'?f=>mockRun(ok,f):
+      (...a)=>setTimeout(()=>{
+        if(k==='getData')ok({headers:HD,rows});
+        else if(k==='saveRow')ok({saved:Object.keys(a[2]).length});
+        else ok([]);
+      },150)});
+    window.google={script:{run:mockRun()}};
+    const bar=document.getElementById('errbar');
+    bar.style.display='block';bar.style.background='#92400e';
+    bar.textContent='โหมดทดลอง: ไม่ได้เชื่อมต่อ Google Sheet (ข้อมูลเป็นตัวอย่าง บันทึกไม่ได้จริง)';
+  })();
+}
+try{
+  google.script.run.withSuccessHandler(d=>{
+    try{H=d.headers;R=d.rows;init();}
+    catch(e){$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>';}
+  }).withFailureHandler(e=>$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>').getData();
+}catch(e){$('list').innerHTML='<div class="empty bad">เชื่อมต่อ Google Apps Script ไม่ได้: '+esc(e.message)+'</div>';}
+
+// ประเภท Asset มี 2 ชนิด: "เครื่องเช่า" และ "Asset"
+// ดูจากคอลัมน์ "ประเภท Asset" (หรือ ประเภท / Asset Type / Type) ถ้ามี ไม่เช่นนั้นดูจากรหัส Asset
+// ถ้าข้อความมีคำว่า "เช่า" หรือ "rent" = เครื่องเช่า นอกนั้น = Asset
+const TYPECOLS=['ประเภท Asset','ประเภท','Asset Type','Type'];
+const ASSET_TYPES=['เครื่องเช่า','Asset SNNP'];
+let TI=-1;
+const typeOf=r=>/เช่า|rent/i.test(String(TI>=0?r.v[TI]:r.v[ASSET()])??'')?'เครื่องเช่า':'Asset SNNP';
+const locOf=r=>String(r.v[LOC()]??'').trim();
+
+// ตัวกรอง (เรียงตามนี้): k=ชื่อที่แสดง, c=ชื่อคอลัมน์, l=1 ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ, g=ฟังก์ชันดึงค่าเอง
+const FILTERS=[
+  {k:'ประเภท Asset',g:typeOf,all:1},
+  {k:'สาขา',g:r=>branchOf(r.v[LOC()])},
+  {k:'Location',c:'Location'},
+  {k:'StatusN',c:'StatusN'},
+  {k:'การตรวจเครื่อง',c:'การตรวจเครื่อง'},
+  {k:'Window',c:'Window'},
+  {k:'MS Office',c:'MS Office'},
+  {k:'Antivirus',c:'Antivirus'},
+  {k:'ผู้ถือครอง',c:'ผู้ถือครอง',sec:'ข้อมูลเครื่อง'},
+  {k:'IP',c:'IP',sec:'ข้อมูลเครื่อง'}
+];
+let FIL=[],SEL=[];
+const ALL='__ALL__', HAS='__HAS__';
+function buildFilters(){
+  FIL=[];SEL=[];
+  let h='<div class="fh"><button id="fclr" type="button">ล้างทั้งหมด</button></div>';
+  let lastSec='';
+  FILTERS.forEach(f=>{
+    let get=f.g;
+    if(!get){const i=col(f.c,f.l); if(i<0)return; get=r=>String(r.v[i]??'').trim();}
+    if(f.sec&&f.sec!==lastSec){h+=`<div class="fsec">${f.sec}</div>`;}
+    lastSec=f.sec||'';
+    const j=FIL.length; FIL.push({k:f.k,get}); SEL.push(new Set());
+    if(f.sec){
+      // ติ๊กอย่างเดียว ไม่แสดงรายการ: ติ๊ก = กรองเฉพาะเครื่องที่มีข้อมูลในช่องนั้น
+      const g0=get; FIL[j].get=r=>g0(r)?HAS:'';
+      h+=`<div class="fg"><b><label><input type="checkbox" data-tg="${j}">${f.k}</label></b></div>`;
+      return;
+    }
+    const vals=[...new Set(R.map(get))].sort((a,b)=>a.localeCompare(b));
+    h+=`<div class="fg"><b>${f.k}</b><div class="fo">`+
+      (f.all?`<label><input type="checkbox" data-f="${j}" value="${ALL}">ทั้งหมด</label>`:'')+
+      vals.map(v=>`<label><input type="checkbox" data-f="${j}" value="${esc(v)}">${v?esc(v):'(ว่าง)'}</label>`).join('')+
+      '</div></div>';
+  });
+  $('fbox').innerHTML=h;
+}
+// แถวที่ผ่านตัวกรอง (null = ยังไม่ได้เลือกตัวกรองใด)
+function filterRows(){
+  const act=SEL.map((s,j)=>s.size?j:-1).filter(j=>j>=0);
+  if(!act.length)return null;
+  return R.filter(r=>act.every(j=>SEL[j].has(ALL)||SEL[j].has(FIL[j].get(r))));
+}
+$('fbox').onchange=e=>{
+  const t=e.target;
+  if(t.dataset.tg!==undefined){
+    const st=SEL[+t.dataset.tg]; st.clear(); if(t.checked)st.add(HAS);
+    render();return;
+  }
+  if(t.dataset.f===undefined)return;
+  const s=SEL[+t.dataset.f];
+  if(t.checked){
+    // "ทั้งหมด" กับตัวเลือกอื่นในกลุ่มเดียวกันเลือกพร้อมกันไม่ได้
+    t.closest('.fo').querySelectorAll('input').forEach(x=>{
+      if(x!==t&&((t.value===ALL)||(x.value===ALL))){x.checked=false;s.delete(x.value);}
+    });
+    s.add(t.value);
+  }else s.delete(t.value);
+  render();
 };
-
-// เปิด URL /exec ในเบราว์เซอร์ตรง ๆ (GET) จะมาที่ฟังก์ชันนี้ ใช้เช็กว่า API ทำงานอยู่
-// ถ้าโปรเจกต์มี doGet เดิมอยู่แล้ว ให้ลบอันนี้ออก (มี doGet ได้ตัวเดียว)
-function doGet() {
-  return ContentService.createTextOutput('IT Asset API is running')
-    .setMimeType(ContentService.MimeType.TEXT);
-}
-
-function doPost(e) {
-  var out;
-  try {
-    var req = JSON.parse(e.postData.contents);
-    var token = PropertiesService.getScriptProperties().getProperty('TOKEN');
-    if (!token || req.key !== token) {
-      out = { ok: false, error: 'unauthorized' };
-    } else if (!API.hasOwnProperty(req.fn)) {
-      out = { ok: false, error: 'unknown function' };
-    } else {
-      out = { ok: true, data: API[req.fn].apply(null, (req.args || []).concat([req.editor || ''])) };
-    }
-  } catch (err) {
-    out = { ok: false, error: String(err && err.message || err) };
+$('fbox').onclick=e=>{
+  if(e.target.id==='fclr'){
+    SEL.forEach(s=>s.clear());
+    $('fbox').querySelectorAll('input').forEach(x=>x.checked=false);
+    render();
   }
-  return ContentService.createTextOutput(JSON.stringify(out))
-    .setMimeType(ContentService.MimeType.JSON);
-}
+};
+$('xl').onclick=exportExcel;
 
-function cell_(v) {
-  if (v instanceof Date) return Utilities.formatDate(v, TZ, 'dd/MM/yyyy');
-  return v;
+// Print to Excel: ส่งออกเฉพาะรายการที่ผ่านตัวกรอง
+let xlsxP=null;
+function loadXlsx(){
+  if(window.XLSX)return Promise.resolve();
+  if(!xlsxP)xlsxP=new Promise((ok,no)=>{
+    const sc=document.createElement('script');
+    sc.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    sc.onload=ok;sc.onerror=()=>{xlsxP=null;no(new Error('โหลดตัวสร้าง Excel ไม่สำเร็จ'));};
+    document.head.appendChild(sc);
+  });
+  return xlsxP;
 }
-
-function apiGetData() {
-  var sh = SpreadsheetApp.getActive().getSheetByName(SHEET_NAME);
-  var vals = sh.getDataRange().getValues();
-  var headers = vals[0].map(function (h) { return String(h).trim(); });
-  var a = headers.indexOf(ASSET_COL);
-  var rows = [];
-  for (var r = 1; r < vals.length; r++) {
-    if (a >= 0 && String(vals[r][a]).trim() === '') continue; // ข้ามแถวว่าง
-    rows.push({ n: r + 1, v: vals[r].map(cell_) });          // n = เลขแถวจริงในชีต
+function saveBlob(blob,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+}
+async function exportExcel(){
+  const rows=R; if(!rows||!rows.length)return; // ส่งออกทุกรายการ ไม่เกี่ยวกับ Filter
+  const cols=[];
+  // ดึงทุกคอลัมน์จาก Google Sheet (Asset01) ตามลำดับเดิม ไม่เพิ่มคอลัมน์อื่น
+  H.forEach((h,i)=>cols.push([String(h||'').trim()||('คอลัมน์ '+(i+1)),r=>r.v[i]]));
+  const data=[cols.map(c=>c[0])].concat(rows.map(r=>cols.map(c=>{const v=c[1](r);return typeof v==='number'?v:String(v??'');})));
+  const d=new Date(),p2=n=>String(n).padStart(2,'0');
+  const name='IT_Asset_'+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+'_'+p2(d.getHours())+p2(d.getMinutes());
+  const m=$('msg'); m.className='';m.textContent='กำลังสร้างไฟล์ Excel…';
+  try{
+    await loadXlsx();
+    const ws=XLSX.utils.aoa_to_sheet(data);
+    ws['!cols']=cols.map((c,j)=>({wch:Math.min(40,Math.max(10,...data.slice(0,200).map(r=>String(r[j]).length)))}));
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'IT Asset');
+    XLSX.writeFile(wb,name+'.xlsx');
+  }catch(err){
+    // สำรอง: ถ้าโหลดตัวสร้าง .xlsx ไม่ได้ ให้ส่งออกเป็น .xls (เปิดใน Excel ได้)
+    const t='<html><head><meta charset="utf-8"></head><body><table border="1">'+
+      data.map((r,i)=>'<tr>'+r.map(v=>(i?'<td style="mso-number-format:\'@\'">':'<th>')+esc(v)+(i?'</td>':'</th>')).join('')+'</tr>').join('')+
+      '</table></body></html>';
+    saveBlob(new Blob(['\ufeff'+t],{type:'application/vnd.ms-excel;charset=utf-8'}),name+'.xls');
   }
-  return { headers: headers, rows: rows };
+  m.className='ok';m.textContent='ส่งออก '+rows.length+' รายการ';
 }
 
-// changes = { "<ลำดับคอลัมน์ เริ่มที่ 0>": "ค่าใหม่" }
-function apiSaveRow(n, assetNo, changes, editor) {
-  var lock = LockService.getScriptLock();
-  lock.waitLock(20000);
-  try {
-    var ss = SpreadsheetApp.getActive();
-    var sh = ss.getSheetByName(SHEET_NAME);
-    var hist = ss.getSheetByName(HISTORY_NAME);
-    var headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0]
-      .map(function (h) { return String(h).trim(); });
-    var a = headers.indexOf(ASSET_COL);
-    var row = sh.getRange(n, 1, 1, headers.length).getValues()[0];
-    // กันเขียนผิดแถว ถ้ามีคนเพิ่ม/ลบแถวระหว่างที่เปิดหน้าค้างไว้
-    if (String(row[a]).trim() !== String(assetNo).trim()) {
-      throw new Error('ข้อมูลในชีตเปลี่ยนไปแล้ว กรุณารีเฟรชหน้าแล้วลองใหม่');
-    }
-    var now = new Date(), log = [], saved = 0;
-    Object.keys(changes).forEach(function (k) {
-      var i = Number(k);
-      if (!(i >= 0 && i < headers.length)) return;
-      var oldV = row[i], newV = changes[k];
-      if (String(oldV) === String(newV)) return;
-      sh.getRange(n, i + 1).setValue(newV);
-      log.push([now, assetNo, headers[i], cell_(oldV), newV, editor || '']);
-      saved++;
+const isNB=r=>/NB|note\s*book|laptop|โน้ตบุ๊ก|โน๊ตบุ๊ก/i.test([r.v[ASSET()],r.v[col('Model')],r.v[col('Computername')]].join(' '));
+function buildStats(){
+  const ci=col('การตรวจเครื่อง');
+  const rent=R.filter(r=>typeOf(r)==='เครื่องเช่า');
+  const nb=rent.filter(isNB).length;
+  const row=(t,n,s)=>`<div class="r${s==1?' s':s==2?' t':''}"><span>${t}</span><b>${n}</b></div>`;
+  $('stats').innerHTML=
+    row('คอมพิวเตอร์ทั้งหมด',R.length,2)+
+    row('เครื่องเช่า',rent.length)+
+    row('- PC',rent.length-nb,1)+
+    row('- Notebook',nb,1)+
+    row('Asset SNNP',R.filter(r=>typeOf(r)==='Asset SNNP').length)+
+    row('ตรวจแล้ว',R.filter(r=>String(r.v[ci]??'').trim()==='ตรวจแล้ว').length)+
+    row('ว่าง',R.filter(r=>!String(r.v[ci]??'').trim()).length);
+}
+function init(){
+  TI=TYPECOLS.map(n=>H.indexOf(n)).find(i=>i>=0)??-1;
+  $('typ').innerHTML='<option value="">ทั้งหมด</option>'+ASSET_TYPES.map(x=>`<option>${esc(x)}</option>`).join('');
+  $('loc').innerHTML='<option value="">— เลือกสาขา —</option>'+BRANCHES.map(l=>`<option>${esc(l)}</option>`).join('');
+  $('loc2').innerHTML='<option value="">— เลือก Location —</option>';
+  // ตัวเลือก Dropdown ดึงจากค่าที่มีอยู่ใน Sheet
+  GROUPS.forEach(g=>g[1].forEach(f=>{
+    if(f[2]!=='d'&&f[2]!=='c')return;
+    const i=col(f[0],f[3]); if(i<0)return;
+    OPTS[i]=[...new Set(R.map(r=>r.v[i]).filter(Boolean))].sort();
+  }));
+  buildFilters();
+  buildStats();
+  render();
+}
+
+function render(){render0();fitList();}
+function fitList(){
+  const l=$('list');
+  if(PCQ.matches&&mode!=3&&!$('grid').hidden){l.style.height=Math.max(200,window.innerHeight-l.getBoundingClientRect().top-12)+'px';}
+  else l.style.height='';
+}
+window.addEventListener('resize',fitList);
+function render0(){
+  const g=$('grid');
+  if(mode==1){
+    const l2=$('loc2').value;
+    $('list').hidden=false;g.classList.remove('one');
+    g.hidden=!l2;
+    if(!l2)return;
+    const ty=$('typ').value;
+    const rows=R.filter(r=>r.v[LOC()]===l2&&(!ty||typeOf(r)===ty));
+    $('list').innerHTML=`<div class="head">รหัส Asset ทั้งหมด — ${rows.length} รายการ</div>`+(rows.map(r=>
+      `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b><span>${esc(r.v[col('ผู้ถือครอง')])}</span></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
+    return;
+  }
+  if(mode==3){
+    $('list').hidden=false;g.classList.remove('one');
+    const rows=filterRows();
+    g.hidden=!rows;
+    if(!rows)return;
+    $('list').innerHTML=`<div class="head">${rows.length} รายการ</div>`+(rows.slice(0,200).map(r=>
+      `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b><span>${esc(r.v[LOC()])} · ${esc(r.v[col('ผู้ถือครอง')])}</span></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
+    return;
+  }
+  $('list').hidden=false;g.classList.remove('one');
+  const q=$('q2').value.trim().toLowerCase();
+  g.hidden=!q;
+  if(!q)return;
+  const ix=['IT Asset No','Computername','Serial No','ผู้ถือครอง'].map(n=>col(n));
+  const rows=R.filter(r=>ix.some(i=>String(r.v[i]).toLowerCase().includes(q)));
+  $('list').innerHTML=`<div class="head">${rows.length} รายการ</div>`+(rows.slice(0,200).map(r=>
+    `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b><span>${esc(r.v[LOC()])} · ${esc(r.v[col('ผู้ถือครอง')])}</span></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
+  if(rows.length===1)open(rows[0].n);
+}
+
+$('list').onclick=e=>{const d=e.target.closest('.it');if(d)open(+d.dataset.n);};
+
+function open(n){
+  cur=R.find(r=>r.n===n);
+  document.querySelectorAll('.it').forEach(x=>x.classList.toggle('sel',+x.dataset.n===n));
+  $('grid').hidden=false;
+  let h=`<p class="ttl">${esc(cur.v[ASSET()])}</p><p class="sub">${esc(cur.v[LOC()])}</p>`;
+  // โหมด Filter บนคอม: Software/Hardware แยกไปวางในช่อง #panel2 ข้างรายการ
+  const split=false; let h2='';
+  GROUPS.forEach((g,gi)=>{
+    const h0=h; h='';
+    h+=`<div class="sec">${g[0]}</div><div class="f">`;
+    g[1].forEach(f=>{
+      const i=col(f[0],f[3]); if(i<0)return;
+      const v=cur.v[i]; let c;
+      if(f[2]==='d'){
+        const o=(OPTS[i]||[]).slice(); if(v&&!o.includes(v))o.push(v);
+        c=`<select data-i="${i}"><option value=""></option>${o.map(x=>`<option${x===v?' selected':''}>${esc(x)}</option>`).join('')}</select>`;
+      }else if(f[2]==='c'){
+        c=`<div class="cb"><input data-i="${i}" value="${esc(v)}" autocomplete="off"><button type="button" class="cbb" tabindex="-1" aria-label="เลือกจากรายการ">▾</button><div class="cbl" hidden></div></div>`;
+      }else c=`<input data-i="${i}" value="${esc(v)}"${f[2]==='r'?' readonly':''}>`;
+      h+=`<div${(f[0]==='การตรวจเครื่อง'||f[0]==='StatusN')?' class="chk"':''}><label>${f[1]}</label>${c}</div>`;
     });
-    if (log.length && hist) {
-      hist.getRange(hist.getLastRow() + 1, 1, log.length, 6).setValues(log);
-    }
-    return { saved: saved };
-  } finally {
-    lock.releaseLock();
-  }
+    h+='</div>';
+    h=h0+h;
+  });
+  $('panel').innerHTML=h;
+  $('panel2').innerHTML=h2;$('panel2').hidden=!split;
+  const onIn=e=>{if(e.target.dataset.i)e.target.closest('.f>div').classList.toggle('chg',e.target.value!==cur.v[e.target.dataset.i]);};
+  $('panel').onclick=null;
+  $('panel').oninput=onIn;$('panel2').oninput=onIn;
+  $('sv').disabled=false;$('hs').disabled=false;$('msg').textContent='';
+  if(window.innerWidth<641)$('panel').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function apiGetHistory(assetNo) {
-  var hist = SpreadsheetApp.getActive().getSheetByName(HISTORY_NAME);
-  if (!hist || hist.getLastRow() < 2) return [];
-  var vals = hist.getRange(2, 1, hist.getLastRow() - 1, 6).getValues();
-  return vals
-    .filter(function (r) { return String(r[1]).trim() === String(assetNo).trim(); })
-    .reverse() // ใหม่สุดขึ้นก่อน
-    .map(function (r) {
-      var d = r[0] instanceof Date ? Utilities.formatDate(r[0], TZ, 'dd/MM/yyyy HH:mm:ss') : r[0];
-      return [d, r[1], r[2], r[3], r[4], r[5]];
-    });
+// Dropdown แบบเลือกจากรายการหรือพิมพ์เพิ่มเอง
+(function(){
+  const pn=$('panel');
+  function fill(cb,filter){
+    const inp=cb.querySelector('input'),l=cb.querySelector('.cbl');
+    const q=(filter||'').trim().toLowerCase();
+    const o=(OPTS[inp.dataset.i]||[]).filter(x=>!q||String(x).toLowerCase().includes(q)).slice(0,300);
+    l.innerHTML=o.length?o.map(x=>`<div class="o">${esc(x)}</div>`).join(''):'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>';
+    l.hidden=false;
+  }
+  function closeAll(except){document.querySelectorAll('#panel .cbl').forEach(l=>{if(l.parentNode!==except)l.hidden=true;});}
+  pn.addEventListener('click',e=>{
+    const cb=e.target.closest('.cb'); if(!cb)return;
+    const l=cb.querySelector('.cbl');
+    if(e.target.closest('.cbb')){
+      if(l.hidden){closeAll(cb);fill(cb,'');}else l.hidden=true;
+    }else if(e.target.classList.contains('o')){
+      const inp=cb.querySelector('input'); inp.value=e.target.textContent;
+      inp.dispatchEvent(new Event('input',{bubbles:true})); l.hidden=true;
+    }
+  });
+  pn.addEventListener('input',e=>{
+    const cb=e.target.closest('.cb'); if(cb&&e.isTrusted){closeAll(cb);fill(cb,e.target.value);}
+  });
+  document.addEventListener('click',e=>{if(!e.target.closest('.cb'))closeAll(null);});
+})();
+
+function save(){
+  const ch={};
+  document.querySelectorAll('#panel input[data-i],#panel select[data-i],#panel2 input[data-i],#panel2 select[data-i]').forEach(x=>{if(!x.readOnly&&x.value!==cur.v[x.dataset.i])ch[x.dataset.i]=x.value;});
+  const m=$('msg');
+  if(!Object.keys(ch).length){m.className='';m.textContent='ยังไม่มีการแก้ไข';return;}
+  $('sv').disabled=true;$('hs').disabled=true;m.className='';m.textContent='กำลังบันทึก…';
+  google.script.run.withSuccessHandler(r=>{
+    Object.keys(ch).forEach(i=>cur.v[i]=ch[i]);
+    $('sv').disabled=false;m.className='ok';m.textContent='บันทึกแล้ว '+r.saved+' ช่อง';
+    document.querySelectorAll('#panel .chg,#panel2 .chg').forEach(x=>x.classList.remove('chg'));
+  }).withFailureHandler(e=>{$('sv').disabled=false;m.className='bad';m.textContent=e.message;})
+  .saveRow(cur.n,cur.v[ASSET()],ch);
 }
+
+// โหมด
+$('sv').onclick=save;
+$('hs').onclick=()=>{
+  if(!cur)return;
+  $('hdt').textContent='ประวัติการแก้ไข — '+cur.v[ASSET()];
+  $('hbd').innerHTML='<div class="empty">กำลังโหลด…</div>';$('hist').style.display='flex';
+  google.script.run.withSuccessHandler(rs=>{
+    $('hbd').innerHTML=rs.length?'<table><tr><th>วันที่แก้ไข</th><th>ช่อง</th><th>ค่าเดิม → ค่าใหม่</th><th>ผู้แก้ไข</th></tr>'+rs.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[2])}</td><td><span class="old">${esc(r[3])||'(ว่าง)'}</span> → <span class="new">${esc(r[4])||'(ว่าง)'}</span></td><td>${esc(r[5])}</td></tr>`).join('')+'</table>':'<div class="empty">ยังไม่มีประวัติการแก้ไข</div>';
+  }).withFailureHandler(e=>$('hbd').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>').getHistory(cur.v[ASSET()]);
+};
+$('hx').onclick=()=>$('hist').style.display='none';
+$('hist').onclick=e=>{if(e.target.id==='hist')$('hist').style.display='none';};
+// PC + โหมด Filter: ย้ายรายการ/หน้าแก้ไขไปไว้ข้างตัวกรอง / มือถือและโหมดอื่น: อยู่ด้านล่างตามเดิม
+const PCQ=window.matchMedia('(min-width:641px)');
+function placeGrid(){
+  (PCQ.matches?(mode==3?$('fres'):document.querySelector('.bars')):document.querySelector('main')).appendChild($('grid'));
+  if(cur)open(cur.n);
+  fitList(); // จัดตำแหน่ง Software/Hardware ใหม่เมื่อขนาดจอเปลี่ยน
+}
+PCQ.addEventListener?PCQ.addEventListener('change',placeGrid):PCQ.addListener(placeGrid);
+placeGrid();
+function setMode(m){
+  mode=m;cur=null;$('panel2').hidden=true;$('sv').disabled=true;$('hs').disabled=true;$('msg').textContent='';
+  placeGrid();
+  [1,2,3].forEach(k=>{$('m'+k).classList.toggle('on',m==k);$('bar'+k).hidden=m!=k;});
+  render();
+}
+function fillLoc2(){
+  const b=$('loc').value;
+  const ty=$('typ').value;
+  const locs=[...new Set(R.filter(r=>branchOf(r.v[LOC()])===b&&(!ty||typeOf(r)===ty)).map(r=>r.v[LOC()]))].sort();
+  $('loc2').disabled=!b;
+  $('loc2').innerHTML='<option value="">— เลือก Location —</option>'+locs.map(x=>`<option>${esc(x)}</option>`).join('');
+  fillAsset();
+}
+function fillAsset(){
+  cur=null;$('sv').disabled=true;$('hs').disabled=true;
+  $('panel').innerHTML='<div class="empty">เลือกรหัส Asset เพื่อดูและแก้ไข</div>';
+  render();
+}
+$('loc').onchange=fillLoc2;
+$('typ').onchange=fillLoc2;
+$('loc2').onchange=fillAsset;
+$('q2').oninput=render;
+// เลือกรหัสจากการพูด/สแกน แล้วเติมสาขา+Location ให้อัตโนมัติ
+function pickAsset(t){
+  t=String(t).trim().toLowerCase();
+  const r=R.find(x=>String(x.v[ASSET()]).toLowerCase()===t)||R.find(x=>String(x.v[ASSET()]).toLowerCase().includes(t));
+  if(!r){alert('ไม่พบรหัส Asset: '+t);return;}
+  $('typ').value='';
+  $('loc').value=branchOf(r.v[LOC()]);
+  if($('loc').value!==branchOf(r.v[LOC()])){alert('รหัสนี้อยู่นอก 5 สาขาที่แสดง ลองใช้ "ค้นหา"');return;}
+  fillLoc2();$('loc2').value=r.v[LOC()];fillAsset();open(r.n);render();
+}
+function applyVal(id,t){$(id).value=t;render();}
+
+// ปุ่มพูดไมค์ (ถ้าไมค์ถูกบล็อกใน Apps Script จะให้ใช้ไมค์บนคีย์บอร์ดแทน)
+document.querySelectorAll('[data-mic]').forEach(b=>b.onclick=()=>{
+  const id=b.dataset.mic;
+  const fallback=()=>{b.classList.remove('rec');$(id).focus();alert('หน้านี้ไม่ได้รับสิทธิ์ใช้ไมค์โดยตรง (ข้อจำกัดของ Google Apps Script)\nกดไอคอนไมค์บนคีย์บอร์ดมือถือเพื่อพูดแทนได้เลย');};
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){fallback();return;}
+  const rc=new SR();rc.lang='th-TH';rc.interimResults=false;
+  b.classList.add('rec');
+  rc.onresult=e=>{const t=e.results[0][0].transcript.replace(/\s+/g,'').toUpperCase();applyVal(id,t);};
+  rc.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed')fallback();else{b.classList.remove('rec');if(e.error!=='no-speech'&&e.error!=='aborted')alert('ไมค์ผิดพลาด: '+e.error);}};
+  rc.onend=()=>b.classList.remove('rec');
+  try{rc.start();}catch(e){fallback();}
+});
+
+// ปุ่มสแกน: กล้องสด -> ถ้าถูกบล็อก ใช้ถ่ายรูปแล้วอ่านรหัสจากรูปแทน
+let stream=null,scanning=false,scanTarget=null;
+function stopCam(){scanning=false;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$('cam').style.display='none';}
+$('camx').onclick=stopCam;
+const fileIn=document.createElement('input');
+fileIn.type='file';fileIn.accept='image/*';fileIn.setAttribute('capture','environment');fileIn.hidden=true;
+document.body.appendChild(fileIn);
+function loadLib(){return new Promise((ok,no)=>{
+  if(window.Html5Qrcode)return ok();
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js';
+  s.onload=ok;s.onerror=()=>no(new Error('โหลดตัวสแกนไม่สำเร็จ'));document.head.appendChild(s);});}
+async function decodeFile(f){
+  if('BarcodeDetector' in window){
+    try{const c=await new BarcodeDetector().detect(await createImageBitmap(f));if(c.length)return c[0].rawValue;}catch(e){}
+  }
+  await loadLib();
+  const h=new Html5Qrcode('qrtmp');
+  try{return await h.scanFile(f,false);}finally{try{h.clear();}catch(e){}}
+}
+fileIn.onchange=async()=>{
+  const f=fileIn.files[0];fileIn.value='';if(!f)return;
+  try{applyVal(scanTarget,String(await decodeFile(f)).trim());}
+  catch(e){alert('อ่านรหัสจากรูปไม่ได้ ลองถ่ายใหม่ให้ใกล้และชัดขึ้น');}
+};
+document.querySelectorAll('[data-scan]').forEach(b=>b.onclick=async()=>{
+  scanTarget=b.dataset.scan;
+  if(!('BarcodeDetector' in window)||!navigator.mediaDevices){fileIn.click();return;}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+  }catch(e){fileIn.click();return;}
+  const v=$('vid');v.srcObject=stream;await v.play();$('cam').style.display='flex';
+  const det=new BarcodeDetector();scanning=true;
+  (async function loop(){
+    while(scanning){
+      try{const c=await det.detect(v);if(c.length){const t=c[0].rawValue.trim();stopCam();applyVal(b.dataset.scan,t);return;}}catch(e){}
+      await new Promise(r=>setTimeout(r,250));
+    }
+  })();
+});
+</script>
+</body>
+</html>
