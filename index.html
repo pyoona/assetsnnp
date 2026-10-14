@@ -321,7 +321,45 @@ const ASSET=()=>col('IT Asset No'), LOC=()=>col('Location');
 // ผูกปุ่มโหมดไว้ก่อนสุด เพื่อให้กดได้เสมอ แม้ส่วนอื่นของสคริปต์จะมีปัญหา
 document.querySelectorAll('.modes>button').forEach(b=>b.addEventListener('click',()=>setMode(+b.id.slice(1))));
 
-if(!(window.google&&google.script&&google.script.run)){
+// ===== ตั้งค่าตรงนี้ =====
+// วาง Web app URL ของ Apps Script (ลงท้ายด้วย /exec) เพื่อใช้ข้อมูลจริงเมื่อเปิดจาก GitHub Pages
+// ถ้าเว้นว่างไว้ และไม่ได้เปิดผ่าน Apps Script จะเข้าโหมดทดลอง (ข้อมูลตัวอย่าง)
+const API_URL='https://script.google.com/macros/s/AKfycbwxRevUh7j_oIu_wzF6GwfLR6q_SHSfgOqf_qITt-3i7WrayrpPFjw0uPjpRq7tD_U/exec';
+// ========================
+const IN_GAS=!!(window.google&&google.script&&google.script.run);
+
+if(!IN_GAS&&API_URL){
+  // เปิดจากที่อื่น (เช่น GitHub Pages): เรียก Apps Script ผ่าน URL ด้วย fetch แต่ใช้รูปแบบเดียวกับ google.script.run
+  (function(){
+    const LS={get:k=>{try{return localStorage.getItem(k);}catch(e){return null;}},
+              set:(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}},
+              del:k=>{try{localStorage.removeItem(k);}catch(e){}}};
+    function creds(){
+      let key=LS.get('asset_key'),who=LS.get('asset_who');
+      if(!key){key=prompt('ใส่รหัสผ่านเข้าใช้งาน');if(key)LS.set('asset_key',key);}
+      if(key&&!who){who=prompt('ใส่ชื่อของคุณ (ใช้บันทึกในประวัติการแก้ไข)')||'';LS.set('asset_who',who);}
+      return {key:key||'',who:who||''};
+    }
+    const call=async(fn,args)=>{
+      const c=creds();
+      if(!c.key)throw new Error('ต้องใส่รหัสผ่านก่อนใช้งาน (รีเฟรชหน้าแล้วลองใหม่)');
+      const res=await fetch(API_URL,{method:'POST',redirect:'follow',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({fn,args,key:c.key,editor:c.who})});
+      const j=await res.json();
+      if(!j.ok){
+        if(j.error==='unauthorized'){LS.del('asset_key');throw new Error('รหัสผ่านไม่ถูกต้อง รีเฟรชหน้าแล้วใส่ใหม่');}
+        throw new Error(j.error||'เกิดข้อผิดพลาด');
+      }
+      return j.data;
+    };
+    const run=(ok,fail)=>new Proxy({},{get:(t,k)=>k==='withSuccessHandler'?f=>run(f,fail):k==='withFailureHandler'?f=>run(ok,f):
+      (...a)=>{call(k,a).then(d=>ok&&ok(d)).catch(e=>fail?fail(e):console.error(e));}});
+    window.google={script:{run:run()}};
+  })();
+}
+
+if(!IN_GAS&&!API_URL){
   // ไม่ได้เปิดผ่าน Google Apps Script: ใช้ข้อมูลตัวอย่างเพื่อทดลองหน้าจอ
   (function(){
     const HD=['IT Asset No','Ax Asset No','Status','Assetname','Model','Serial No','Computername','CPU','Ram','Mainboard','Harddisk','VGA','IP Address','Lan Mac address','Wireless Mac address','Start Date','EmpId','ผู้ถือครอง','Location','Window','MS Office','Pdf Reader','Zip','Antivirus','Teamviewer','Browser','Dynamic AX','Forticlient','Keyoffice','Program Other','Costcenter','Costcenter_Name','Remark','เครื่องเช่า','เครื่องที่คุณดิวเลือก','เครื่องไม่ส่งAudit','StatusN','การตรวจเครื่อง','หมายเหตุ','ประเภท Asset','สาขา'];
