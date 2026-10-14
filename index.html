@@ -199,7 +199,7 @@ const ASSET=()=>col('IT Asset No'), LOC=()=>col('Location');
 document.querySelectorAll('.modes button').forEach(b=>b.addEventListener('click',()=>setMode(+b.id.slice(1))));
 
 // ===== ตั้งค่าการเชื่อมต่อ (แก้ 2 บรรทัดนี้หลัง Deploy Apps Script) =====
-const API_URL='PASTE_WEB_APP_URL_HERE';   // https://script.google.com/macros/s/AKfycbzO6R8uCKhRFmz9kBfFL9T6CVlUIv_CJrpG2gMpEGUi7ZrGoHgCspgv6AQ4bXUhXyY4/exec
+const API_URL='https://script.google.com/macros/s/AKfycbzO6R8uCKhRFmz9kBfFL9T6CVlUIv_CJrpG2gMpEGUi7ZrGoHgCspgv6AQ4bXUhXyY4/exec';
 const API_TOKEN='asset2026xyz';              // ต้องตรงกับ TOKEN ใน Code.gs
 
 // ผู้แก้ไข (เก็บในเครื่อง ถามครั้งแรกครั้งเดียว) ใช้บันทึกในชีตประวัติ
