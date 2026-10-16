@@ -1377,19 +1377,75 @@ async function toCanvas(src,zm){
 }
 const ocrClean=t=>String(t||'').replace(/[^A-Za-z0-9\-_\/.]/g,'').replace(/^[-_.\/]+|[-_.\/]+$/g,'');
 const ocrNorm=t=>String(t||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+// เตรียมภาพก่อนอ่าน: ขยาย + ปรับคอนทราสต์ (gray) หรือแปลงเป็นขาว-ดำแบบปรับตามแสงรอบจุด (bin) ช่วยกรณีพื้นสีเขียว/มีขอบดำ/แสงไม่เท่ากัน
+function ocrPrep(cv,mode){
+  const k=Math.max(1,Math.min(2.5,1600/Math.max(cv.width,cv.height)));
+  const c=document.createElement('canvas');c.width=Math.round(cv.width*k);c.height=Math.round(cv.height*k);
+  const cx=c.getContext('2d',{willReadFrequently:true});cx.imageSmoothingQuality='high';cx.drawImage(cv,0,0,c.width,c.height);
+  const W=c.width,H=c.height,n=W*H,im=cx.getImageData(0,0,W,H),d=im.data,g=new Uint8Array(n);
+  for(let i=0,j=0;i<n;i++,j+=4)g[i]=(d[j]*0.299+d[j+1]*0.587+d[j+2]*0.114)|0;
+  const hist=new Array(256).fill(0);for(let i=0;i<n;i++)hist[g[i]]++;
+  let lo=0,hi=255,acc=0;const t=n*0.02;
+  for(;lo<255;lo++){acc+=hist[lo];if(acc>t)break;}
+  acc=0;for(;hi>0;hi--){acc+=hist[hi];if(acc>t)break;}
+  const sc=hi>lo?255/(hi-lo):1;
+  for(let i=0;i<n;i++)g[i]=Math.max(0,Math.min(255,((g[i]-lo)*sc)|0));
+  let out=g;
+  if(mode==='bin'){
+    const S=new Float64Array((W+1)*(H+1));
+    for(let y=0;y<H;y++){let r=0;for(let x=0;x<W;x++){r+=g[y*W+x];S[(y+1)*(W+1)+x+1]=S[y*(W+1)+x+1]+r;}}
+    const rad=Math.max(8,Math.round(Math.min(W,H)/16));out=new Uint8Array(n);
+    for(let y=0;y<H;y++){const y0=Math.max(0,y-rad),y1=Math.min(H,y+rad+1);
+      for(let x=0;x<W;x++){const x0=Math.max(0,x-rad),x1=Math.min(W,x+rad+1);
+        const m=(S[y1*(W+1)+x1]-S[y0*(W+1)+x1]-S[y1*(W+1)+x0]+S[y0*(W+1)+x0])/((y1-y0)*(x1-x0));
+        out[y*W+x]=g[y*W+x]<m*0.85?0:255;}}
+  }
+  for(let i=0,j=0;i<n;i++,j+=4){d[j]=d[j+1]=d[j+2]=out[i];d[j+3]=255;}
+  cx.putImageData(im,0,0);return c;
+}
+function lev(a,b){
+  const m=a.length,n=b.length,dp=[];for(let j=0;j<=n;j++)dp[j]=j;
+  for(let i=1;i<=m;i++){let prev=dp[0];dp[0]=i;for(let j=1;j<=n;j++){const t=dp[j];dp[j]=Math.min(dp[j]+1,dp[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));prev=t;}}
+  return dp[n];
+}
+// อ่านข้อความจากภาพ แล้วจับคู่กับรหัส Asset ที่มีอยู่จริงในระบบ (ทนต่อการอ่านผิด 1-2 ตัว เช่น O/0, I/1, S/5)
 async function ocrBest(src){
   await loadTess();
   const cv=await toCanvas(src);
+  const known=R.map(r=>String(r.v[ASSET()]??'').trim()).filter(Boolean),kn=known.map(ocrNorm);
+  const find=txt=>{
+    const full=ocrNorm(txt);let best=null,bl=0;
+    for(let i=0;i<known.length;i++){const k=kn[i];if(k.length>=5&&k.length>bl&&full.includes(k)){best=known[i];bl=k.length;}}
+    if(best)return best;
+    let bd=99,ba=null,tie=false;
+    txt.split(/\s+/).map(ocrNorm).filter(t=>t.length>=5).forEach(t=>{
+      for(let i=0;i<known.length;i++){
+        const k=kn[i];if(Math.abs(k.length-t.length)>2)continue;
+        const dd=lev(t,k);if(dd>(k.length>=8?2:1))continue;
+        if(dd<bd){bd=dd;ba=known[i];tie=false;}else if(dd===bd&&known[i]!==ba)tie=true;
+      }
+    });
+    return ba&&!tie?ba:null;
+  };
   const wk=await Tesseract.createWorker('eng');
-  let data;
-  try{data=(await wk.recognize(cv)).data;}finally{try{await wk.terminate();}catch(e){}}
-  const words=(data.words||[]).map(w=>({t:ocrClean(w.text),c:w.confidence||0,h:w.bbox?(w.bbox.y1-w.bbox.y0):0}))
-    .filter(w=>w.t.length>=3&&w.c>=50);
+  const texts=[],words=[];
+  try{
+    await wk.setParameters({tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_/.'});
+    for(const [mode,psm] of [['gray','6'],['bin','6'],['bin','11'],['gray','11']]){
+      await wk.setParameters({tessedit_pageseg_mode:psm});
+      const data=(await wk.recognize(ocrPrep(cv,mode))).data;
+      const hit=find(data.text||'');
+      if(hit)return hit; // เจอรหัสที่ตรงกับในระบบ -> จบทันที
+      texts.push(data.text||'');
+      (data.words||[]).forEach(w=>{const t=ocrClean(w.text);if(t.length>=3&&(w.confidence||0)>=30)words.push({t,c:w.confidence||0,h:w.bbox?(w.bbox.y1-w.bbox.y0):0});});
+    }
+  }finally{try{await wk.terminate();}catch(e){}}
+  // ไม่ตรงกับรหัสในระบบ: ลองหารูปแบบรหัส เช่น PC-1-61-210 ก่อน ไม่งั้นใช้คำที่มั่นใจที่สุด
+  const pm=texts.join(' ').match(/[A-Za-z]{1,4}-\d+(?:-\d+)+/);
+  if(pm)return pm[0].toUpperCase();
   if(!words.length)return '';
-  // เลือกเฉพาะคำที่ชัดที่สุดคำเดียว (ไม่สนคำอื่นในภาพ): ความมั่นใจสูงสุด; กลุ่มที่ใกล้เคียงกัน (ห่างไม่เกิน 8) เลือกตัวใหญ่สุด แล้วยาวสุด
   const top=Math.max(...words.map(w=>w.c));
-  const best=words.filter(w=>w.c>=top-8).sort((a,b)=>b.h-a.h||b.t.length-a.t.length||b.c-a.c);
-  return best[0].t;
+  return words.filter(w=>w.c>=top-8).sort((a,b)=>b.h-a.h||b.t.length-a.t.length||b.c-a.c)[0].t;
 }
 async function runOcr(src){
   const m=$('msg');m.className='';m.textContent='กำลังอ่านข้อความ…';
