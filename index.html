@@ -500,6 +500,13 @@ main{max-width:1564px;padding-right:14px}
 #camz{display:flex;align-items:center;gap:10px;color:#fff;width:min(92vw,360px)}
 #camz input[type=range]{flex:1;min-width:0;padding:0;height:28px;border:0;background:transparent;accent-color:#22c55e}
 #cam #camz button{min-width:44px;min-height:44px;width:44px;padding:0;font-size:24px;font-weight:700;line-height:1;background:#fff;color:#0b1426;border-radius:50%}
+#bar2 .ic{flex:0 0 60px;font-size:28px;border-radius:10px;min-height:48px}
+#snapch{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:9;padding:16px}
+#snapch .sbox{background:#fff;border-radius:16px;padding:18px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:12px}
+#snapch .stt{font-weight:700;font-size:18px;text-align:center;margin-bottom:2px}
+#snapch button{min-height:68px;font:inherit;font-size:19px;font-weight:700;border-radius:12px;cursor:pointer;border:2px solid #15803d;background:#15803d;color:#fff}
+#snapch #snapgal{background:#fff;color:#15803d}
+#snapch #snapx{min-height:48px;font-size:16px;font-weight:600;background:#fff;color:#475569;border:2px solid #94a3b8}
 #camz span{min-width:44px;text-align:right;font-weight:700;font-size:15px}
 /* ปุ่ม Print to Excel ในแถบตัวกรอง */
 #fbox .fh{gap:8px}
@@ -528,7 +535,7 @@ main{max-width:1564px;padding-right:14px}
     <div class="fld"><label>Location</label><select id="loc2" disabled></select></div>
   </div>
   <div class="bar" id="bar2" hidden>
-    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง"><button class="ic" data-mic="q2" title="พูด">🎤</button><button class="ic" data-scan="q2" title="สแกน">▦</button><button class="ic" data-snap="q2" title="ถ่ายรูปแล้วสแกน">📷</button></div></div>
+    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง"><button class="ic" data-snap="q2" title="สแกน">▦</button></div></div>
   </div>
   <div class="bar" id="bar3" hidden>
     <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"></div></div>
@@ -547,7 +554,8 @@ main{max-width:1564px;padding-right:14px}
 
 <div id="brn"><div class="box"><div class="hd"><span id="brt">ข้อมูลเครื่องแต่ละสาขา</span><button id="bx" title="ปิด">✕</button></div><div class="bd" id="bbd"></div></div></div>
 <div id="hist"><div class="box"><div class="hd"><span id="hdt">ประวัติการแก้ไข</span><button id="hx" title="ปิด">✕</button></div><div class="bd" id="hbd"></div></div></div>
-<div id="cam"><div id="camw"><video id="vid" playsinline muted></video></div><div id="camz"><button type="button" id="camzm" aria-label="ซูมออก">−</button><input type="range" id="camzr" min="1" max="5" step="0.1" value="1" aria-label="ซูม"><button type="button" id="camzp" aria-label="ซูมเข้า">+</button><span id="camzl">1.0x</span></div><button id="camocr" type="button" style="background:#15803d;color:#fff;font-weight:700">📷 ถ่ายรูปแล้วสแกน</button><button id="camgal" type="button" style="background:#fff;color:#15803d;font-weight:700;border:2px solid #15803d">🖼 เลือกรูปจากเครื่อง</button><button id="camx">ปิดกล้อง</button></div>
+<div id="cam"><div id="camw"><video id="vid" playsinline muted></video></div><div id="camz"><button type="button" id="camzm" aria-label="ซูมออก">−</button><input type="range" id="camzr" min="1" max="5" step="0.1" value="1" aria-label="ซูม"><button type="button" id="camzp" aria-label="ซูมเข้า">+</button><span id="camzl">1.0x</span></div><button id="camocr" type="button" style="background:#15803d;color:#fff;font-weight:700">📷 ถ่ายรูปแล้วสแกน</button><button id="camx">ปิดกล้อง</button></div>
+<div id="snapch"><div class="sbox"><div class="stt">เลือกวิธีสแกน</div><button type="button" id="snapcam">📷 ถ่ายรูปแล้วสแกน</button><button type="button" id="snapgal">🖼 เลือกรูปจากเครื่อง</button><button type="button" id="snapx">ยกเลิก</button></div></div>
 <div id="dls"></div>
 <div id="qrtmp" style="position:absolute;left:-9999px;width:300px"></div>
 
@@ -1412,7 +1420,6 @@ $('camocr').onclick=async()=>{
 };
 const galIn=document.createElement('input');
 galIn.type='file';galIn.accept='image/*';galIn.hidden=true;document.body.appendChild(galIn);
-$('camgal').onclick=()=>{stopCam();galIn.click();};
 galIn.onchange=async()=>{
   const f=galIn.files[0];galIn.value='';if(!f)return;
   if(!(await scanImage(f)))alert('สแกนจากภาพไม่ได้ ลองเลือกรูปที่ชัดขึ้น');
@@ -1424,13 +1431,17 @@ galIn.onchange=async()=>{
     .observe(m,{childList:true,characterData:true,subtree:true});
 })();
 // ปุ่ม 📷: เปิดกล้อง แล้วกด "ถ่ายรูปแล้วสแกน" เพื่อจับภาพนิ่งและสแกนจากภาพ (ไม่สแกนอัตโนมัติ / ถ้าเปิดกล้องไม่ได้ใช้กล้องของเครื่องถ่ายแทน)
-document.querySelectorAll('[data-snap]').forEach(b=>b.onclick=async()=>{
-  scanTarget=b.dataset.snap;
+async function openSnapCam(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){fileIn.click();return;}
   try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});}
   catch(e){fileIn.click();return;}
   const v=$('vid');v.srcObject=stream;await v.play();$('cam').style.display='flex';camZoomInit();
-});
+}
+document.querySelectorAll('[data-snap]').forEach(b=>b.onclick=()=>{scanTarget=b.dataset.snap;$('snapch').style.display='flex';});
+$('snapcam').onclick=()=>{$('snapch').style.display='none';openSnapCam();};
+$('snapgal').onclick=()=>{$('snapch').style.display='none';galIn.click();};
+$('snapx').onclick=()=>{$('snapch').style.display='none';};
+$('snapch').onclick=e=>{if(e.target.id==='snapch')$('snapch').style.display='none';};
 // ===== ซูมเข้า/ออกของกล้อง: ใช้ซูมของกล้องจริงถ้ามี ไม่มีก็ซูมดิจิทัล (ปุ่ม − + / แถบเลื่อน / บีบสองนิ้ว / ลูกกลิ้งเมาส์) =====
 const CZ={z:1,min:1,max:5,step:0.1,hw:false,tr:null};
 function camZoomSet(z){
