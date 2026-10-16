@@ -492,6 +492,9 @@ main{max-width:1564px;padding-right:14px}
   #brn th,#brn td{padding:8px 4px}
   #cam button{padding:14px 28px;font-size:16px}
 }
+/* หน้ากล้องสแกน: ปุ่มถ่ายรูป/เลือกรูป */
+#cam button{min-width:240px;min-height:46px;font-size:16px}
+#cam video{max-height:60vh}
 /* ปุ่ม Print to Excel ในแถบตัวกรอง */
 #fbox .fh{gap:8px}
 #fxl{background:#15803d;border:2px solid #15803d;color:#fff;font-weight:700}
@@ -538,7 +541,7 @@ main{max-width:1564px;padding-right:14px}
 
 <div id="brn"><div class="box"><div class="hd"><span id="brt">ข้อมูลเครื่องแต่ละสาขา</span><button id="bx" title="ปิด">✕</button></div><div class="bd" id="bbd"></div></div></div>
 <div id="hist"><div class="box"><div class="hd"><span id="hdt">ประวัติการแก้ไข</span><button id="hx" title="ปิด">✕</button></div><div class="bd" id="hbd"></div></div></div>
-<div id="cam"><video id="vid" playsinline muted></video><button id="camocr" type="button" style="background:#15803d;color:#fff;font-weight:700">อ่านข้อความ (เลือกที่ชัดที่สุด)</button><button id="camx">ปิดกล้อง</button></div>
+<div id="cam"><video id="vid" playsinline muted></video><button id="camocr" type="button" style="background:#15803d;color:#fff;font-weight:700">📷 ถ่ายรูปแล้วสแกน</button><button id="camgal" type="button" style="background:#fff;color:#15803d;font-weight:700;border:2px solid #15803d">🖼 เลือกรูปจากเครื่อง</button><button id="camx">ปิดกล้อง</button></div>
 <div id="dls"></div>
 <div id="qrtmp" style="position:absolute;left:-9999px;width:300px"></div>
 
@@ -1382,10 +1385,31 @@ async function runOcr(src){
     m.className='ok';m.textContent='อ่านได้: '+t;applyVal(scanTarget,t);return true;
   }catch(e){m.className='bad';m.textContent=e.message;return false;}
 }
+// สแกนจากภาพนิ่ง (ภาพที่ถ่าย หรือรูปในเครื่อง): 1) อ่านบาร์โค้ด/QR 2) ถ้าไม่เจอ อ่านข้อความและเลือกคำที่ชัดที่สุด
+async function scanImage(src){
+  const m=$('msg');m.className='';m.textContent='กำลังสแกนภาพ…';
+  let file=src;
+  if(src instanceof HTMLCanvasElement){
+    const bl=await new Promise(r=>src.toBlob(r,'image/jpeg',0.92));
+    file=new File([bl],'shot.jpg',{type:'image/jpeg'});
+  }
+  try{
+    const t=String(await decodeFile(file)).trim();
+    if(t){m.className='ok';m.textContent='สแกนได้: '+t;applyVal(scanTarget,t);return true;}
+  }catch(e){}
+  return runOcr(src instanceof HTMLCanvasElement?src:file);
+}
 $('camocr').onclick=async()=>{
   const v=$('vid'); if(!v.videoWidth)return;
-  const cv=await toCanvas(v); stopCam();
-  if(!(await runOcr(cv)))alert('อ่านข้อความไม่ได้ ลองถ่ายใหม่ให้ใกล้และชัดขึ้น');
+  const cv=await toCanvas(v); stopCam(); // กดแล้วจับภาพนิ่งทันที ปิดกล้อง แล้วสแกนจากภาพ
+  if(!(await scanImage(cv)))alert('สแกนจากภาพไม่ได้ ลองถ่ายใหม่ให้ใกล้และชัดขึ้น');
+};
+const galIn=document.createElement('input');
+galIn.type='file';galIn.accept='image/*';galIn.hidden=true;document.body.appendChild(galIn);
+$('camgal').onclick=()=>{stopCam();galIn.click();};
+galIn.onchange=async()=>{
+  const f=galIn.files[0];galIn.value='';if(!f)return;
+  if(!(await scanImage(f)))alert('สแกนจากภาพไม่ได้ ลองเลือกรูปที่ชัดขึ้น');
 };
 // มือถือ: ข้อความแจ้งผล (ลอยเหนือปุ่ม Save) หายเองหลัง 5 วินาที
 (function(){
