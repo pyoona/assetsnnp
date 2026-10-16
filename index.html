@@ -1496,11 +1496,20 @@ function fixCode(t){
   const r=out.join('-');
   return r.replace(/-/g,'').length>=5?r:'';
 }
-// อ่านข้อความจากภาพ: ตัดเฉพาะป้าย/สติกเกอร์ก่อน อ่านหลายรอบ แล้วเลือกข้อความที่อ่านได้ตรงกันมากที่สุด (ไม่เทียบกับรหัสในระบบ)
+// อ่านข้อความจากภาพ: คืนข้อความบรรทัดที่ตัวอักษรใหญ่ที่สุด (ตัวที่อยู่หน้าสุด) แบบดิบ ครบทุกตัวที่อ่านได้ ไม่แก้ ไม่เทียบกับข้อมูลในระบบ
+// ตัดเฉพาะป้าย/สติกเกอร์ก่อน อ่านหลายรอบ แล้วเลือกข้อความที่อ่านได้ตรงกันมากที่สุด
 async function ocrBest(src){
   await loadTess();
   const cv=await toCanvas(src);
-  const lines=txt=>String(txt||'').split(/\n/).map(l=>{const f=fixCode(l);return f||ocrClean(l.replace(/\s+/g,''));}).filter(t=>t.length>=4&&/\d/.test(t));
+  // บรรทัดที่ตัวสูงที่สุดในหน้านั้น (ตัดช่องว่างออก ไม่เปลี่ยนตัวอักษร)
+  const biggest=data=>{
+    let ls=(data.lines||[]).map(l=>({t:String(l.text||'').replace(/\s+/g,''),h:l.bbox?(l.bbox.y1-l.bbox.y0):0}));
+    if(!ls.length)ls=String(data.text||'').split(/\n/).map(t=>({t:t.replace(/\s+/g,''),h:0}));
+    ls=ls.filter(l=>l.t.length>=3&&/[A-Za-z0-9]/.test(l.t));
+    if(!ls.length)return '';
+    ls.sort((x,y)=>y.h-x.h||y.t.length-x.t.length);
+    return ls[0].t;
+  };
   let crs=[];
   try{crs=findSticker(cv).map(st=>cropSticker(cv,st));}catch(e){crs=[];}
   const passes=[];
@@ -1510,27 +1519,20 @@ async function ocrBest(src){
   });
   passes.push([()=>ocrPrep(cv,'gray'),'6',1],[()=>ocrPrep(cv,'bin'),'6',1],[()=>ocrPrep(cv,'bin'),'11',1]);
   const wk=await Tesseract.createWorker('eng');
-  const votes={},all=[],words=[];
+  const votes={};
   const topOf=()=>Object.keys(votes).sort((x,y)=>votes[y]-votes[x]||y.length-x.length)[0];
   try{
     await wk.setParameters({tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_/.'});
     for(const [mk,psm,wt] of passes){
       if(wt===1&&psm!=='7'&&Object.keys(votes).length)break; // อ่านได้แล้ว ไม่ต้องอ่านทั้งภาพเพิ่ม
       await wk.setParameters({tessedit_pageseg_mode:psm});
-      const data=(await wk.recognize(mk())).data;
-      const ls=lines(data.text);
-      all.push(...ls);
-      new Set(ls).forEach(t=>{votes[t]=(votes[t]||0)+wt;});
-      const top=topOf();
-      if(top&&votes[top]>=3)return top.toUpperCase(); // อ่านได้ตรงกันหลายรอบ
-      (data.words||[]).forEach(w=>{const t=ocrClean(w.text);if(t.length>=4&&/\d/.test(t)&&(w.confidence||0)>=40)words.push({t,c:w.confidence||0,h:w.bbox?(w.bbox.y1-w.bbox.y0):0});});
+      const t=biggest((await wk.recognize(mk())).data);
+      if(!t)continue;
+      votes[t]=(votes[t]||0)+wt;
+      if(votes[t]>=3&&topOf()===t)return t; // อ่านได้ตรงกันหลายรอบ
     }
   }finally{try{await wk.terminate();}catch(e){}}
-  const top=topOf();
-  if(top)return top.toUpperCase();
-  if(!words.length)return '';
-  const mx=Math.max(...words.map(w=>w.c));
-  return words.filter(w=>w.c>=mx-8).sort((x,y)=>y.h-x.h||y.t.length-x.t.length||y.c-x.c)[0].t.toUpperCase();
+  return topOf()||'';
 }
 async function runOcr(src){
   const m=$('msg');m.className='';m.textContent='กำลังอ่านข้อความ…';
