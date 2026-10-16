@@ -522,7 +522,7 @@ main{max-width:1564px;padding-right:14px}
     <div class="fld"><label>Location</label><select id="loc2" disabled></select></div>
   </div>
   <div class="bar" id="bar2" hidden>
-    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง"><button class="ic" data-mic="q2" title="พูด">🎤</button><button class="ic" data-scan="q2" title="สแกน">▦</button></div></div>
+    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง"><button class="ic" data-mic="q2" title="พูด">🎤</button><button class="ic" data-scan="q2" title="สแกน">▦</button><button class="ic" data-snap="q2" title="ถ่ายรูปแล้วสแกน">📷</button></div></div>
   </div>
   <div class="bar" id="bar3" hidden>
     <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"></div></div>
@@ -1417,6 +1417,14 @@ galIn.onchange=async()=>{
   new MutationObserver(()=>{clearTimeout(t);if(mq.matches&&m.textContent)t=setTimeout(()=>{m.textContent='';},5000);})
     .observe(m,{childList:true,characterData:true,subtree:true});
 })();
+// ปุ่ม 📷: เปิดกล้อง แล้วกด "ถ่ายรูปแล้วสแกน" เพื่อจับภาพนิ่งและสแกนจากภาพ (ไม่สแกนอัตโนมัติ / ถ้าเปิดกล้องไม่ได้ใช้กล้องของเครื่องถ่ายแทน)
+document.querySelectorAll('[data-snap]').forEach(b=>b.onclick=async()=>{
+  scanTarget=b.dataset.snap;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){fileIn.click();return;}
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});}
+  catch(e){fileIn.click();return;}
+  const v=$('vid');v.srcObject=stream;await v.play();$('cam').style.display='flex';
+});
 dbg('[7] โหลดสคริปต์ครบทั้งหมด');
 
 const BRN_LABEL={SNNP:'HQ'};
