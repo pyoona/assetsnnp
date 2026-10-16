@@ -426,6 +426,72 @@ main{max-width:1564px;padding-right:14px}
 .chk>label{color:#ff0000}
 .chk select{color:#ff0000;font-weight:600}
 .chk select option{color:#0b1426;font-weight:400}
+/* ===== มือถือ (จอประมาณ 6.7 นิ้ว): ปุ่มใหญ่ กดง่าย จัดลำดับใหม่ให้เห็นรายการเร็ว ===== */
+@media(max-width:640px){
+  body{font-size:16px}
+  main{display:flex;flex-wrap:wrap;gap:8px;max-width:none;padding:10px 10px calc(96px + env(safe-area-inset-bottom,0px))}
+  .top,.modes,.sidew{display:contents}
+  /* ลำดับบนหน้าจอ: ปุ่มโหมด > ตัวเลือก > ปุ่มเครื่องมือ > สรุปสาขา > รายการ/รายละเอียด > สรุปจำนวน */
+  .modes>button{order:1;flex:1 1 28%;width:auto;min-height:48px;padding:8px 4px;font-size:16px;text-align:center;border-radius:10px}
+  .bars{order:2;flex:1 1 100%;width:100%}
+  .modes .savebox{order:3;flex:1 1 100%!important;width:100%;margin:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .bgrp{order:4;flex:1 1 100%;width:100%;flex-direction:row;gap:8px;margin:0}
+  #grid{order:5;flex:1 1 100%;width:100%}
+  #stats{order:6;flex:1 1 100%;width:100%;display:block;column-count:2;column-gap:16px;padding:8px 10px;font-size:14px}
+  #stats .r{break-inside:avoid;padding:6px 0;font-size:14px}
+  #stats .r b{font-size:15px}
+  #stats .r.s{padding-left:10px}
+  /* ปุ่มเครื่องมือ */
+  .modes .savebox #xl,.modes .savebox #rf,.modes .savebox #rs{min-height:44px;padding:6px 4px;font-size:14px;border-radius:10px}
+  .bgrp #bb,.bgrp #bo{flex:1;min-height:48px;font-size:14px;white-space:normal;border-radius:10px}
+  /* Save / ประวัติ ลอยติดขอบล่างจอ (โผล่เมื่อเปิดเครื่องแล้ว) */
+  .modes .savebox #sv,.modes .savebox #hs{position:fixed;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:20;height:52px;font-size:17px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.35)}
+  .modes .savebox #sv{left:10px;width:calc(60% - 14px)}
+  .modes .savebox #hs{right:10px;width:calc(40% - 14px)}
+  .modes .savebox #sv:disabled,.modes .savebox #hs:disabled{display:none}
+  .modes #msg{position:fixed;left:10px;right:10px;bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:21;margin:0;padding:8px 12px;font-size:15px;text-align:center;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+  .modes #msg:empty{display:none}
+  /* ช่องกรอก/ตัวเลือก */
+  input,select,textarea{font-size:16px}
+  .bar select,.bar input{font-size:16px;padding:10px;min-height:46px}
+  #bar1 .fld,#bar2 .fld{flex:1 1 100%}
+  .fld>label{font-size:14.5px}
+  /* รายการ */
+  .list{max-height:45vh}
+  .list .head{font-size:14px;padding:8px 12px}
+  .it{padding:12px 14px}
+  .it b{font-size:17px}
+  .it span{font-size:14px}
+  /* รายละเอียดเครื่อง */
+  .panel{padding:12px}
+  .ttl{font-size:21px}
+  .sec{font-size:16px;padding:8px 12px}
+  .f{grid-template-columns:1fr;gap:10px}
+  .f>.wfull{width:100%}
+  .panel select,.panel input{min-height:46px}
+  .panel textarea{min-height:76px}
+  .chk{padding:6px 10px 10px}
+  /* หน้า Filter */
+  #fwrap{flex-direction:column}
+  #fbox{max-width:none}
+  #fbox .fg{grid-template-columns:minmax(0,1fr);row-gap:6px;margin-bottom:14px}
+  #fbox .fg>b{font-size:15px}
+  #fbox .fgh{font-size:15px}
+  #fbox .fo{flex-wrap:wrap;overflow:visible;gap:8px;padding:0}
+  #fbox .fo.v{flex-direction:column;flex-wrap:nowrap;align-items:stretch}
+  #fbox .fo label{padding:8px 12px;font-size:15px;gap:8px;border:1px solid var(--line);border-radius:999px;background:#fff}
+  #fbox .fo input{width:20px;height:20px}
+  #fbox .fsel{min-height:46px;font-size:16px}
+  #fbox .fh{gap:8px;flex-wrap:wrap}
+  #fbox .fh button{min-height:44px;font-size:14px;padding:6px 14px;border-radius:10px}
+  #fres .list{max-height:45vh}
+  /* หน้าต่างสรุป/ประวัติ */
+  #brn{padding:0;align-items:flex-end}
+  #brn .box{max-width:none;border-radius:14px 14px 0 0;max-height:90vh}
+  #brn table{font-size:13px}
+  #brn th,#brn td{padding:8px 4px}
+  #cam button{padding:14px 28px;font-size:16px}
+}
 /* ปุ่ม Print to Excel ในแถบตัวกรอง */
 #fbox .fh{gap:8px}
 #fxl{background:#15803d;border:2px solid #15803d;color:#fff;font-weight:700}
@@ -1321,6 +1387,12 @@ $('camocr').onclick=async()=>{
   const cv=await toCanvas(v); stopCam();
   if(!(await runOcr(cv)))alert('อ่านข้อความไม่ได้ ลองถ่ายใหม่ให้ใกล้และชัดขึ้น');
 };
+// มือถือ: ข้อความแจ้งผล (ลอยเหนือปุ่ม Save) หายเองหลัง 5 วินาที
+(function(){
+  const m=$('msg'),mq=window.matchMedia('(max-width:640px)');let t;
+  new MutationObserver(()=>{clearTimeout(t);if(mq.matches&&m.textContent)t=setTimeout(()=>{m.textContent='';},5000);})
+    .observe(m,{childList:true,characterData:true,subtree:true});
+})();
 dbg('[7] โหลดสคริปต์ครบทั้งหมด');
 
 const BRN_LABEL={SNNP:'HQ'};
