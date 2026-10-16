@@ -507,6 +507,8 @@ main{max-width:1564px;padding-right:14px}
 #snapch button{min-height:68px;font:inherit;font-size:19px;font-weight:700;border-radius:12px;cursor:pointer;border:2px solid #15803d;background:#15803d;color:#fff}
 #snapch #snapgal{background:#fff;color:#15803d}
 #snapch #snapx{min-height:48px;font-size:16px;font-weight:600;background:#fff;color:#475569;border:2px solid #94a3b8}
+#bar2 .ic.rs2{flex:0 0 auto;padding:0 16px;font-size:15px;font-weight:700;color:var(--err);border:2px solid var(--err);background:#fff}
+#bar2 .ic.rs2:hover{background:var(--err);color:#fff}
 #camz span{min-width:44px;text-align:right;font-weight:700;font-size:15px}
 /* ปุ่ม Print to Excel ในแถบตัวกรอง */
 #fbox .fh{gap:8px}
@@ -535,7 +537,7 @@ main{max-width:1564px;padding-right:14px}
     <div class="fld"><label>Location</label><select id="loc2" disabled></select></div>
   </div>
   <div class="bar" id="bar2" hidden>
-    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง"><button class="ic" data-snap="q2" title="สแกน">▦</button></div></div>
+    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง"><button class="ic" data-snap="q2" title="สแกน">▦</button><button type="button" class="ic rs2" id="rs2" title="รีเซ็ตหน้าค้นหา">Reset</button></div></div>
   </div>
   <div class="bar" id="bar3" hidden>
     <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"></div></div>
@@ -1261,6 +1263,15 @@ function resetAll(){
   setMode(1);
 }
 $('rs').onclick=resetAll;
+// Reset เฉพาะหน้าค้นหา: ล้างคำค้น รายการ และเครื่องที่เปิดอยู่ ไม่แตะสาขา/Location/Filter ของหน้าอื่น
+$('rs2').onclick=()=>{
+  $('q2').value='';cur=null;
+  $('sv').disabled=true;$('hs').disabled=true;$('msg').textContent='';
+  $('panel').innerHTML='<div class="empty">เลือกเครื่องเพื่อดูและแก้ไข</div>';
+  $('panel2').innerHTML='';$('panel2').hidden=true;
+  $('hist').style.display='none';
+  render();
+};
 function fillLoc2(){
   const b=$('loc').value;  // '' = ยังไม่เลือก, '__ALL__' = ทุกสาขา
   const ty=$('typ').value;
