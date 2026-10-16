@@ -1409,43 +1409,57 @@ function lev(a,b){
   return dp[n];
 }
 // อ่านข้อความจากภาพ แล้วจับคู่กับรหัส Asset ที่มีอยู่จริงในระบบ (ทนต่อการอ่านผิด 1-2 ตัว เช่น O/0, I/1, S/5)
-// หาแผ่นสติกเกอร์สีสด (เช่น สีเขียว) ในภาพ: ได้ตำแหน่ง ขนาด และมุมเอียง
+// หาแผ่นป้าย/สติกเกอร์ในภาพ ทั้งแบบสีสด (เช่น เขียว) และแบบสีขาว/สว่าง: คืนรายการ (สูงสุด 3) ที่เป็นสี่เหลี่ยมผืนผ้า พร้อมตำแหน่ง ขนาด มุมเอียง
 function findSticker(cv){
   const k=Math.min(1,400/Math.max(cv.width,cv.height));
-  const w=Math.max(1,Math.round(cv.width*k)),h=Math.max(1,Math.round(cv.height*k));
+  const w=Math.max(1,Math.round(cv.width*k)),h=Math.max(1,Math.round(cv.height*k)),n=w*h;
   const c=document.createElement('canvas');c.width=w;c.height=h;
   const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(cv,0,0,w,h);
-  const d=cx.getImageData(0,0,w,h).data,n=w*h,m=new Uint8Array(n);
-  for(let i=0,j=0;i<n;i++,j+=4){const mx=Math.max(d[j],d[j+1],d[j+2]),mn=Math.min(d[j],d[j+1],d[j+2]);if(mx>=110&&(mx-mn)>=0.35*mx)m[i]=1;}
-  const lab=new Int32Array(n),stack=new Int32Array(n);let best=0,bl=0,L=0;
-  for(let s0=0;s0<n;s0++){
-    if(!m[s0]||lab[s0])continue;
-    L++;let sp=0,cnt=0;stack[sp++]=s0;lab[s0]=L;
-    while(sp){
-      const p=stack[--sp];cnt++;const px=p%w,py=(p-px)/w;
-      if(px>0&&m[p-1]&&!lab[p-1]){lab[p-1]=L;stack[sp++]=p-1;}
-      if(px<w-1&&m[p+1]&&!lab[p+1]){lab[p+1]=L;stack[sp++]=p+1;}
-      if(py>0&&m[p-w]&&!lab[p-w]){lab[p-w]=L;stack[sp++]=p-w;}
-      if(py<h-1&&m[p+w]&&!lab[p+w]){lab[p+w]=L;stack[sp++]=p+w;}
+  const d=cx.getImageData(0,0,w,h).data;
+  const tests=[
+    (mx,mn)=>mx>=110&&(mx-mn)>=0.35*mx,   // สีสด
+    (mx,mn)=>mx>=150&&(mx-mn)<=0.25*mx    // สว่าง/ขาว
+  ],res=[];
+  tests.forEach((tf,mi)=>{
+    const m=new Uint8Array(n);
+    for(let i=0,j=0;i<n;i++,j+=4){const mx=Math.max(d[j],d[j+1],d[j+2]),mn=Math.min(d[j],d[j+1],d[j+2]);if(tf(mx,mn))m[i]=1;}
+    const lab=new Int32Array(n),stack=new Int32Array(n),cnts=[0];let L=0;
+    for(let s0=0;s0<n;s0++){
+      if(!m[s0]||lab[s0])continue;
+      L++;let sp=0,cnt=0;stack[sp++]=s0;lab[s0]=L;
+      while(sp){
+        const p=stack[--sp];cnt++;const px=p%w,py=(p-px)/w;
+        if(px>0&&m[p-1]&&!lab[p-1]){lab[p-1]=L;stack[sp++]=p-1;}
+        if(px<w-1&&m[p+1]&&!lab[p+1]){lab[p+1]=L;stack[sp++]=p+1;}
+        if(py>0&&m[p-w]&&!lab[p-w]){lab[p-w]=L;stack[sp++]=p-w;}
+        if(py<h-1&&m[p+w]&&!lab[p+w]){lab[p+w]=L;stack[sp++]=p+w;}
+      }
+      cnts[L]=cnt;
     }
-    if(cnt>best){best=cnt;bl=L;}
-  }
-  if(best<n*0.01)return null;
-  let mx=0,my=0,cnt=0;
-  for(let i=0;i<n;i++)if(lab[i]===bl){mx+=i%w;my+=(i/w)|0;cnt++;}
-  mx/=cnt;my/=cnt;
-  let cxx=0,cyy=0,cxy=0;
-  for(let i=0;i<n;i++)if(lab[i]===bl){const dx=i%w-mx,dy=((i/w)|0)-my;cxx+=dx*dx;cyy+=dy*dy;cxy+=dx*dy;}
-  let th=0.5*Math.atan2(2*cxy,cxx-cyy);
-  if(th>Math.PI/4)th-=Math.PI/2;else if(th<-Math.PI/4)th+=Math.PI/2;
-  const ux=Math.cos(th),uy=Math.sin(th);
-  let u0=1e9,u1=-1e9,v0=1e9,v1=-1e9;
-  for(let i=0;i<n;i++)if(lab[i]===bl){
-    const dx=i%w-mx,dy=((i/w)|0)-my,u=dx*ux+dy*uy,v=-dx*uy+dy*ux;
-    if(u<u0)u0=u;if(u>u1)u1=u;if(v<v0)v0=v;if(v>v1)v1=v;
-  }
-  const uc=(u0+u1)/2,vc=(v0+v1)/2;
-  return {th,cx:(mx+uc*ux-vc*uy)/k,cy:(my+uc*uy+vc*ux)/k,L:(u1-u0+1)/k,W:(v1-v0+1)/k};
+    const ids=[];for(let l=1;l<=L;l++)if(cnts[l]>=n*0.008&&cnts[l]<=n*(mi?0.3:0.6))ids.push(l);
+    ids.sort((x,y)=>cnts[y]-cnts[x]);
+    ids.slice(0,4).forEach(id=>{
+      let mx=0,my=0;
+      for(let i=0;i<n;i++)if(lab[i]===id){mx+=i%w;my+=(i/w)|0;}
+      mx/=cnts[id];my/=cnts[id];
+      let cxx=0,cyy=0,cxy=0;
+      for(let i=0;i<n;i++)if(lab[i]===id){const dx=i%w-mx,dy=((i/w)|0)-my;cxx+=dx*dx;cyy+=dy*dy;cxy+=dx*dy;}
+      let th=0.5*Math.atan2(2*cxy,cxx-cyy);
+      if(th>Math.PI/4)th-=Math.PI/2;else if(th<-Math.PI/4)th+=Math.PI/2;
+      const ux=Math.cos(th),uy=Math.sin(th);
+      let u0=1e9,u1=-1e9,v0=1e9,v1=-1e9;
+      for(let i=0;i<n;i++)if(lab[i]===id){
+        const dx=i%w-mx,dy=((i/w)|0)-my,u=dx*ux+dy*uy,v=-dx*uy+dy*ux;
+        if(u<u0)u0=u;if(u>u1)u1=u;if(v<v0)v0=v;if(v>v1)v1=v;
+      }
+      const bl=u1-u0+1,bw=v1-v0+1,fill=cnts[id]/(bl*bw),ratio=bl/bw;
+      if(fill<0.6||ratio<1.4||ratio>12)return; // ไม่ใช่รูปทรงป้าย
+      const uc=(u0+u1)/2,vc=(v0+v1)/2;
+      res.push({th,cx:(mx+uc*ux-vc*uy)/k,cy:(my+uc*uy+vc*ux)/k,L:bl/k,W:bw/k,score:cnts[id]*fill});
+    });
+  });
+  res.sort((a,b)=>b.score-a.score);
+  return res.slice(0,3);
 }
 // ตัดเฉพาะแผ่นสติกเกอร์ หมุนให้ตัวหนังสืออยู่แนวนอน และขยายให้ใหญ่พอ
 function cropSticker(cv,st){
@@ -1467,71 +1481,56 @@ function binOtsu(c){
   const ox=o.getContext('2d');ox.fillStyle='#fff';ox.fillRect(0,0,o.width,o.height);ox.putImageData(im,P,P);
   return o;
 }
-// แก้ตัวอักษรที่ OCR มักสับสน ให้เป็นรูปแบบรหัส เช่น PC-1-61-210 (ส่วนแรกเป็นตัวอักษร ส่วนที่เหลือเป็นตัวเลข); คืน '' ถ้าไม่เข้ารูปแบบ
+// แก้ตัวอักษรที่ OCR มักสับสนให้เป็นรูปแบบรหัส เช่น PC-1-61-210 / 99-002127 (ส่วนที่มีตัวเลขปน แปลงตัวอักษรหน้าตาคล้ายเลขให้เป็นเลข; ส่วนที่เป็นตัวอักษรล้วนเก็บไว้); คืน '' ถ้าไม่เข้ารูปแบบ
 function fixCode(t){
   const ps=String(t||'').replace(/\s+/g,'').split(/[-_.\u2010-\u2015~]+/).filter(Boolean);
-  if(ps.length<3)return '';
+  if(ps.length<2||ps.length>6)return '';
   const dg={O:'0',o:'0',Q:'0',D:'0',I:'1',l:'1','|':'1',i:'1',S:'5',s:'5',B:'8',Z:'2',z:'2',G:'6'};
-  const lt={0:'O',1:'I',5:'S',8:'B'};
-  const head=ps[0].replace(/[0158]/g,c=>lt[c]).toUpperCase();
-  if(!/^[A-Z]{1,5}$/.test(head))return '';
-  const rest=ps.slice(1).map(x=>x.replace(/[OoQDIli|SsBZzG]/g,c=>dg[c]));
-  if(!rest.every(x=>/^\d+$/.test(x)))return '';
-  return [head].concat(rest).join('-');
+  const out=ps.map((x,i)=>{
+    if(!/^[A-Za-z0-9|]+$/.test(x))return null;
+    if(/^[A-Za-z]{1,5}$/.test(x)&&i===0&&ps.length>=2&&!/^[OoQDIliSsBZzG]{1,2}$/.test(x))return x.toUpperCase();
+    return x.replace(/[OoQDIli|SsBZzG]/g,c=>dg[c]);
+  });
+  if(out.some(x=>x===null))return '';
+  if(!/^\d+$/.test(out[out.length-1]))return '';
+  const r=out.join('-');
+  return r.replace(/-/g,'').length>=5?r:'';
 }
-// อ่านข้อความจากภาพ: ตัดเฉพาะสติกเกอร์ก่อน แล้วเทียบกับรหัส Asset ในระบบ (ต้องตรงทั้งรหัส ไม่ใช้การจับคู่บางส่วน เพื่อไม่ให้ไปตรงกับรหัสสั้นกว่า)
+// อ่านข้อความจากภาพ: ตัดเฉพาะป้าย/สติกเกอร์ก่อน อ่านหลายรอบ แล้วเลือกข้อความที่อ่านได้ตรงกันมากที่สุด (ไม่เทียบกับรหัสในระบบ)
 async function ocrBest(src){
   await loadTess();
   const cv=await toCanvas(src);
-  const known=R.map(r=>String(r.v[ASSET()]??'').trim()).filter(Boolean),kn=known.map(ocrNorm);
-  const cands=txt=>{
-    const out=[];
-    String(txt||'').split(/\n/).map(l=>l.trim()).filter(Boolean).forEach(l=>{
-      out.push(l);const f=fixCode(l);if(f)out.push(f);
-      l.split(/\s+/).forEach(w=>out.push(w));
-    });
-    return out;
-  };
-  const exact=txt=>{
-    for(const c of cands(txt)){const n=ocrNorm(c);if(n.length<4)continue;const i=kn.indexOf(n);if(i>=0)return known[i];}
-    return null;
-  };
-  let st=null,cr=null;
-  try{st=findSticker(cv);if(st)cr=cropSticker(cv,st);}catch(e){st=null;cr=null;}
+  const lines=txt=>String(txt||'').split(/\n/).map(l=>{const f=fixCode(l);return f||ocrClean(l.replace(/\s+/g,''));}).filter(t=>t.length>=4&&/\d/.test(t));
+  let crs=[];
+  try{crs=findSticker(cv).map(st=>cropSticker(cv,st));}catch(e){crs=[];}
   const passes=[];
-  if(cr)passes.push([()=>binOtsu(cr),'7',2],[()=>binOtsu(cr),'6',2],[()=>ocrPrep(cr,'gray'),'7',1],[()=>binOtsu(cr),'11',2]);
+  crs.forEach((cr,i)=>{
+    passes.push([()=>binOtsu(cr),'7',2],[()=>binOtsu(cr),'6',2]);
+    if(i===0)passes.push([()=>ocrPrep(cr,'gray'),'7',1]);
+  });
   passes.push([()=>ocrPrep(cv,'gray'),'6',1],[()=>ocrPrep(cv,'bin'),'6',1],[()=>ocrPrep(cv,'bin'),'11',1]);
   const wk=await Tesseract.createWorker('eng');
-  const votes={},texts=[],words=[];
+  const votes={},all=[],words=[];
+  const topOf=()=>Object.keys(votes).sort((x,y)=>votes[y]-votes[x]||y.length-x.length)[0];
   try{
     await wk.setParameters({tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_/.'});
     for(const [mk,psm,wt] of passes){
+      if(wt===1&&psm!=='7'&&Object.keys(votes).length)break; // อ่านได้แล้ว ไม่ต้องอ่านทั้งภาพเพิ่ม
       await wk.setParameters({tessedit_pageseg_mode:psm});
-      const data=(await wk.recognize(mk())).data,tx=data.text||'';
-      const hit=exact(tx);
-      if(hit)return hit; // ตรงกับรหัสในระบบทั้งรหัส -> จบทันที
-      texts.push(tx);
-      const seen=new Set();
-      cands(tx).forEach(c=>{const f=fixCode(c);if(f&&!seen.has(f)){seen.add(f);votes[f]=(votes[f]||0)+wt;}});
-      const top=Object.keys(votes).sort((x,y)=>votes[y]-votes[x])[0];
-      if(top&&votes[top]>=3)return top; // อ่านได้ตรงกันหลายรอบ
+      const data=(await wk.recognize(mk())).data;
+      const ls=lines(data.text);
+      all.push(...ls);
+      new Set(ls).forEach(t=>{votes[t]=(votes[t]||0)+wt;});
+      const top=topOf();
+      if(top&&votes[top]>=3)return top.toUpperCase(); // อ่านได้ตรงกันหลายรอบ
       (data.words||[]).forEach(w=>{const t=ocrClean(w.text);if(t.length>=4&&/\d/.test(t)&&(w.confidence||0)>=40)words.push({t,c:w.confidence||0,h:w.bbox?(w.bbox.y1-w.bbox.y0):0});});
     }
   }finally{try{await wk.terminate();}catch(e){}}
-  // รหัสที่ได้คะแนนโหวตสูงสุด (ถึงไม่มีในระบบ ก็คืนตามที่อ่านได้ ให้ช่องค้นหาแจ้งว่าไม่พบ)
-  const top=Object.keys(votes).sort((x,y)=>votes[y]-votes[x])[0];
-  if(top)return top;
-  // ไม่เข้ารูปแบบรหัส: ลองจับคู่ใกล้เคียง (ผิดไม่เกิน 1 ตัว และต้องมีรหัสเดียวเท่านั้น)
-  let ba=null,tie=false;
-  texts.forEach(tx=>cands(tx).map(ocrNorm).filter(t=>t.length>=6).forEach(t=>{
-    for(let i=0;i<known.length;i++){if(Math.abs(kn[i].length-t.length)>1)continue;if(lev(t,kn[i])<=1){if(ba&&ba!==known[i])tie=true;ba=known[i];}}
-  }));
-  if(ba&&!tie)return ba;
-  const ln=texts.join('\n').split(/\n/).map(ocrClean).filter(t=>t.length>=4&&/\d/.test(t)).sort((x,y)=>y.length-x.length)[0];
-  if(ln)return ln.toUpperCase();
+  const top=topOf();
+  if(top)return top.toUpperCase();
   if(!words.length)return '';
   const mx=Math.max(...words.map(w=>w.c));
-  return words.filter(w=>w.c>=mx-8).sort((x,y)=>y.h-x.h||y.t.length-x.t.length||y.c-x.c)[0].t;
+  return words.filter(w=>w.c>=mx-8).sort((x,y)=>y.h-x.h||y.t.length-x.t.length||y.c-x.c)[0].t.toUpperCase();
 }
 async function runOcr(src){
   const m=$('msg');m.className='';m.textContent='กำลังอ่านข้อความ…';
