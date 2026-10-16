@@ -495,6 +495,12 @@ main{max-width:1564px;padding-right:14px}
 /* หน้ากล้องสแกน: ปุ่มถ่ายรูป/เลือกรูป */
 #cam button{min-width:240px;min-height:46px;font-size:16px}
 #cam video{max-height:60vh}
+#camw{overflow:hidden;border-radius:10px;touch-action:none;line-height:0;max-width:92vw}
+#camw video{display:block;transform-origin:center center;border-radius:0}
+#camz{display:flex;align-items:center;gap:10px;color:#fff;width:min(92vw,360px)}
+#camz input[type=range]{flex:1;min-width:0;padding:0;height:28px;border:0;background:transparent;accent-color:#22c55e}
+#cam #camz button{min-width:44px;min-height:44px;width:44px;padding:0;font-size:24px;font-weight:700;line-height:1;background:#fff;color:#0b1426;border-radius:50%}
+#camz span{min-width:44px;text-align:right;font-weight:700;font-size:15px}
 /* ปุ่ม Print to Excel ในแถบตัวกรอง */
 #fbox .fh{gap:8px}
 #fxl{background:#15803d;border:2px solid #15803d;color:#fff;font-weight:700}
@@ -541,7 +547,7 @@ main{max-width:1564px;padding-right:14px}
 
 <div id="brn"><div class="box"><div class="hd"><span id="brt">ข้อมูลเครื่องแต่ละสาขา</span><button id="bx" title="ปิด">✕</button></div><div class="bd" id="bbd"></div></div></div>
 <div id="hist"><div class="box"><div class="hd"><span id="hdt">ประวัติการแก้ไข</span><button id="hx" title="ปิด">✕</button></div><div class="bd" id="hbd"></div></div></div>
-<div id="cam"><video id="vid" playsinline muted></video><button id="camocr" type="button" style="background:#15803d;color:#fff;font-weight:700">📷 ถ่ายรูปแล้วสแกน</button><button id="camgal" type="button" style="background:#fff;color:#15803d;font-weight:700;border:2px solid #15803d">🖼 เลือกรูปจากเครื่อง</button><button id="camx">ปิดกล้อง</button></div>
+<div id="cam"><div id="camw"><video id="vid" playsinline muted></video></div><div id="camz"><button type="button" id="camzm" aria-label="ซูมออก">−</button><input type="range" id="camzr" min="1" max="5" step="0.1" value="1" aria-label="ซูม"><button type="button" id="camzp" aria-label="ซูมเข้า">+</button><span id="camzl">1.0x</span></div><button id="camocr" type="button" style="background:#15803d;color:#fff;font-weight:700">📷 ถ่ายรูปแล้วสแกน</button><button id="camgal" type="button" style="background:#fff;color:#15803d;font-weight:700;border:2px solid #15803d">🖼 เลือกรูปจากเครื่อง</button><button id="camx">ปิดกล้อง</button></div>
 <div id="dls"></div>
 <div id="qrtmp" style="position:absolute;left:-9999px;width:300px"></div>
 
@@ -1301,7 +1307,7 @@ document.querySelectorAll('[data-mic]').forEach(b=>b.onclick=()=>{
 
 // ปุ่มสแกน: กล้องสด -> ถ้าถูกบล็อก ใช้ถ่ายรูปแล้วอ่านรหัสจากรูปแทน
 let stream=null,scanning=false,scanTarget=null;
-function stopCam(){scanning=false;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$('cam').style.display='none';}
+function stopCam(){scanning=false;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;camZoomReset();$('cam').style.display='none';}
 $('camx').onclick=stopCam;
 const fileIn=document.createElement('input');
 fileIn.type='file';fileIn.accept='image/*';fileIn.setAttribute('capture','environment');fileIn.hidden=true;
@@ -1330,7 +1336,7 @@ document.querySelectorAll('[data-scan]').forEach(b=>b.onclick=async()=>{
   try{
     stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
   }catch(e){fileIn.click();return;}
-  const v=$('vid');v.srcObject=stream;await v.play();$('cam').style.display='flex';
+  const v=$('vid');v.srcObject=stream;await v.play();$('cam').style.display='flex';camZoomInit();
   const det=new BarcodeDetector();scanning=true;
   (async function loop(){
     while(scanning){
@@ -1352,9 +1358,9 @@ function loadTess(){
   });
   return tessP;
 }
-async function toCanvas(src){
+async function toCanvas(src,zm){
   let w,h,draw;
-  if(src instanceof HTMLVideoElement){w=src.videoWidth;h=src.videoHeight;draw=(c,cw,ch)=>c.drawImage(src,0,0,cw,ch);}
+  if(src instanceof HTMLVideoElement){const z=zm>1?zm:1,vw=src.videoWidth,vh=src.videoHeight;w=Math.round(vw/z);h=Math.round(vh/z);const sx=(vw-w)/2,sy=(vh-h)/2;draw=(c,cw,ch)=>c.drawImage(src,sx,sy,w,h,0,0,cw,ch);} // ครอปตามระดับซูมแบบดิจิทัล ภาพที่ได้ตรงกับที่เห็น
   else{const bm=await createImageBitmap(src);w=bm.width;h=bm.height;draw=(c,cw,ch)=>c.drawImage(bm,0,0,cw,ch);}
   const k=Math.min(1,1600/Math.max(w,h));
   const cv=document.createElement('canvas');cv.width=Math.round(w*k);cv.height=Math.round(h*k);
@@ -1401,7 +1407,7 @@ async function scanImage(src){
 }
 $('camocr').onclick=async()=>{
   const v=$('vid'); if(!v.videoWidth)return;
-  const cv=await toCanvas(v); stopCam(); // กดแล้วจับภาพนิ่งทันที ปิดกล้อง แล้วสแกนจากภาพ
+  const cv=await toCanvas(v,CZ.hw?1:CZ.z); stopCam(); // กดแล้วจับภาพนิ่งทันที ปิดกล้อง แล้วสแกนจากภาพ
   if(!(await scanImage(cv)))alert('สแกนจากภาพไม่ได้ ลองถ่ายใหม่ให้ใกล้และชัดขึ้น');
 };
 const galIn=document.createElement('input');
@@ -1423,8 +1429,39 @@ document.querySelectorAll('[data-snap]').forEach(b=>b.onclick=async()=>{
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){fileIn.click();return;}
   try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});}
   catch(e){fileIn.click();return;}
-  const v=$('vid');v.srcObject=stream;await v.play();$('cam').style.display='flex';
+  const v=$('vid');v.srcObject=stream;await v.play();$('cam').style.display='flex';camZoomInit();
 });
+// ===== ซูมเข้า/ออกของกล้อง: ใช้ซูมของกล้องจริงถ้ามี ไม่มีก็ซูมดิจิทัล (ปุ่ม − + / แถบเลื่อน / บีบสองนิ้ว / ลูกกลิ้งเมาส์) =====
+const CZ={z:1,min:1,max:5,step:0.1,hw:false,tr:null};
+function camZoomSet(z){
+  z=Math.round(Math.min(CZ.max,Math.max(CZ.min,z))*100)/100;CZ.z=z;
+  $('camzr').value=z;$('camzl').textContent=z.toFixed(1)+'x';
+  if(CZ.hw&&CZ.tr){CZ.tr.applyConstraints({advanced:[{zoom:z}]}).catch(()=>{});$('vid').style.transform='';}
+  else $('vid').style.transform=z>1?'scale('+z+')':'';
+}
+function camZoomInit(){
+  CZ.tr=stream&&stream.getVideoTracks()[0]||null;CZ.hw=false;CZ.min=1;CZ.max=5;CZ.step=0.1;
+  try{
+    const c=CZ.tr&&CZ.tr.getCapabilities&&CZ.tr.getCapabilities();
+    if(c&&c.zoom&&c.zoom.max>c.zoom.min){CZ.hw=true;CZ.min=c.zoom.min;CZ.max=Math.min(c.zoom.max,10);CZ.step=c.zoom.step||0.1;}
+  }catch(e){}
+  const r=$('camzr');r.min=CZ.min;r.max=CZ.max;r.step=CZ.step;
+  camZoomSet(CZ.min);
+}
+function camZoomReset(){CZ.z=1;CZ.hw=false;CZ.tr=null;try{$('vid').style.transform='';$('camzr').value=1;$('camzl').textContent='1.0x';}catch(e){}}
+$('camzr').oninput=e=>camZoomSet(parseFloat(e.target.value));
+$('camzm').onclick=()=>camZoomSet(CZ.z-Math.max(0.5,CZ.step));
+$('camzp').onclick=()=>camZoomSet(CZ.z+Math.max(0.5,CZ.step));
+$('camw').addEventListener('wheel',e=>{e.preventDefault();camZoomSet(CZ.z+(e.deltaY<0?0.3:-0.3));},{passive:false});
+(function(){
+  const pts=new Map();let d0=0,z0=1;
+  const dist=()=>{const a=[...pts.values()];return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);};
+  const w=$('camw');
+  w.addEventListener('pointerdown',e=>{pts.set(e.pointerId,{x:e.clientX,y:e.clientY});try{w.setPointerCapture(e.pointerId);}catch(x){}if(pts.size===2){d0=dist();z0=CZ.z;}});
+  w.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2&&d0>0)camZoomSet(z0*dist()/d0);});
+  const up=e=>{pts.delete(e.pointerId);};
+  w.addEventListener('pointerup',up);w.addEventListener('pointercancel',up);
+})();
 dbg('[7] โหลดสคริปต์ครบทั้งหมด');
 
 const BRN_LABEL={SNNP:'HQ'};
