@@ -472,7 +472,7 @@ main{max-width:1564px;padding-right:14px}
 
 <div id="brn"><div class="box"><div class="hd"><span id="brt">ข้อมูลเครื่องแต่ละสาขา</span><button id="bx" title="ปิด">✕</button></div><div class="bd" id="bbd"></div></div></div>
 <div id="hist"><div class="box"><div class="hd"><span id="hdt">ประวัติการแก้ไข</span><button id="hx" title="ปิด">✕</button></div><div class="bd" id="hbd"></div></div></div>
-<div id="cam"><video id="vid" playsinline muted></video><button id="camx">ปิดกล้อง</button></div>
+<div id="cam"><video id="vid" playsinline muted></video><button id="camocr" type="button" style="background:#15803d;color:#fff;font-weight:700">อ่านข้อความ (เลือกที่ชัดที่สุด)</button><button id="camx">ปิดกล้อง</button></div>
 <div id="dls"></div>
 <div id="qrtmp" style="position:absolute;left:-9999px;width:300px"></div>
 
@@ -1208,17 +1208,26 @@ function pickAsset(t){
 function applyVal(id,t){$(id).value=t;render();}
 
 // ปุ่มพูดไมค์ (ถ้าไมค์ถูกบล็อกใน Apps Script จะให้ใช้ไมค์บนคีย์บอร์ดแทน)
+let micRc=null;
 document.querySelectorAll('[data-mic]').forEach(b=>b.onclick=()=>{
+  if(micRc&&micRc._btn===b){try{micRc.stop();}catch(e){}return;} // กดซ้ำระหว่างฟัง = หยุดเอง
   const id=b.dataset.mic;
   const fallback=()=>{b.classList.remove('rec');$(id).focus();alert('หน้านี้ไม่ได้รับสิทธิ์ใช้ไมค์โดยตรง (ข้อจำกัดของ Google Apps Script)\nกดไอคอนไมค์บนคีย์บอร์ดมือถือเพื่อพูดแทนได้เลย');};
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){fallback();return;}
-  const rc=new SR();rc.lang='th-TH';rc.interimResults=false;
+  // ฟังต่อเนื่อง: เปิดไมค์ค้างไว้ 10 วินาทีเต็ม (นับจากกดปุ่ม) แล้วปิดเอง หรือกดปุ่มไมค์ซ้ำเพื่อหยุดก่อนได้
+  const rc=new SR();rc.lang='th-TH';rc.continuous=true;rc.interimResults=true;
+  rc._btn=b;micRc=rc;
+  let tm=null;const arm=ms=>{clearTimeout(tm);tm=setTimeout(()=>{try{rc.stop();}catch(e){}},ms);};
   b.classList.add('rec');
-  rc.onresult=e=>{const t=e.results[0][0].transcript.replace(/\s+/g,'').toUpperCase();applyVal(id,t);};
+  rc.onstart=()=>arm(10000); // ปิดไมค์เมื่อครบ 10 วินาที
+  rc.onresult=e=>{
+    let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;
+    applyVal(id,t.replace(/\s+/g,'').toUpperCase());
+  };
   rc.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed')fallback();else{b.classList.remove('rec');if(e.error!=='no-speech'&&e.error!=='aborted')alert('ไมค์ผิดพลาด: '+e.error);}};
-  rc.onend=()=>b.classList.remove('rec');
-  try{rc.start();}catch(e){fallback();}
+  rc.onend=()=>{clearTimeout(tm);b.classList.remove('rec');if(micRc===rc)micRc=null;};
+  try{rc.start();}catch(e){micRc=null;fallback();}
 });
 
 // ปุ่มสแกน: กล้องสด -> ถ้าถูกบล็อก ใช้ถ่ายรูปแล้วอ่านรหัสจากรูปแทน
@@ -1244,7 +1253,7 @@ async function decodeFile(f){
 fileIn.onchange=async()=>{
   const f=fileIn.files[0];fileIn.value='';if(!f)return;
   try{applyVal(scanTarget,String(await decodeFile(f)).trim());}
-  catch(e){alert('อ่านรหัสจากรูปไม่ได้ ลองถ่ายใหม่ให้ใกล้และชัดขึ้น');}
+  catch(e){if(!(await runOcr(f)))alert('อ่านรหัสหรือข้อความจากรูปไม่ได้ ลองถ่ายใหม่ให้ใกล้และชัดขึ้น');}
 };
 document.querySelectorAll('[data-scan]').forEach(b=>b.onclick=async()=>{
   scanTarget=b.dataset.scan;
@@ -1261,6 +1270,57 @@ document.querySelectorAll('[data-scan]').forEach(b=>b.onclick=async()=>{
     }
   })();
 });
+// ===== อ่านข้อความจากภาพ (OCR) แล้วเลือกคำที่ชัดที่สุดเพียงคำเดียว =====
+// เลือกเฉพาะคำที่ชัดที่สุดคำเดียว แม้มีข้อความอื่นติดมาในภาพด้วย
+let tessP=null;
+function loadTess(){
+  if(window.Tesseract)return Promise.resolve();
+  if(!tessP)tessP=new Promise((ok,no)=>{
+    const sc=document.createElement('script');
+    sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+    sc.onload=ok;sc.onerror=()=>{tessP=null;no(new Error('โหลดตัวอ่านข้อความไม่สำเร็จ'));};
+    document.head.appendChild(sc);
+  });
+  return tessP;
+}
+async function toCanvas(src){
+  let w,h,draw;
+  if(src instanceof HTMLVideoElement){w=src.videoWidth;h=src.videoHeight;draw=(c,cw,ch)=>c.drawImage(src,0,0,cw,ch);}
+  else{const bm=await createImageBitmap(src);w=bm.width;h=bm.height;draw=(c,cw,ch)=>c.drawImage(bm,0,0,cw,ch);}
+  const k=Math.min(1,1600/Math.max(w,h));
+  const cv=document.createElement('canvas');cv.width=Math.round(w*k);cv.height=Math.round(h*k);
+  draw(cv.getContext('2d'),cv.width,cv.height);
+  return cv;
+}
+const ocrClean=t=>String(t||'').replace(/[^A-Za-z0-9\-_\/.]/g,'').replace(/^[-_.\/]+|[-_.\/]+$/g,'');
+const ocrNorm=t=>String(t||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+async function ocrBest(src){
+  await loadTess();
+  const cv=await toCanvas(src);
+  const wk=await Tesseract.createWorker('eng');
+  let data;
+  try{data=(await wk.recognize(cv)).data;}finally{try{await wk.terminate();}catch(e){}}
+  const words=(data.words||[]).map(w=>({t:ocrClean(w.text),c:w.confidence||0,h:w.bbox?(w.bbox.y1-w.bbox.y0):0}))
+    .filter(w=>w.t.length>=3&&w.c>=50);
+  if(!words.length)return '';
+  // เลือกเฉพาะคำที่ชัดที่สุดคำเดียว (ไม่สนคำอื่นในภาพ): ความมั่นใจสูงสุด; กลุ่มที่ใกล้เคียงกัน (ห่างไม่เกิน 8) เลือกตัวใหญ่สุด แล้วยาวสุด
+  const top=Math.max(...words.map(w=>w.c));
+  const best=words.filter(w=>w.c>=top-8).sort((a,b)=>b.h-a.h||b.t.length-a.t.length||b.c-a.c);
+  return best[0].t;
+}
+async function runOcr(src){
+  const m=$('msg');m.className='';m.textContent='กำลังอ่านข้อความ…';
+  try{
+    const t=await ocrBest(src);
+    if(!t){m.className='bad';m.textContent='ไม่พบข้อความที่ชัดพอ';return false;}
+    m.className='ok';m.textContent='อ่านได้: '+t;applyVal(scanTarget,t);return true;
+  }catch(e){m.className='bad';m.textContent=e.message;return false;}
+}
+$('camocr').onclick=async()=>{
+  const v=$('vid'); if(!v.videoWidth)return;
+  const cv=await toCanvas(v); stopCam();
+  if(!(await runOcr(cv)))alert('อ่านข้อความไม่ได้ ลองถ่ายใหม่ให้ใกล้และชัดขึ้น');
+};
 dbg('[7] โหลดสคริปต์ครบทั้งหมด');
 
 const BRN_LABEL={SNNP:'HQ'};
