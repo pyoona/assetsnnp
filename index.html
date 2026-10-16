@@ -1409,6 +1409,65 @@ function lev(a,b){
   return dp[n];
 }
 // อ่านข้อความจากภาพ แล้วจับคู่กับรหัส Asset ที่มีอยู่จริงในระบบ (ทนต่อการอ่านผิด 1-2 ตัว เช่น O/0, I/1, S/5)
+// หาแผ่นสติกเกอร์สีสด (เช่น สีเขียว) ในภาพ: ได้ตำแหน่ง ขนาด และมุมเอียง
+function findSticker(cv){
+  const k=Math.min(1,400/Math.max(cv.width,cv.height));
+  const w=Math.max(1,Math.round(cv.width*k)),h=Math.max(1,Math.round(cv.height*k));
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(cv,0,0,w,h);
+  const d=cx.getImageData(0,0,w,h).data,n=w*h,m=new Uint8Array(n);
+  for(let i=0,j=0;i<n;i++,j+=4){const mx=Math.max(d[j],d[j+1],d[j+2]),mn=Math.min(d[j],d[j+1],d[j+2]);if(mx>=110&&(mx-mn)>=0.35*mx)m[i]=1;}
+  const lab=new Int32Array(n),stack=new Int32Array(n);let best=0,bl=0,L=0;
+  for(let s0=0;s0<n;s0++){
+    if(!m[s0]||lab[s0])continue;
+    L++;let sp=0,cnt=0;stack[sp++]=s0;lab[s0]=L;
+    while(sp){
+      const p=stack[--sp];cnt++;const px=p%w,py=(p-px)/w;
+      if(px>0&&m[p-1]&&!lab[p-1]){lab[p-1]=L;stack[sp++]=p-1;}
+      if(px<w-1&&m[p+1]&&!lab[p+1]){lab[p+1]=L;stack[sp++]=p+1;}
+      if(py>0&&m[p-w]&&!lab[p-w]){lab[p-w]=L;stack[sp++]=p-w;}
+      if(py<h-1&&m[p+w]&&!lab[p+w]){lab[p+w]=L;stack[sp++]=p+w;}
+    }
+    if(cnt>best){best=cnt;bl=L;}
+  }
+  if(best<n*0.01)return null;
+  let mx=0,my=0,cnt=0;
+  for(let i=0;i<n;i++)if(lab[i]===bl){mx+=i%w;my+=(i/w)|0;cnt++;}
+  mx/=cnt;my/=cnt;
+  let cxx=0,cyy=0,cxy=0;
+  for(let i=0;i<n;i++)if(lab[i]===bl){const dx=i%w-mx,dy=((i/w)|0)-my;cxx+=dx*dx;cyy+=dy*dy;cxy+=dx*dy;}
+  let th=0.5*Math.atan2(2*cxy,cxx-cyy);
+  if(th>Math.PI/4)th-=Math.PI/2;else if(th<-Math.PI/4)th+=Math.PI/2;
+  const ux=Math.cos(th),uy=Math.sin(th);
+  let u0=1e9,u1=-1e9,v0=1e9,v1=-1e9;
+  for(let i=0;i<n;i++)if(lab[i]===bl){
+    const dx=i%w-mx,dy=((i/w)|0)-my,u=dx*ux+dy*uy,v=-dx*uy+dy*ux;
+    if(u<u0)u0=u;if(u>u1)u1=u;if(v<v0)v0=v;if(v>v1)v1=v;
+  }
+  const uc=(u0+u1)/2,vc=(v0+v1)/2;
+  return {th,cx:(mx+uc*ux-vc*uy)/k,cy:(my+uc*uy+vc*ux)/k,L:(u1-u0+1)/k,W:(v1-v0+1)/k};
+}
+// ตัดเฉพาะแผ่นสติกเกอร์ หมุนให้ตัวหนังสืออยู่แนวนอน และขยายให้ใหญ่พอ
+function cropSticker(cv,st){
+  const wc=st.L*0.96,hc=st.W*0.9,sc=Math.min(4,Math.max(1,900/wc));
+  const o=document.createElement('canvas');o.width=Math.max(1,Math.round(wc*sc));o.height=Math.max(1,Math.round(hc*sc));
+  const x=o.getContext('2d');x.imageSmoothingQuality='high';
+  x.translate(o.width/2,o.height/2);x.rotate(-st.th);x.scale(sc,sc);x.translate(-st.cx,-st.cy);x.drawImage(cv,0,0);
+  return o;
+}
+// แปลงเป็นขาว-ดำด้วย Otsu (ตัวหนังสือดำบนพื้นขาว) + เว้นขอบขาว
+function binOtsu(c){
+  const W=c.width,H=c.height,n=W*H,cx=c.getContext('2d',{willReadFrequently:true}),im=cx.getImageData(0,0,W,H),d=im.data,g=new Uint8Array(n),hist=new Array(256).fill(0);
+  for(let i=0,j=0;i<n;i++,j+=4){g[i]=(d[j]*0.299+d[j+1]*0.587+d[j+2]*0.114)|0;hist[g[i]]++;}
+  let sum=0;for(let t=0;t<256;t++)sum+=t*hist[t];
+  let wB=0,sB=0,mxv=-1,th=127;
+  for(let t=0;t<256;t++){wB+=hist[t];if(!wB)continue;const wF=n-wB;if(!wF)break;sB+=t*hist[t];const mB=sB/wB,mF=(sum-sB)/wF,v=wB*wF*(mB-mF)*(mB-mF);if(v>mxv){mxv=v;th=t;}}
+  for(let i=0,j=0;i<n;i++,j+=4){const v=g[i]>th?255:0;d[j]=d[j+1]=d[j+2]=v;d[j+3]=255;}
+  const P=Math.round(Math.min(W,H)*0.2),o=document.createElement('canvas');o.width=W+2*P;o.height=H+2*P;
+  const ox=o.getContext('2d');ox.fillStyle='#fff';ox.fillRect(0,0,o.width,o.height);ox.putImageData(im,P,P);
+  return o;
+}
+// อ่านข้อความจากภาพ: ตัดเฉพาะสติกเกอร์ก่อน แล้วจับคู่กับรหัส Asset ที่มีอยู่จริงในระบบ (ทนต่อการอ่านผิด 1-2 ตัว เช่น O/0, I/1, S/5)
 async function ocrBest(src){
   await loadTess();
   const cv=await toCanvas(src);
@@ -1427,22 +1486,30 @@ async function ocrBest(src){
     });
     return ba&&!tie?ba:null;
   };
+  let st=null,cr=null;
+  try{st=findSticker(cv);if(st)cr=cropSticker(cv,st);}catch(e){st=null;cr=null;}
+  const passes=[];
+  if(cr)passes.push([()=>binOtsu(cr),'7',1],[()=>binOtsu(cr),'6',1],[()=>ocrPrep(cr,'gray'),'7',1],[()=>binOtsu(cr),'11',1]);
+  passes.push([()=>ocrPrep(cv,'gray'),'6',0],[()=>ocrPrep(cv,'bin'),'6',0],[()=>ocrPrep(cv,'bin'),'11',0]);
   const wk=await Tesseract.createWorker('eng');
-  const texts=[],words=[];
+  const ct=[],at=[],words=[];
   try{
     await wk.setParameters({tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_/.'});
-    for(const [mode,psm] of [['gray','6'],['bin','6'],['bin','11'],['gray','11']]){
+    for(const [mk,psm,isCrop] of passes){
       await wk.setParameters({tessedit_pageseg_mode:psm});
-      const data=(await wk.recognize(ocrPrep(cv,mode))).data;
-      const hit=find(data.text||'');
+      const data=(await wk.recognize(mk())).data,tx=data.text||'';
+      const hit=find(tx);
       if(hit)return hit; // เจอรหัสที่ตรงกับในระบบ -> จบทันที
-      texts.push(data.text||'');
-      (data.words||[]).forEach(w=>{const t=ocrClean(w.text);if(t.length>=3&&(w.confidence||0)>=30)words.push({t,c:w.confidence||0,h:w.bbox?(w.bbox.y1-w.bbox.y0):0});});
+      (isCrop?ct:at).push(tx);
+      (data.words||[]).forEach(w=>{const t=ocrClean(w.text);if(t.length>=4&&/\d/.test(t)&&(w.confidence||0)>=40)words.push({t,c:w.confidence||0,h:w.bbox?(w.bbox.y1-w.bbox.y0):0});});
     }
   }finally{try{await wk.terminate();}catch(e){}}
-  // ไม่ตรงกับรหัสในระบบ: ลองหารูปแบบรหัส เช่น PC-1-61-210 ก่อน ไม่งั้นใช้คำที่มั่นใจที่สุด
-  const pm=texts.join(' ').match(/[A-Za-z]{1,4}-\d+(?:-\d+)+/);
+  // ไม่ตรงกับรหัสในระบบ: หารูปแบบรหัส เช่น PC-1-61-210 ก่อน
+  const pm=ct.concat(at).join(' ').match(/[A-Za-z]{1,4}-\d+(?:-\d+)+/);
   if(pm)return pm[0].toUpperCase();
+  // บรรทัดจากสติกเกอร์ที่ยาวที่สุดและมีตัวเลข
+  const ln=ct.join('\n').split(/\n/).map(ocrClean).filter(t=>t.length>=4&&/\d/.test(t)).sort((a,b)=>b.length-a.length)[0];
+  if(ln)return ln.toUpperCase();
   if(!words.length)return '';
   const top=Math.max(...words.map(w=>w.c));
   return words.filter(w=>w.c>=top-8).sort((a,b)=>b.h-a.h||b.t.length-a.t.length||b.c-a.c)[0].t;
