@@ -136,9 +136,9 @@ label{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
   .panel{padding:12px}
   .f{grid-template-columns:1fr}
   .ic{flex:0 0 48px}
-  #hist{padding:0;align-items:flex-end}
-  #hist .box{max-width:none;border-radius:14px 14px 0 0;max-height:88vh}
-  #hist th:nth-child(4),#hist td:nth-child(4){display:none}
+  #hist{padding:12px;align-items:center}
+  #hist .box{max-width:none;border-radius:14px;max-height:85vh;max-height:85dvh}
+  #hist table:not(.hall) th:nth-child(4),#hist table:not(.hall) td:nth-child(4){display:none}
   #hist table{font-size:13px}
 }
 /* ปรับให้เล็กลงอีก: ปุ่มและตัวอักษรของตัวกรอง/ปุ่มบันทึก (ทุกหน้าจอ) */
@@ -494,8 +494,8 @@ main{max-width:1564px;padding-right:14px}
   #fbox .fh button{min-height:44px;font-size:14px;padding:6px 14px;border-radius:10px}
   #fres .list{max-height:45vh}
   /* หน้าต่างสรุป/ประวัติ */
-  #brn{padding:0;align-items:flex-end}
-  #brn .box{max-width:none;border-radius:14px 14px 0 0;max-height:90vh}
+  #brn{padding:12px;align-items:center}
+  #brn .box{max-width:none;border-radius:14px;max-height:85vh;max-height:85dvh}
   #brn table{font-size:13px}
   #brn th,#brn td{padding:8px 4px}
   #cam button{padding:14px 28px;font-size:16px}
@@ -603,6 +603,17 @@ main{max-width:1564px;padding-right:14px}
 #brn.os th:first-child,#brn.os td:first-child{padding-left:14px;padding-right:28px}
 #brn.os th:last-child,#brn.os td:last-child{padding-right:18px}
 #brn.os td:last-child,#brn.os th:last-child{min-width:56px}
+/* มือถือ: หน้าต่าง OS-MS Office ให้พอดีความกว้างจอ ไม่ต้องเลื่อนซ้าย-ขวา (ชื่อรายการขึ้นบรรทัดใหม่ได้ ตัวเลขชิดกัน) */
+@media(max-width:640px){
+  #brn.os{padding:8px}
+  #brn.os .box{width:100%;max-width:none;border-radius:12px;max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px)}
+  #brn.os .bd{padding:0 6px 8px;overflow-x:hidden;overflow-y:auto}
+  #brn.os table{width:100%;min-width:0}
+  #brn.os th,#brn.os td{padding-left:3px;padding-right:3px}
+  #brn.os th:first-child,#brn.os td:first-child{white-space:normal;word-break:break-word;min-width:76px;padding-left:6px;padding-right:4px;text-align:left}
+  #brn.os th:not(:first-child),#brn.os td:not(:first-child){min-width:0;padding-left:3px;padding-right:3px;text-align:right}
+  #brn.os th:last-child,#brn.os td:last-child{min-width:0;padding-right:6px}
+}
 /* ช่อง Dropdown ในหน้า Filter (Location, Antivirus ฯลฯ): ย่อ/ขยายตามความยาวของข้อมูล ไม่เกินความกว้างของหน้าจอ */
 #fbox .fg>div:has(>select.fsel){min-width:0}
 #fbox select.fsel{width:auto;min-width:min(160px,100%);max-width:100%;padding-right:28px;text-overflow:ellipsis}
@@ -613,8 +624,161 @@ main{max-width:1564px;padding-right:14px}
 #brn tr.lcr td:first-child{word-break:normal}
 @media(max-width:640px){
   #brn.two .box:first-child{display:none}
-  #brn.two #brs{flex:0 1 auto;max-width:100vw}
+  #brn.two #brs{flex:0 1 auto;max-width:calc(100vw - 24px)}
 }
+/* หน้าจอคอม (กว้างตั้งแต่ ~1100px): จัดช่องรายละเอียดเครื่อง 4 ช่องต่อแถว + ลดช่องไฟแนวตั้ง ให้เห็นครบทั้งหน้าโดยไม่ต้องเลื่อนขึ้นลง */
+@media(min-width:900px){
+  main{padding-top:8px}
+  .bar{margin-bottom:6px}
+  #grid #panel .f{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 8px}
+  #grid #panel .f>.kc{grid-column:span 2}
+  #grid .panel{padding:6px 12px 8px}
+  #grid #panel .sec{padding:2px 10px;margin:6px 0 4px;font-size:14px}
+  #grid .ttl{font-size:16px}
+  #grid #panel input,#grid #panel select{height:30px;padding:1px 6px;font-size:13.5px}
+  #grid #panel textarea{min-height:30px;padding:3px 8px;font-size:13.5px}
+  #grid #panel label{font-size:12px;margin-bottom:0}
+  #grid #panel .chk{padding:1px 6px 3px}
+  #grid #panel .asw .awx{height:30px}
+  #grid #panel .asw .awr{margin-bottom:3px}
+  #grid #panel .asw .awa{padding:2px 12px;font-size:12.5px}
+}
+/* จอเตี้ย / แท็บเล็ตแนวนอน: ย่อความสูงเพิ่มอีกขั้น */
+@media(min-width:900px) and (max-height:820px){
+  main{padding-top:4px}
+  .bar{margin-bottom:4px}
+  .bar .fld{padding:3px 8px}
+  .fld>label{font-size:11.5px;margin-bottom:1px}
+  .bar select,.bar input{padding:3px 8px}
+  #grid #panel .f{gap:2px 6px}
+  #grid .panel{padding:4px 10px 6px}
+  #grid #panel .sec{margin:4px 0 3px;font-size:13px;padding:1px 10px}
+  #grid #panel input,#grid #panel select{height:27px;font-size:13px;padding:0 5px}
+  #grid #panel textarea{min-height:27px;font-size:13px;padding:2px 6px}
+  #grid #panel label{font-size:11.5px;line-height:1.1}
+  #grid #panel .chk{padding:0 5px 2px}
+  #grid #panel .asw .awx{height:27px}
+  #grid #panel .asw .awr{margin-bottom:2px}
+  #grid #panel .asw .awh{display:none}
+  #grid .ttl{font-size:15px}
+}
+/* หน้า Filter (คอม/โน้ตบุ๊ก/แท็บเล็ตแนวนอน): ย่อช่องไฟแนวตั้งให้เห็นตัวกรองครบทั้งหน้า ไม่ต้องเลื่อน */
+@media(min-width:900px){
+  #fbox .fh{margin-bottom:4px}
+  #fbox .fh button,#fxl,#fclr{padding:2px 10px;font-size:12.5px}
+  #fbox .fgh{margin:10px 0 5px;padding:1px 12px;font-size:12.5px}
+  #fbox .fh+.fgh{margin-top:0}
+  #fbox .fg{margin-bottom:5px;grid-template-columns:122px minmax(0,1fr);align-items:center}
+  #fbox .fg>b,#fbox .fg.act>b{padding:0;font-size:12.5px;white-space:nowrap}
+  #fbox .fo{gap:1px 12px}
+  #fbox .fo.v{gap:1px 16px}
+  #fbox .fo label{padding:0;font-size:13.5px;line-height:1.3}
+  #fbox .fo input{width:14px;height:14px}
+  #fbox select.fsel{padding:1px 24px 1px 8px;font-size:13px;min-height:24px}
+  #fres .list{height:calc(100vh - 56px)}
+  #fres #grid #panel .f{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #fres #grid #panel .f>.kc{grid-column:span 2}
+}
+@media(min-width:900px) and (max-width:1199px){
+  #fres #grid.grid{grid-template-columns:140px minmax(0,1fr)}
+  #fbox{max-width:38%}
+  #fres #grid.grid{grid-template-columns:118px minmax(0,1fr)}
+}
+/* จอเตี้ยมาก (เช่น โน้ตบุ๊ก 13" ที่ซูม 100%): ย่อเพิ่มอีกขั้น */
+@media(min-width:900px) and (max-height:720px){
+  header{padding:6px 14px}
+  .modes button{padding:5px 10px}
+  .bar .fld{padding:2px 8px}
+  #grid #panel .f{gap:1px 6px}
+  #grid .panel{padding:2px 10px 4px}
+  #grid #panel .sec{margin:3px 0 2px;padding:0 10px;font-size:12.5px}
+  #grid #panel input,#grid #panel select{height:24px;font-size:12.5px}
+  #grid #panel textarea{min-height:24px;font-size:12.5px}
+  #grid #panel label{font-size:10.5px}
+  #grid #panel .asw .awx{height:24px}
+  #grid #panel .asw .awa{padding:0 10px;font-size:12px}
+  #grid .ttl{font-size:14px}
+}
+/* ปุ่มประวัติแก้ไขทั้งหมด: สไตล์เดียวกับปุ่มล้างค่า แต่เป็นสีน้ำเงินสด */
+#fhs{background:#fff;border:2px solid #0033ff;color:#0033ff;font-weight:700;cursor:pointer}
+#fhs:hover{background:#0033ff;border-color:#0033ff;color:#fff}
+/* ระยะห่างระหว่างปุ่มในแถบ Filter */
+#fbox .fh{gap:8px 18px;flex-wrap:wrap;margin-bottom:10px}
+/* หน้า Filter: หัวกลุ่มเป็นแถบเส้นสีเต็มความกว้าง + เส้นคั่นบาง ๆ ระหว่างแต่ละหัวข้อ ให้แยกสัดส่วนชัด */
+#fbox .fgh{display:block;width:auto;background:none!important;color:var(--c,#1d4ed8);border-bottom:2px solid var(--c,#1d4ed8);border-radius:0;padding:0 2px 2px;margin:8px 0 3px;font-size:14px;font-weight:700}
+#fbox .fgh.g0{--c:#1d4ed8}#fbox .fgh.g1{--c:#15803d}#fbox .fgh.g2{--c:#7e22ce}#fbox .fgh.g3{--c:#c2410c}
+#fbox .fh+.fgh{margin-top:4px}
+#fbox .fg{margin-bottom:0;padding:2px 0;border-bottom:1px solid #d5dcea;align-items:center}
+#fbox .fg>b,#fbox .fg.act>b{align-self:stretch;display:flex;align-items:center;border-right:1px solid #d5dcea;padding-right:6px}
+#fbox .fg:last-child{border-bottom:0}
+#fbox .fg:hover{background:#f6f8fc}
+/* ประวัติแก้ไขทั้งหมด: แสดงเป็นแถวบรรทัดเดียว ขยายหน้าต่างตามความกว้างของข้อมูล */
+#hist .box:has(table.hall){width:max-content;max-width:calc(100vw - 24px);min-width:min(760px,calc(100vw - 24px))}
+#hist table.hall th,#hist table.hall td{white-space:nowrap;padding:8px 14px 8px 8px}
+#hist table.hall td:nth-child(4){white-space:nowrap}
+#hist table.hall td:first-child,#hist table.hall th:first-child{padding-left:4px}
+/* ปุ่มหมายเหตุ (หน้า Filter) + ตารางหมายเหตุ */
+#fnt{background:#fff;border:2px solid #0f766e;color:#0f766e;font-weight:700;cursor:pointer}
+#fnt:hover{background:#0f766e;border-color:#0f766e;color:#fff}
+#hist table.hnote td:nth-child(5){white-space:normal;min-width:260px;max-width:620px;word-break:break-word}
+/* ตารางหมายเหตุ: หัวตารางสีเขียวอมฟ้า ลายสลับแถว เส้นกรอบอ่อน ป้ายสี Status */
+#hist table.hnote{border-collapse:separate;border-spacing:0;border:1px solid #9fd3cc}
+#hist table.hnote th{background:#0f766e;color:#fff;font-weight:700;top:54px;z-index:3;border-right:1px solid #3f9a91;border-bottom:0;padding-top:10px;padding-bottom:10px}
+#hist table.hnote th:last-child{border-right:0}
+#hist table.hnote td{border-bottom:1px solid #cfe7e3;border-right:1px solid #e1f0ee}
+#hist table.hnote td:last-child{border-right:0}
+#hist table.hnote tbody tr:nth-child(even) td{background:#f0f8f7}
+#hist table.hnote tbody tr:hover td{background:#d9f0ec}
+#hist table.hnote td:first-child{font-weight:600}
+/* เมนูรวม (มือถือ ≤640px): ปุ่ม เมนู เปิดรายการสไลด์จากขวามือ — จอคอม/แท็บเล็ตไม่แสดงปุ่มนี้ */
+.mnuw{display:none}
+#drw{position:fixed;inset:0;z-index:900;visibility:hidden;pointer-events:none;transition:visibility 0s .25s}
+#drw.on{visibility:visible;pointer-events:auto;transition-delay:0s}
+#drw .dbk{position:absolute;inset:0;background:rgba(15,23,42,.45);opacity:0;transition:opacity .25s}
+#drw .dpn{position:absolute;top:0;right:0;bottom:0;width:min(82vw,320px);background:#fff;transform:translateX(100%);transition:transform .25s;display:flex;flex-direction:column;box-shadow:-6px 0 24px rgba(0,0,0,.18)}
+#drw.on .dbk{opacity:1}
+#drw.on .dpn{transform:none}
+#drw .dh{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-weight:700;font-size:16px;border-bottom:1px solid var(--line)}
+#drw .dh button{border:0;background:none;font-size:20px;cursor:pointer;color:var(--ink)}
+#drw .db{flex:1;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+#drb button{width:100%;padding:12px;font:inherit;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;text-align:center;margin:0;white-space:normal}
+#drb #xl{border:0}
+#drb #rf{background:#fff;color:var(--acc);border:2px solid var(--acc)}
+#drb #rs{background:#fff;color:var(--err);border:2px solid var(--err)}
+#drb .bbtn{background:#fff;color:#1d4ed8;border:2px solid #1d4ed8}
+#drb button:disabled{opacity:.5}
+#drb .sidew{display:flex;flex-direction:column;gap:10px;width:100%;margin:0;flex:none}
+#drb .bgrp{display:flex;flex-direction:column;gap:10px;flex:none;width:100%;margin:0;order:0}
+#drb .bgrp #bb,#drb .bgrp #bo{flex:none;width:100%;min-height:0;padding:12px;font-size:15px;white-space:normal;border-radius:8px}
+#drb #stats{display:block;column-count:1;flex:none;order:0;width:100%;min-width:0;margin:0;font-size:13px}
+@media(max-width:640px){
+  #m3,#xl{display:none!important}
+  .modes>.mnuw{display:block;order:1;flex:1 1 28%}
+  .mnuw #mnu{width:100%;min-height:48px;padding:8px 4px;font:inherit;font-size:16px;font-weight:600;text-align:center;border-radius:10px;border:2px solid #94a3b8;background:#fff;color:#334155;cursor:pointer}
+}
+/* มือถือ (จอ ≤640px เช่น 6.7 นิ้ว): แต่ละแถวเป็นการ์ด — บน: Asset + Status / กลาง: Location + ผู้ถือครอง / ล่าง: หมายเหตุ 2 บรรทัด แตะเพื่อขยาย */
+@media(max-width:640px){
+  #hist .box:has(table.hall.hnote){width:calc(100vw - 24px);min-width:0}
+  #hist table.hnote,#hist table.hnote tbody{display:block;width:100%;border:0}
+  #hist table.hnote thead{display:none}
+  #hist table.hnote tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;padding:9px 6px;border-bottom:1px solid #cfe7e3;cursor:pointer}
+  #hist table.hnote tbody tr:nth-child(even){background:#f0f8f7}
+  #hist table.hnote td,#hist table.hnote tbody tr:nth-child(even) td,#hist table.hnote tbody tr:hover td{display:block;padding:0;border:0;background:none;font-size:13px;min-width:0;max-width:none;white-space:normal;word-break:break-word}
+  #hist table.hnote td:nth-child(1){grid-column:1;grid-row:1;font-size:14px}
+  #hist table.hnote td:nth-child(2){grid-column:2;grid-row:1;justify-self:end}
+  #hist table.hnote td:nth-child(3){grid-column:1;grid-row:2;color:#475569}
+  #hist table.hnote td:nth-child(4){grid-column:2;grid-row:2;justify-self:end;text-align:right;color:#475569}
+  #hist table.hnote td:nth-child(5){grid-column:1 / -1;grid-row:3;margin-top:3px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+  #hist table.hnote tr.open td:nth-child(5){display:block;overflow:visible}
+  #hist table.hnote td:empty{display:none}
+  #hist .sb{padding:1px 8px;font-size:12px}
+}
+#hist .sb{display:inline-block;padding:1px 12px;border-radius:999px;font-size:13px;font-weight:600;border:1px solid transparent}
+#hist .sb.ok{background:#dcfce7;color:#166534;border-color:#86efac}
+#hist .sb.lo{background:#fef3c7;color:#92400e;border-color:#fcd34d}
+#hist .sb.bad{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+#hist .sb.em{background:#eef0f4;color:#475569;border-color:#cbd5e1}
+#hist .sb.ot{background:#e0e7ff;color:#3730a3;border-color:#a5b4fc}
 </style>
 </head>
 <body>
@@ -622,8 +786,9 @@ main{max-width:1564px;padding-right:14px}
 <main>
   <div class="top">
   <div class="modes">
-    <button id="m1" class="on">เลือกตามสาขา</button>
-    <button id="m2">ค้นหา</button>
+    <button id="m2" class="on">ค้นหา</button>
+    <button id="m1">เลือกตามสาขา</button>
+    <div class="mnuw"><button id="mnu" type="button">☰ เมนู</button></div>
     <button id="m3">Filter</button>
     <div class="savebox" id="savebox"><button id="sv" disabled>Save</button><button id="hs" class="alt" disabled>ประวัติ</button><button id="xl" class="xl" type="button">Print to Excel</button><button id="rf" type="button">Refresh</button><button id="rs" type="button">Reset All</button><span id="msg"></span></div>
     <div class="sidew"><div class="bgrp"><button id="bb" type="button" class="bbtn">ข้อมูลเครื่องแต่ละสาขา</button><button id="bo" type="button" class="bbtn">ข้อมูล OS-MS Office</button></div>
@@ -631,13 +796,13 @@ main{max-width:1564px;padding-right:14px}
   </div>
   <div class="bars">
 
-  <div class="bar" id="bar1">
+  <div class="bar" id="bar1" hidden>
     <div class="fld"><label>ประเภท Asset</label><select id="typ"></select></div>
     <div class="fld"><label>สาขา</label><select id="loc"></select></div>
     <div class="fld"><label>Location</label><select id="loc2" disabled></select></div>
   </div>
-  <div class="bar" id="bar2" hidden>
-    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง"><button class="ic" data-snap="q2" title="สแกน">📷</button><button type="button" class="ic rs2" id="rs2" title="รีเซ็ตหน้าค้นหา">Reset</button></div></div>
+  <div class="bar" id="bar2">
+    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง / IP / Mac / Location / Product Key / Model / Assetname"><button class="ic" data-snap="q2" title="สแกน">📷</button><button type="button" class="ic rs2" id="rs2" title="รีเซ็ตหน้าค้นหา">Reset</button></div></div>
   </div>
   <div class="bar" id="bar3" hidden>
     <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"></div></div>
@@ -658,6 +823,7 @@ main{max-width:1564px;padding-right:14px}
 <div id="hist"><div class="box"><div class="hd"><span id="hdt">ประวัติการแก้ไข</span><button id="hx" title="ปิด">✕</button></div><div class="bd" id="hbd"></div></div></div>
 <div id="cam"><div id="camw"><video id="vid" playsinline muted></video></div><div id="camz"><button type="button" id="camzm" aria-label="ซูมออก">−</button><input type="range" id="camzr" min="1" max="5" step="0.1" value="1" aria-label="ซูม"><button type="button" id="camzp" aria-label="ซูมเข้า">+</button><span id="camzl">1.0x</span></div><button id="camocr" type="button" style="background:#15803d;color:#fff;font-weight:700">📷 ถ่ายรูปแล้วสแกน</button><button id="camx">ปิดกล้อง</button></div>
 <div id="snapch"><div class="sbox"><div class="stt">เลือกวิธีสแกน</div><button type="button" id="snapcam">📷 ถ่ายรูปแล้วสแกน</button><button type="button" id="snapgal">🖼 เลือกรูปจากเครื่อง</button><button type="button" id="snapx">ยกเลิก</button></div></div>
+<div id="drw"><div class="dbk" id="drk"></div><aside class="dpn"><div class="dh"><span>เมนู</span><button type="button" id="drx" title="ปิด">✕</button></div><div class="db" id="drb"></div></aside></div>
 <div id="dls"></div>
 <div id="qrtmp" style="position:absolute;left:-9999px;width:300px"></div>
 
@@ -696,7 +862,7 @@ dbg('[1] สคริปต์เริ่มทำงาน');
 })();
 // [ชื่อคอลัมน์ใน Sheet, ชื่อที่แสดง, ชนิด (d=Dropdown, t=จิ้มแล้วแก้ไขได้, r=แสดงอย่างเดียว), 1=ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ]
 const GROUPS = [
-  ['ข้อมูลการใช้งาน', [['StatusN','Status','d'],['การตรวจเครื่อง','การตรวจเครื่อง','d'],['ผู้ถือครอง','ผู้ถือครอง','c'],['Location','Location','d'],['ส่ง Audit','ส่ง Audit','d']]],
+  ['ข้อมูลการใช้งาน', [['StatusN','Status','d'],['การตรวจเครื่อง','การตรวจเครื่อง','d'],['ผู้ถือครอง','ผู้ถือครอง','c'],['สาขา','สาขา','c'],['Location','Location','d'],['ส่ง Audit','ส่ง Audit','d'],['ใบถือครองทรัพย์สิน','ใบถือครองทรัพย์สิน','c'],['Costcenter_Name','Costcenter','t']]],
   ['Hardware', [['IT Asset No','รหัส Asset','r'],['Computername','Computername','t'],['Serial No','Serial No','t'],['Model','Model','r'],['CPU','CPU','d'],['Ram','RAM','d'],['Mainboard','Mainboard','d'],['Harddisk','Harddisk','d'],['VGA','VGA','d'],['IP Address','IP Address','t']]],
   ['Standard Software', [['Window','Window','d'],['MS Office','MS Office','d'],['Product Key','Product Key','c'],['Antivirus','Antivirus','d']]],
   ['Additional Software', [['Additional Software','Additional Software','s']]],
@@ -708,7 +874,7 @@ const branchOf=v=>{
   for(const x of t){const k=x==='HQ'?'SNNP':x; if(BRANCHES.includes(k))return k;}
   return (t[0]||'');
 };
-let H=[], R=[], cur=null, mode=1; const OPTS={};
+let H=[], R=[], cur=null, mode=2; const OPTS={};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const col=(n,last)=>{
@@ -721,6 +887,100 @@ const col=(n,last)=>{
   return -1;
 };
 const ASSET=()=>col('IT Asset No'), LOC=()=>col('Location');
+
+// ===== ตัวเลือกจากชีต List + การเชื่อม สาขา <-> Location =====
+// LISTS มาจาก getData (อ่านชีต List สดทุกครั้ง) -> เพิ่มค่าใหม่ในชีต List แล้วกด Refresh ตัวเลือกจะขึ้นเอง
+let LISTS={lists:{}}, BRLOC={}, LOCBR={};
+// ช่องที่เลือก "ว่าง" แล้วเก็บคำว่า "ว่าง" และช่องที่ว่างในชีตให้แสดงเป็น "ว่าง" (เหมือน Status)
+const BLANKV=()=>[col('สาขา'),col('ใบถือครองทรัพย์สิน'),col('Product Key')].filter(i=>i>=0);
+const LIST_FIELDS=['สาขา','ใบถือครองทรัพย์สิน','Location'];
+function buildLinks(){
+  BRLOC={};LOCBR={};
+  const add=(b,l)=>{b=String(b==null?'':b).trim();l=String(l==null?'':l).trim();if(!b||!l||b==='ว่าง')return;(BRLOC[b]=BRLOC[b]||new Set()).add(l);};
+  const bi=col('สาขา'),li=LOC();
+  if(bi>=0&&li>=0)R.forEach(r=>add(r.v[bi],r.v[li]));              // คู่ที่ใช้อยู่จริงในชีตข้อมูล
+  Object.keys(BRLOC).forEach(b=>BRLOC[b].forEach(l=>{(LOCBR[l]=LOCBR[l]||new Set()).add(b);}));
+}
+// ซิงก์ตัวเลือกคงที่ (Status / การตรวจเครื่อง / ส่ง Audit / ประเภท Asset) ให้ตรงกับชีต List คอลัมน์ชื่อเดียวกัน
+// แก้ array เดิมในที่ (ตัวกรองและฟอร์มอ้างอิง array เดียวกัน) · ถ้าชีต List ไม่มีคอลัมน์นั้น ใช้ค่าเริ่มต้นเดิม
+function syncLists(){
+  TI=TYPECOLS.map(n=>H.indexOf(n)).find(i=>i>=0)??-1;
+  const L=(LISTS&&LISTS.lists)||{};
+  const setArr=(arr,vals,first)=>{
+    if(!vals||!vals.length)return;
+    const v=vals.slice(); if(first&&!v.includes(first))v.unshift(first);   // ค่าว่างในชีตแสดงเป็น "ว่าง"
+    arr.length=0; v.forEach(x=>arr.push(x));
+  };
+  setArr(STATUS_FORCED,L['Status'],'ว่าง');
+  setArr(CHK_FORCED,L['การตรวจเครื่อง'],'ว่าง');
+  setArr(AUDIT_OPTS,L['ส่ง Audit']);
+  setArr(DOC_OPTS,L['ใบถือครองทรัพย์สิน'],'ว่าง');
+  const t=(L['ประเภท Asset']||[]).slice();                                  // ประเภท Asset = List + ค่าที่ใช้อยู่จริงในชีตข้อมูล
+  R.forEach(r=>{const x=typeLabel(r);if(x&&!t.includes(x))t.push(x);});
+  setArr(ASSET_TYPES,t);
+}
+function fillTypeSel(keepV){
+  const sel=$('typ'),old=keepV!==undefined?keepV:sel.value;
+  sel.innerHTML='<option value="">ทั้งหมด</option>'+ASSET_TYPES.map(x=>`<option>${esc(x)}</option>`).join('');
+  sel.value=old;if(sel.value!==old)sel.value='';
+}
+function mergeLists(){
+  syncLists();
+  const pk=col('Product Key');   // Product Key: เพิ่มตัวเลือก "ว่าง" เป็นตัวแรก
+  if(pk>=0)OPTS[pk]=['ว่าง'].concat((OPTS[pk]||[]).filter(x=>x!=='ว่าง'));
+  const L=(LISTS&&LISTS.lists)||{};
+  LIST_FIELDS.forEach(n=>{
+    const i=col(n); if(i<0||!L[n])return;
+    const ex=(OPTS[i]||[]).filter(x=>!L[n].includes(x));   // เรียงตามชีต List ก่อน ค่าอื่นที่มีในข้อมูลต่อท้าย
+    OPTS[i]=L[n].concat(sortOpts(i,ex));
+  });
+  buildLinks();
+}
+// ===== ช่อง "สาขา" ด้านบน: ตัวเลือกดึงจากชีต List คอลัมน์ สาขา (+ ค่าที่มีในชีตข้อมูล) =====
+// รายการสาขา: เรียงตามชีต List (ข้าม "ว่าง") แล้วต่อด้วยสาขาที่มีในชีตข้อมูลแต่ไม่อยู่ใน List
+function branchVals(){
+  const L=(LISTS&&LISTS.lists&&LISTS.lists['สาขา'])||[], bi=col('สาขา');
+  const vals=L.filter(x=>x&&x!=='ว่าง');
+  if(bi>=0)R.forEach(r=>{const x=String(r.v[bi]==null?'':r.v[bi]).trim();if(x&&x!=='ว่าง'&&!vals.includes(x))vals.push(x);});
+  return vals.length?vals:BRANCHES.slice();   // ชีต List ยังไม่มีข้อมูล -> ใช้ชุดเดิมไปก่อน
+}
+function fillBranchSel(keepV){
+  const vals=branchVals();
+  const sel=$('loc'),old=keepV!==undefined?keepV:sel.value;
+  sel.innerHTML='<option value="">— เลือกสาขา —</option><option value="__ALL__">ทั้งหมด</option>'+vals.map(l=>`<option value="${esc(l)}">${l==='SNNP'?'HQ':esc(l)}</option>`).join('');
+  sel.value=old;if(sel.value!==old)sel.value='';
+}
+// แถวนี้อยู่สาขา b ไหม: ใช้ค่าในคอลัมน์ สาขา ก่อน, ถ้าว่างใช้คู่ สาขา/Location จากชีต List, สุดท้ายเดาจากชื่อ Location (แบบเดิม)
+const inBranch=(r,b)=>{
+  if(b==='__ALL__')return true;
+  const bi=col('สาขา'),sv0=bi>=0?String(r.v[bi]==null?'':r.v[bi]).trim():'',sv=sv0==='ว่าง'?'':sv0;
+  if(sv)return sv===b;
+  const l=String(r.v[LOC()]==null?'':r.v[LOC()]).trim();
+  if(BRLOC[b]&&BRLOC[b].has(l))return true;
+  return branchOf(l)===branchOf(b);
+};
+const rowBranch=r=>{
+  const bi=col('สาขา'),sv0=bi>=0?String(r.v[bi]==null?'':r.v[bi]).trim():'',sv=sv0==='ว่าง'?'':sv0;
+  if(sv)return sv;
+  const l=String(r.v[LOC()]==null?'':r.v[LOC()]).trim();
+  for(const b in BRLOC)if(BRLOC[b].has(l))return b;
+  const bo=branchOf(l);
+  return branchVals().find(v=>branchOf(v)===bo)||bo;
+};
+// ตัวเลือก Location ตามสาขาที่เลือก (ยังไม่เลือกสาขา/สาขาไม่มีข้อมูลจับคู่ = แสดงทั้งหมด)
+// Location l อยู่ในสาขา b ไหม: คู่ที่ใช้อยู่จริงในชีตข้อมูล หรือชื่อ Location ขึ้นต้นด้วยสาขานั้น (เช่น KH-QC อยู่ KH, HQ-IT อยู่ HQ)
+const locInBranch=(l,b)=>!!(BRLOC[b]&&BRLOC[b].has(l))||branchOf(l)===branchOf(b);
+// Location ทั้งหมดจากชีต List (เรียงตาม List, ข้าม "ว่าง")
+const listLocs=()=>((LISTS&&LISTS.lists&&LISTS.lists['Location'])||[]).filter(x=>x&&x!=='ว่าง');
+function locChoices(b,v){
+  const all=(OPTS[LOC()]||[]).slice();            // List ก่อน แล้วค่าที่มีในข้อมูลต่อท้าย
+  b=String(b==null?'':b).trim();
+  if(!b||b==='ว่าง')return all;
+  const o=all.filter(l=>locInBranch(l,b));
+  if(!o.length)return all;
+  if(v&&!o.includes(v))o.push(v);
+  return o;
+}
 // ผูกปุ่มโหมดไว้ก่อนสุด เพื่อให้กดได้เสมอ แม้ส่วนอื่นของสคริปต์จะมีปัญหา
 document.querySelectorAll('.modes>button').forEach(b=>b.addEventListener('click',()=>setMode(+b.id.slice(1))));
 
@@ -799,7 +1059,7 @@ if(!IN_GAS&&API_URL){
 if(!IN_GAS&&!API_URL){
   // ไม่ได้เปิดผ่าน Google Apps Script: ใช้ข้อมูลตัวอย่างเพื่อทดลองหน้าจอ
   (function(){
-    const HD=['IT Asset No','Ax Asset No','Status','Assetname','Model','Serial No','Computername','CPU','Ram','Mainboard','Harddisk','VGA','IP Address','Lan Mac address','Wireless Mac address','Start Date','EmpId','ผู้ถือครอง','Location','Window','MS Office','Pdf Reader','Zip','Antivirus','Teamviewer','Browser','Dynamic AX','Forticlient','Product Key','Additional Software','Costcenter','Costcenter_Name','Remark','เครื่องเช่า','เครื่องที่คุณดิวเลือก','ส่ง Audit','StatusN','การตรวจเครื่อง','หมายเหตุ','ประเภท Asset','สาขา'];
+    const HD=['IT Asset No','Ax Asset No','Status','Assetname','Model','Serial No','Computername','CPU','Ram','Mainboard','Harddisk','VGA','IP Address','Lan Mac address','Wireless Mac address','Start Date','EmpId','ผู้ถือครอง','Location','Window','MS Office','Pdf Reader','Zip','Antivirus','Teamviewer','Browser','Dynamic AX','Forticlient','Product Key','Additional Software','Costcenter','Costcenter_Name','Remark','เครื่องเช่า','เครื่องที่คุณดิวเลือก','ส่ง Audit','StatusN','การตรวจเครื่อง','หมายเหตุ','ประเภท Asset','สาขา','ใบถือครองทรัพย์สิน'];
     const mk=(n,asset,loc,who,win,off,av,key,st,chk,type)=>{
       const v=HD.map(()=>'');const set=(h,x)=>{v[HD.indexOf(h)]=x;};
       set('IT Asset No',asset);set('Status','NM');set('Assetname',asset);set('Model','Model X');set('Serial No','SN'+n);
@@ -807,7 +1067,7 @@ if(!IN_GAS&&!API_URL){
       set('Harddisk','Samsung SSD 500GB');set('IP Address','192.168.1.'+(10+n));set('Start Date','31/03/65');
       set('EmpId',123450+n);set('ผู้ถือครอง',who);set('Location',loc);set('Window',win);set('MS Office',off);
       set('Antivirus',av);set('Product Key',key);set('Costcenter','2101'+n);set('Costcenter_Name',loc);
-      set('ส่ง Audit','N');set('StatusN',st);set('การตรวจเครื่อง',chk);set('ประเภท Asset',type);set('สาขา',branchOf(loc));
+      set('ส่ง Audit','N');set('StatusN',st);set('การตรวจเครื่อง',chk);set('ประเภท Asset',type);set('สาขา',branchOf(loc));set('ใบถือครองทรัพย์สิน','');
       return {n,v};
     };
     const rows=[mk(1,'NB-1-61-1','SDF-RD','นิจวรรณ','Windows 10','MS Office 2016','AntiVirus Avira','GWN8F-6J9KK-QM3YD-WGV6M-B4G7X','ใช้งาน','ตรวจแล้ว','Asset'),
@@ -816,8 +1076,9 @@ if(!IN_GAS&&!API_URL){
       mk(4,'เช่า-004','KH-QC','สมศรี','Windows 10','MS Office 2016','AntiVirus Avira','','ใช้งาน','ตรวจแล้ว','เครื่องเช่า')];
     const mockRun=(ok,fail)=>new Proxy({},{get:(t,k)=>k==='withSuccessHandler'?f=>mockRun(f,fail):k==='withFailureHandler'?f=>mockRun(ok,f):
       (...a)=>setTimeout(()=>{
-        if(k==='getData')ok({headers:HD,rows});
+        if(k==='getData')ok({headers:HD,rows,lists:{lists:{'สาขา':['SNNP','SDF','KH'],'ใบถือครองทรัพย์สิน':['มี','ไม่มี'],'Location':['SDF-RD','KH-QC','KH-Admin']},branchLocations:{SDF:['SDF-RD'],KH:['KH-QC','KH-Admin']}}});
         else if(k==='saveRow')ok({saved:Object.keys(a[2]).length});
+        else if(k==='verifyExport')ok({ok:String(a[0])==='1234'});   // โหมดทดลอง: รหัส 1234
         else ok([]);
       },150)});
     window.google={script:{run:mockRun()}};
@@ -856,7 +1117,7 @@ function loadInitial(){
   try{
     GS.withSuccessHandler(d=>{
       clearTimeout(loadTimer);dbg('[6] ได้ข้อมูล '+(d&&d.rows?d.rows.length:0)+' แถว กำลังแสดงผล');
-      try{H=d.headers;R=d.rows;init();$('list').setAttribute('data-ld','0');}
+      try{H=d.headers;R=d.rows;LISTS=d.lists||LISTS;init();$('list').setAttribute('data-ld','0');}
       catch(e){$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>';}
     }).withFailureHandler(e=>{clearTimeout(loadTimer);$('list').setAttribute('data-ld','0');$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'<br><button type="button" id="retry" style="margin-top:8px;padding:6px 14px;border:1px solid var(--acc);background:#fff;color:var(--acc);border-radius:6px;font:inherit;font-weight:600;cursor:pointer">ลองใหม่</button></div>';const r=$('retry');if(r)r.onclick=loadInitial;}).getData();
   }catch(e){clearTimeout(loadTimer);$('list').innerHTML='<div class="empty bad">เชื่อมต่อ Google Apps Script ไม่ได้: '+esc(e.message)+'</div>';}
@@ -874,21 +1135,29 @@ $('typ').innerHTML='<option value="">ทั้งหมด</option>'+ASSET_TYPES
 $('loc').innerHTML='<option value="">— เลือกสาขา —</option><option value="__ALL__">ทั้งหมด</option>'+BRANCHES.map(l=>`<option value="${esc(l)}">${l==='SNNP'?'HQ':esc(l)}</option>`).join('');
 $('loc2').innerHTML='<option value="">— กำลังโหลดข้อมูล… —</option>';
 const typeOf=r=>/เช่า|rent/i.test(String(TI>=0?r.v[TI]:r.v[ASSET()])??'')?'เครื่องเช่า':'Asset SNNP';
+// ประเภทตามค่าจริงในคอลัมน์ ประเภท Asset (ตรงกับชีต List) · ถ้าช่องว่าง ใช้การเดาแบบเดิม · typeOf ใช้กับตารางสรุปจำนวนเครื่อง (เช่า/Asset) ตามเดิม
+// Computer Type: แยกจากรหัส IT Asset No ที่มี NB- / PC- / SP- (ใช้ทั้งตัวกรองและตารางสรุปรายสาขา)
+const compType=r=>{const t=String(r.v[ASSET()]==null?'':r.v[ASSET()]);return /NB-/i.test(t)?'NB':(/PC-/i.test(t)?'PC':(/SP-/i.test(t)?'SP':''));};
+const typeLabel=r=>{if(TI>=0){const c=String(r.v[TI]==null?'':r.v[TI]).trim();if(c)return c;}return typeOf(r);};
 const locOf=r=>String(r.v[LOC()]??'').trim();
 
 // ตัวกรอง (เรียงตามนี้): k=ชื่อที่แสดง, c=ชื่อคอลัมน์, l=1 ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ, g=ฟังก์ชันดึงค่าเอง
+const AUDIT_COL='ส่ง Audit', AUDIT_OPTS=['Yes','No'];
+const DOC_OPTS=['ว่าง','Yes','No'];   // ใบถือครองทรัพย์สิน (ซิงก์จากชีต List)
 const STATUS_FORCED=['ว่าง','ใช้งาน','ยืม','เสีย'], CHK_FORCED=['ว่าง','ตรวจแล้ว'];
 const FORCED_COLS=[['StatusN',STATUS_FORCED],['การตรวจเครื่อง',CHK_FORCED]];
 const FILTERS=[
   {gh:'ตัวเครื่อง'},
-  {k:'ประเภท Asset',g:typeOf,all:1,force:ASSET_TYPES},
-  {k:'สาขา',g:r=>branchOf(r.v[LOC()]),fixed:1},
-  {k:'Location',c:'Location',dd:1},
-  {k:'ส่ง Audit',g:r=>normYN(r.v[col(AUDIT_COL)]),force:['Yes','No']},
+  {k:'ประเภท Asset',g:typeLabel,all:1,force:ASSET_TYPES},
+  {k:'Computer Type',g:compType,opts:[['PC','PC'],['NB','NB'],['SP','SP']]},   // แยกจากรหัส IT Asset No ที่มี PC- / NB- / SP-
+  {k:'สาขา',g:r=>rowBranch(r),fixed:1},
+  {k:'Location',c:'Location',dd:1,lk:'Location'},
+  {k:'ส่ง Audit',g:r=>normYN(r.v[col(AUDIT_COL)]),force:AUDIT_OPTS},
   {gh:'การใช้งาน'},
   {k:'Status',c:'StatusN',force:STATUS_FORCED},
   {k:'การตรวจเครื่อง',c:'การตรวจเครื่อง',force:CHK_FORCED},
   {k:'การถือครอง',g:r=>yes(r.v[col('ผู้ถือครอง')])?'HOLD':'EMPTY',opts:[['HOLD','ผู้ถือครอง'],['EMPTY','ว่าง']]},
+  {k:'ใบถือครองทรัพย์สิน',c:'ใบถือครองทรัพย์สิน',force:DOC_OPTS},
   {gh:'Software'},
   {k:'Window',c:'Window'},
   {k:'MS Office',c:'MS Office',v:1},
@@ -922,8 +1191,7 @@ const VER_FILTERS=['Window','MS Office'];
 const ramSize=v=>{const m=String(v??'').replace(/,/g,'').match(/(\d+(?:\.\d+)?)\s*(tb|gb|g|mb|m)?/i);if(!m)return Infinity;const u=(m[2]||'gb').toLowerCase();return +m[1]*(u==='tb'?1048576:u[0]==='m'?1:1024);};
 const ramCmp=(a,b)=>ramSize(a)-ramSize(b)||String(a).localeCompare(String(b));
 const sortOpts=(i,arr)=>+i===col('Ram')?arr.sort(ramCmp):arr.sort();
-const AUDIT_COL='ส่ง Audit', AUDIT_OPTS=['Yes','No'];
-const normYN=v=>/^(y|yes|true|1)$/i.test(String(v??'').trim())?'Yes':'No';
+const normYN=v=>{const t=String(v==null?'':v).trim();if(!t&&AUDIT_OPTS.includes('ว่าง'))return 'ว่าง';if(t&&AUDIT_OPTS.includes(t))return t;const y=/^(y|yes|true|1)$/i.test(t)?'Yes':'No';return AUDIT_OPTS.includes(y)?y:(t||AUDIT_OPTS[AUDIT_OPTS.length-1]||y);};
 const yes=v=>{v=String(v??'').trim();return !!v&&!/^(no|n|false|0|-)$/i.test(v);};
 function forceStatusOpts(){
   FORCED_COLS.forEach(([n,fl])=>{
@@ -932,12 +1200,12 @@ function forceStatusOpts(){
   });
 }
 // Status ที่ว่างในชีต ถือเป็น "ว่าง"
-const eqv=(i,val)=>{const o=cur.v[i];if(+i===col(AUDIT_COL))return val===normYN(o);return val===o||(FORCED_COLS.some(c=>+i===col(c[0]))&&val==='ว่าง'&&!String(o??'').trim());};
+const eqv=(i,val)=>{const o=cur.v[i];if(+i===col(AUDIT_COL))return val===normYN(o);return val===o||((FORCED_COLS.some(c=>+i===col(c[0]))||BLANKV().includes(+i))&&val==='ว่าง'&&!String(o??'').trim());};
 let FIL=[],SEL=[];
 const ALL='__ALL__', HAS='__HAS__';
 function buildFilters(){
   FIL=[];SEL=[];
-  let h='<div class="fh"><button id="fxl" type="button" disabled>Print Filter to Excel</button><button id="fclr" type="button">ล้างค่าทั้งหมด</button></div>';
+  let h='<div class="fh"><button id="fxl" type="button" disabled>Print Filter to Excel</button><button id="fclr" type="button">ล้างค่าทั้งหมด</button><button id="fhs" type="button">ประวัติแก้ไขทั้งหมด</button><button id="fnt" type="button">หมายเหตุ</button></div>';
   let lastSec='';
   let gi=0;
   FILTERS.forEach(f=>{
@@ -970,7 +1238,8 @@ function buildFilters(){
     }
     let vals=[...new Set(R.map(get))].sort(VER_FILTERS.includes(f.k)?verCmp:(a,b)=>a.localeCompare(b));
     if(f.force)vals=f.force.concat(vals.filter(v=>!f.force.includes(v)));
-    if(f.fixed){const ex=vals.filter(v=>v&&!BRANCHES.includes(v)); vals=BRANCHES.concat(ex);}
+    if(f.lk){const lv=((LISTS&&LISTS.lists&&LISTS.lists[f.lk])||[]).filter(x=>x&&x!=='ว่าง');vals=lv.concat(vals.filter(v=>!lv.includes(v)));}
+    if(f.fixed){const bv=branchVals(),ex=vals.filter(v=>v&&!bv.includes(v)); vals=bv.concat(ex);}
     const lab=v=>f.fixed&&v==='SNNP'?'HQ':(v?esc(v):'(ว่าง)');
     const lbls=vals.map(v=>`<label><input type="checkbox" data-f="${j}" value="${esc(v)}">${v?esc(v):'(ว่าง)'}</label>`).join('');
     if(f.dd){
@@ -1027,7 +1296,9 @@ $('fbox').onchange=e=>{
   render();
 };
 $('fbox').onclick=e=>{
-  if(e.target.id==='fxl'){exportFilterExcel();return;}
+  if(e.target.id==='fxl'){guardExport(exportFilterExcel);return;}
+  if(e.target.id==='fhs'){showAllHist();return;}
+  if(e.target.id==='fnt'){showNotes();return;}
   if(e.target.id==='fclr'){
     SEL.forEach(s=>s.clear());
     $('fbox').querySelectorAll('input').forEach(x=>x.checked=false);
@@ -1035,7 +1306,38 @@ $('fbox').onclick=e=>{
       render();
   }
 };
-$('xl').onclick=exportExcel;
+$('xl').onclick=()=>guardExport(exportExcel);
+
+// ต้องใส่รหัสผ่านก่อนส่งออก Excel: ตรวจกับชีต List คอลัมน์ password ที่ฝั่ง Apps Script (ผิด = ไม่ส่งออก)
+function guardExport(fn){
+  if($('xpw'))return;
+  const d=document.createElement('div');d.id='xpw';
+  d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  const bs='flex:1;border-radius:8px;padding:10px;font:inherit;font-weight:600;cursor:pointer;';
+  d.innerHTML='<div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:340px;box-shadow:0 8px 30px rgba(0,0,0,.3)">'+
+    '<div style="font-weight:700;font-size:16px;margin-bottom:12px">ใส่รหัสผ่านเพื่อส่งออก Excel</div>'+
+    '<input id="xpw_k" type="password" autocomplete="off" placeholder="รหัสผ่าน" style="width:100%;margin-bottom:12px">'+
+    '<div style="display:flex;gap:8px"><button id="xpw_c" type="button" style="'+bs+'background:#fff;color:#3f485c;border:1px solid #c9cfdb">ยกเลิก</button>'+
+    '<button id="xpw_o" type="button" style="'+bs+'background:var(--acc);color:#fff;border:0">ยืนยัน</button></div>'+
+    '<div id="xpw_e" style="color:#b91c1c;font-size:12px;margin-top:8px;min-height:14px"></div></div>';
+  document.body.appendChild(d);
+  const k=$('xpw_k'),e=$('xpw_e'),ok=$('xpw_o'),cn=$('xpw_c');
+  k.focus();
+  const close=()=>d.remove();
+  const go=()=>{
+    if(!k.value.trim()){e.textContent='กรุณาใส่รหัสผ่าน';return;}
+    ok.disabled=true;cn.disabled=true;e.style.color='#3f485c';e.textContent='กำลังตรวจสอบ…';
+    GS.withSuccessHandler(r=>{
+      if(r&&r.ok){close();fn();return;}
+      e.style.color='#b91c1c';e.textContent='รหัสผ่านไม่ถูกต้อง';ok.disabled=false;cn.disabled=false;k.select();
+    }).withFailureHandler(err=>{
+      e.style.color='#b91c1c';e.textContent=err.message;ok.disabled=false;cn.disabled=false;
+    }).verifyExport(k.value.trim());
+  };
+  ok.onclick=go;cn.onclick=close;
+  d.onkeydown=ev=>{if(ev.key==='Enter')go();else if(ev.key==='Escape')close();};
+  d.onclick=ev=>{if(ev.target===d&&!ok.disabled)close();};
+}
 
 // Print to Excel: ส่งออกทุกรายการและทุกคอลัมน์ ไม่เกี่ยวกับตัวกรอง
 let xlsxP=null;
@@ -1154,7 +1456,7 @@ document.addEventListener('keydown',e=>{
 function init(){
   TI=TYPECOLS.map(n=>H.indexOf(n)).find(i=>i>=0)??-1;
   const pt=$('typ').value,pl=$('loc').value; // ค่าที่เลือกไว้ระหว่างรอข้อมูล
-  $('typ').value=pt;$('loc').value=pl;
+  syncLists();fillBranchSel(pl);fillTypeSel(pt);$('typ').value=pt;$('loc').value=pl;
   $('loc2').innerHTML='<option value="">— เลือก Location —</option>';
   // ตัวเลือก Dropdown ดึงจากค่าที่มีอยู่ใน Sheet
   GROUPS.forEach(g=>g[1].forEach(f=>{
@@ -1162,6 +1464,7 @@ function init(){
     const i=col(f[0],f[3]); if(i<0)return;
     OPTS[i]=sortOpts(i,[...new Set(R.map(r=>r.v[i]).filter(Boolean))]);
   }));
+  mergeLists();
   forceStatusOpts();
   buildFilters();
   buildStats();
@@ -1179,7 +1482,7 @@ function updFx(){const b=$('fxl'); if(b)b.disabled=!filterRows();}
 function render(){markAct();updFx();render0();fitList();}
 function fitList(){
   const l=$('list');
-  if(PCQ.matches&&mode!=3&&!$('grid').hidden){l.style.height=Math.max(200,window.innerHeight-l.getBoundingClientRect().top-12)+'px';}
+  if(PCQ.matches&&mode!=3&&!$('grid').hidden){l.style.height=Math.max(200,window.innerHeight-l.getBoundingClientRect().top-30)+'px';}
   else l.style.height='';
 }
 window.addEventListener('resize',fitList);
@@ -1192,7 +1495,7 @@ function render0(){
     if(!l2)return;
     const ty=$('typ').value;
     const b=$('loc').value, allL=l2==='__ALL__';
-    const rows=R.filter(r=>(allL?(b==='__ALL__'||branchOf(r.v[LOC()])===b):r.v[LOC()]===l2)&&(!ty||typeOf(r)===ty));
+    const rows=R.filter(r=>(allL?inBranch(r,b):r.v[LOC()]===l2)&&(!ty||typeLabel(r)===ty));
     $('list').innerHTML=`<div class="head">รหัส Asset ทั้งหมด — ${rows.length} รายการ</div>`+(rows.map(r=>
       `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b><span>${esc(r.v[col('ผู้ถือครอง')])}</span></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
     return;
@@ -1200,8 +1503,13 @@ function render0(){
   if(mode==3){
     $('list').hidden=false;g.classList.remove('one');
     const rows=filterRows();
-    g.hidden=!rows;
-    if(!rows)return;
+    const none=!rows||!rows.length;            // ยังไม่ได้เลือกตัวกรอง หรือกรองแล้วไม่พบข้อมูล = ไม่แสดงรายการ/รายละเอียด
+    g.hidden=none;
+    if(none||(cur&&!rows.some(r=>r.n===cur.n))){   // เครื่องที่เปิดอยู่ไม่อยู่ในผลกรองแล้ว = ล้างหน้ารายละเอียด
+      cur=null;$('sv').disabled=true;$('hs').disabled=true;
+      $('panel').innerHTML='<div class="empty">เลือกเครื่องเพื่อดูและแก้ไข</div>';$('panel2').innerHTML='';$('panel2').hidden=true;
+    }
+    if(none)return;
     $('list').innerHTML=`<div class="head">${rows.length} รายการ</div>`+(rows.slice(0,200).map(r=>
       `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b><span>${esc(r.v[col('ผู้ถือครอง')])}</span></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
     return;
@@ -1210,8 +1518,11 @@ function render0(){
   const q=$('q2').value.trim().toLowerCase();
   g.hidden=!q;
   if(!q)return;
-  const ix=['IT Asset No','Computername','Serial No','ผู้ถือครอง'].map(n=>col(n));
-  const rows=R.filter(r=>ix.some(i=>String(r.v[i]).toLowerCase().includes(q)));
+  // ค้นหาจาก: รหัส Asset, Assetname, Model, Computername, Serial, ผู้ถือครอง, Location, IP Address, Mac (LAN/Wireless), Product Key
+  const ix=['IT Asset No','Assetname','Model','Computername','Serial No','ผู้ถือครอง','Location','IP Address','Lan Mac address','Wireless Mac address','Product Key'].map(n=>col(n)).filter(i=>i>=0);
+  const mx=['Lan Mac address','Wireless Mac address'].map(n=>col(n)).filter(i=>i>=0);
+  const qn=q.replace(/[^a-z0-9]/g,'');   // Mac: พิมพ์มีหรือไม่มี : - . ก็ค้นเจอ
+  const rows=R.filter(r=>ix.some(i=>String(r.v[i]==null?'':r.v[i]).toLowerCase().includes(q))||(qn.length>=4&&mx.some(i=>String(r.v[i]==null?'':r.v[i]).toLowerCase().replace(/[^a-z0-9]/g,'').includes(qn))));
   $('list').innerHTML=`<div class="head">${rows.length} รายการ</div>`+(rows.slice(0,200).map(r=>
     `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b><span>${esc(r.v[col('ผู้ถือครอง')])}</span></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
   if(rows.length===1)open(rows[0].n);
@@ -1286,13 +1597,13 @@ function open(n){
       const v=cur.v[i]; let c;
       if(f[0]===AUDIT_COL){
         const sv=normYN(v);
-        c=`<select data-i="${i}" required>${AUDIT_OPTS.map(x=>`<option${x===sv?' selected':''}>${x}</option>`).join('')}</select>`;
+        c=`<select data-i="${i}" required>${(AUDIT_OPTS.includes(sv)?AUDIT_OPTS:AUDIT_OPTS.concat(sv)).map(x=>`<option${x===sv?' selected':''}>${esc(x)}</option>`).join('')}</select>`;
       }else if(f[2]==='d'){
-        const o=(OPTS[i]||[]).slice(); if(v&&!o.includes(v))o.push(v);
+        const o=(f[0]==='Location'?locChoices(cur.v[col('สาขา')],v):(OPTS[i]||[]).slice()); if(v&&!o.includes(v))o.push(v);
         const isSt=FORCED_COLS.some(c=>c[0]===f[0]), sv=isSt&&!String(v??'').trim()?'ว่าง':v;
         c=`<select data-i="${i}">${isSt?'':'<option value="">ว่าง</option>'}${o.map(x=>`<option${x===sv?' selected':''}>${esc(x)}</option>`).join('')}</select>`;
       }else if(f[2]==='c'){
-        c=`<div class="cb"><input data-i="${i}" value="${esc(v)}" autocomplete="off"><button type="button" class="cbb" tabindex="-1" aria-label="เลือกจากรายการ">▾</button><div class="cbl" hidden></div></div>`;
+        c=`<div class="cb"><input data-i="${i}" value="${esc(BLANKV().includes(i)&&!String(v??'').trim()?'ว่าง':v)}" autocomplete="off"><button type="button" class="cbb" tabindex="-1" aria-label="เลือกจากรายการ">▾</button><div class="cbl" hidden></div></div>`;
       }else if(f[2]==='s'){
         const rs=awParse(v); if(!rs.length)rs.push(['','']);
         c=`<div class="asw"><input type="hidden" data-i="${i}" value="${esc(v)}"><div class="awh"><span>ชื่อโปรแกรม</span><span>License / Key</span><span></span></div><div class="awl">${rs.map(r=>awRow(r[0],r[1])).join('')}</div><button type="button" class="awa">+ เพิ่มโปรแกรม</button></div>`;
@@ -1342,19 +1653,65 @@ function open(n){
   document.addEventListener('click',e=>{if(!e.target.closest('.cb'))closeAll(null);});
 })();
 
+// เลือกสาขา -> ช่อง Location เหลือเฉพาะของสาขานั้น / เลือก Location -> เติมสาขาให้อัตโนมัติ (ถ้าระบุสาขาได้ชัดเจน)
+(function(){
+  const pn=$('panel');
+  const sel=n=>pn.querySelector('[data-i="'+col(n)+'"]');
+  const mark=el=>{const w=el&&el.closest('.f>div');if(w)w.classList.toggle('chg',!eqv(el.dataset.i,el.value));};
+  pn.addEventListener('input',e=>{
+    const t=e.target,bi=col('สาขา'),li=LOC();
+    if(bi<0||li<0||!t.dataset||t.dataset.i===undefined)return;
+    const ls=sel('Location'),bs=sel('สาขา'); if(!ls||!bs)return;
+    if(+t.dataset.i===bi){
+      const v=ls.value,o=locChoices(bs.value,v);
+      ls.innerHTML='<option value="">ว่าง</option>'+o.map(x=>`<option>${esc(x)}</option>`).join('');
+      ls.value=v;mark(ls);
+    }else if(+t.dataset.i===li&&t.tagName==='SELECT'){
+      const b=LOCBR[ls.value];
+      const nb=(b&&b.size===1)?[...b][0]:(branchVals().find(x=>branchOf(x)===branchOf(ls.value))||null);
+      if(nb&&bs.value.trim()!==nb){bs.value=nb;mark(bs);autoFit(bs);}
+    }
+  });
+})();
+
+// ยืนยันก่อนบันทึก: แสดงช่องที่แก้ (ค่าเดิม → ค่าใหม่) ให้กดยืนยันอีกครั้ง
+function confirmSave(ch,go){
+  if($('svc'))return;
+  const keys=Object.keys(ch);
+  const d=document.createElement('div');d.id='svc';
+  d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  const bs='border-radius:6px;padding:6px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;';
+  const rows=keys.map(i=>{
+    const o=String(cur.v[i]??'').trim(),n=String(ch[i]??'').trim();
+    return '<div style="padding:6px 0;border-bottom:1px solid #eef0f4;font-size:14px"><b>'+esc(H[i])+'</b><br><span style="color:#b91c1c">'+(esc(o)||'(ว่าง)')+'</span> → <span style="color:#15803d;font-weight:600">'+(esc(n)||'(ว่าง)')+'</span></div>';
+  }).join('');
+  d.innerHTML='<div style="background:#fff;border-radius:12px;padding:18px;width:100%;max-width:380px;max-height:85vh;max-height:85dvh;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(0,0,0,.3)">'+
+    '<div style="font-weight:700;font-size:16px;margin-bottom:4px">ยืนยันการบันทึก</div>'+
+    '<div style="font-size:13px;color:#475569;margin-bottom:8px">'+esc(cur.v[ASSET()])+' — แก้ไข '+keys.length+' ช่อง</div>'+
+    '<div style="overflow:auto;flex:1;min-height:0;margin-bottom:12px">'+rows+'</div>'+
+    '<div style="display:flex;gap:8px;justify-content:flex-end"><button id="svc_c" type="button" style="'+bs+'background:#fff;color:#3f485c;border:1px solid #c9cfdb">ยกเลิก</button>'+
+    '<button id="svc_o" type="button" style="'+bs+'background:var(--acc);color:#fff;border:0">ยืนยันบันทึก</button></div></div>';
+  document.body.appendChild(d);
+  const close=()=>d.remove();
+  $('svc_c').onclick=close;
+  $('svc_o').onclick=()=>{close();go();};
+  d.onclick=e=>{if(e.target===d)close();};
+}
 function save(){
   const ch={};
   document.querySelectorAll('#panel input[data-i],#panel select[data-i],#panel textarea[data-i],#panel2 input[data-i],#panel2 select[data-i]').forEach(x=>{if(!x.readOnly&&!eqv(x.dataset.i,x.value))ch[x.dataset.i]=x.value;});
   const m=$('msg');
   if(!Object.keys(ch).length){m.className='';m.textContent='ยังไม่มีการแก้ไข';return;}
+  confirmSave(ch,()=>{
   $('sv').disabled=true;$('hs').disabled=true;m.className='';m.textContent='กำลังบันทึก…';
   GS.withSuccessHandler(r=>{
-    Object.keys(ch).forEach(i=>{cur.v[i]=ch[i];const o=OPTS[i];if(o&&ch[i]&&!o.includes(ch[i])){o.push(ch[i]);sortOpts(i,o);}});
-    try{rebuildFilters();buildStats();}catch(e){}
+    Object.keys(ch).forEach(i=>{cur.v[i]=ch[i];const o=OPTS[i];if(o&&ch[i]&&!o.includes(ch[i])){o.push(ch[i]);if(!LIST_FIELDS.concat(['StatusN','การตรวจเครื่อง','Product Key']).some(n=>col(n)===+i))sortOpts(i,o);}});
+    try{buildLinks();rebuildFilters();buildStats();}catch(e){}
     $('sv').disabled=false;m.className='ok';m.textContent='บันทึกแล้ว '+r.saved+' ช่อง';
     document.querySelectorAll('#panel .chg,#panel2 .chg').forEach(x=>x.classList.remove('chg'));
   }).withFailureHandler(e=>{$('sv').disabled=false;m.className='bad';m.textContent=e.message;})
   .saveRow(cur.n,cur.v[ASSET()],ch);
+  });
 }
 
 // โหมด
@@ -1367,6 +1724,44 @@ $('hs').onclick=()=>{
     $('hbd').innerHTML=rs.length?'<table><tr><th>วันที่แก้ไข</th><th>ช่อง</th><th>ค่าเดิม → ค่าใหม่</th><th>ผู้แก้ไข</th></tr>'+rs.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[2])}</td><td><span class="old">${esc(r[3])||'(ว่าง)'}</span> → <span class="new">${esc(r[4])||'(ว่าง)'}</span></td><td>${esc(r[5])}</td></tr>`).join('')+'</table>':'<div class="empty">ยังไม่มีประวัติการแก้ไข</div>';
   }).withFailureHandler(e=>$('hbd').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>').getHistory(cur.v[ASSET()]);
 };
+// หมายเหตุ (หน้า Filter): แสดงเฉพาะคอลัมน์ IT Asset No และ หมายเหตุ ของเครื่องที่มีหมายเหตุ
+function showNotes(){
+  const ni=col('หมายเหตุ'),ai=ASSET(),li=LOC(),si=col('StatusN'),hi=col('ผู้ถือครอง');
+  const gv=(r,i)=>i>=0?String(r.v[i]==null?'':r.v[i]).trim():'';
+  $('hdt').textContent='หมายเหตุ';$('hist').style.display='flex';
+  if(ni<0){$('hbd').innerHTML='<div class="empty bad">ไม่พบคอลัมน์ หมายเหตุ ในชีต</div>';return;}
+  const all=R.filter(r=>String(r.v[ni]==null?'':r.v[ni]).trim()!=='');
+  if(!all.length){$('hbd').innerHTML='<div class="empty">ยังไม่มีเครื่องที่มีหมายเหตุ</div>';return;}
+  const cmp=(a,b)=>String(a).localeCompare(String(b),'th');
+  all.sort((a,b)=>cmp(gv(a,si)||'ว่าง',gv(b,si)||'ว่าง')||cmp(gv(a,li),gv(b,li))||cmp(gv(a,hi),gv(b,hi))||cmp(gv(a,ni),gv(b,ni))||cmp(gv(a,ai),gv(b,ai)));   // เรียง Status > Location > ผู้ถือครอง > หมายเหตุ
+  const sc=v=>({'ใช้งาน':'ok','ยืม':'lo','เสีย':'bad','ว่าง':'em'}[v]||'ot');
+  $('hbd').innerHTML='<div style="display:flex;gap:10px;align-items:center;padding:10px 0 6px;position:sticky;top:0;background:#fff;z-index:4"><input id="nq" placeholder="ค้นหา รหัส Asset / Status / Location / ผู้ถือครอง / หมายเหตุ" style="flex:1"><span id="ncnt" style="color:var(--mut);font-size:13px;white-space:nowrap"></span></div><table class="hall hnote"><thead><tr><th>IT Asset No</th><th>Status</th><th>Location</th><th>ผู้ถือครอง</th><th>หมายเหตุ</th></tr></thead><tbody id="nrows"></tbody></table>';
+  const draw=q=>{
+    q=String(q||'').trim().toLowerCase();
+    const f=q?all.filter(r=>[gv(r,ai),gv(r,si)||'ว่าง',gv(r,li),gv(r,hi),gv(r,ni)].join(' ').toLowerCase().includes(q)):all;
+    $('nrows').innerHTML=f.map(r=>`<tr><td>${esc(r.v[ai])}</td><td><span class="sb ${sc(gv(r,si)||'ว่าง')}">${esc(gv(r,si)||'ว่าง')}</span></td><td>${esc(gv(r,li))}</td><td>${esc(gv(r,hi))}</td><td>${esc(r.v[ni])}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">ไม่พบรายการ</td></tr>';
+    $('ncnt').textContent=f.length+' รายการ';
+  };
+  draw('');$('nq').oninput=e=>draw(e.target.value);
+  $('nrows').onclick=e=>{const tr=e.target.closest('tr');if(tr&&PCQ&&!PCQ.matches)tr.classList.toggle('open');};
+}
+// ประวัติแก้ไขทั้งหมด (หน้า Filter): ดึงจาก Apps Script ฟังก์ชัน getAllHistory
+function showAllHist(){
+  $('hdt').textContent='ประวัติแก้ไขทั้งหมด';
+  $('hbd').innerHTML='<div class="empty">กำลังโหลด…</div>';$('hist').style.display='flex';
+  GS.withSuccessHandler(rs=>{
+    rs=rs||[];
+    if(!rs.length){$('hbd').innerHTML='<div class="empty">ยังไม่มีประวัติการแก้ไข</div>';return;}
+    const draw=q=>{
+      q=String(q||'').trim().toLowerCase();
+      const f=q?rs.filter(r=>r.slice(0,6).join(' ').toLowerCase().includes(q)):rs, sh=f.slice(0,500);
+      $('hrows').innerHTML=sh.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td><span class="old">${esc(r[3])||'(ว่าง)'}</span> → <span class="new">${esc(r[4])||'(ว่าง)'}</span></td><td>${esc(r[5])}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">ไม่พบรายการ</td></tr>';
+      $('hcnt').textContent=f.length+' รายการ'+(f.length>sh.length?' (แสดง '+sh.length+' รายการล่าสุดที่ตรงกัน กรองเพิ่มเพื่อดูที่เหลือ)':'');
+    };
+    $('hbd').innerHTML='<div style="display:flex;gap:10px;align-items:center;padding:10px 0 6px;position:sticky;top:0;background:#fff;z-index:4"><input id="hq" placeholder="ค้นหา รหัส Asset / ช่อง / ผู้แก้ไข / วันที่" style="flex:1"><span id="hcnt" style="color:var(--mut);font-size:13px;white-space:nowrap"></span></div><table class="hall"><thead><tr><th>วันที่แก้ไข</th><th>รหัส Asset</th><th>ช่อง</th><th>ค่าเดิม → ค่าใหม่</th><th>ผู้แก้ไข</th></tr></thead><tbody id="hrows"></tbody></table>';
+    draw('');$('hq').oninput=e=>draw(e.target.value);
+  }).withFailureHandler(e=>{const m=String(e&&e.message||e);$('hbd').innerHTML='<div class="empty bad">'+(/not a function|unknown|ไม่พบ/i.test(m)?'ฝั่ง Apps Script ยังไม่มีฟังก์ชัน getAllHistory (และ gs_getAllHistory) ต้องเพิ่มใน Code.gs แล้ว Deploy ใหม่':esc(m))+'</div>';}).getAllHistory();
+}
 $('hx').onclick=()=>$('hist').style.display='none';
 $('hist').onclick=e=>{if(e.target.id==='hist')$('hist').style.display='none';};
 // PC + โหมด Filter: ย้ายรายการ/หน้าแก้ไขไปไว้ข้างตัวกรอง / มือถือและโหมดอื่น: อยู่ด้านล่างตามเดิม
@@ -1405,13 +1800,14 @@ function refreshData(){
     asset:cur?String(cur.v[ASSET()]):null,sel:SEL.map(x=>[...x])};
   GS.withSuccessHandler(d=>{
     try{
-      H=d.headers;R=d.rows;
+      H=d.headers;R=d.rows;LISTS=d.lists||LISTS;
       Object.keys(OPTS).forEach(k=>delete OPTS[k]);
       GROUPS.forEach(g=>g[1].forEach(f=>{
         if(f[2]!=='d'&&f[2]!=='c')return;
         const i=col(f[0],f[3]); if(i<0)return;
         OPTS[i]=sortOpts(i,[...new Set(R.map(r=>r.v[i]).filter(Boolean))]);
       }));
+      mergeLists();
       forceStatusOpts();
       buildFilters();
       keep.sel.forEach((arr,j)=>{
@@ -1423,7 +1819,7 @@ function refreshData(){
         const sl=$('fbox').querySelector('select[data-s="'+j+'"]'); if(sl)sl.value=[...SEL[j]][0];
       });
           buildStats();
-      $('typ').value=keep.typ;$('loc').value=keep.loc;fillLoc2();$('loc2').value=keep.loc2;
+      fillBranchSel(keep.loc);fillTypeSel(keep.typ);$('typ').value=keep.typ;$('loc').value=keep.loc;fillLoc2();$('loc2').value=keep.loc2;
       cur=null;render();
       if(keep.asset){const r=R.find(x=>String(x.v[ASSET()])===keep.asset);if(r)open(r.n);}
       m.className='ok';m.textContent='รีเฟรชแล้ว ('+R.length+' รายการ)';
@@ -1442,7 +1838,7 @@ function resetAll(){
   $('hist').style.display='none';
   $('panel').innerHTML='<div class="empty">เลือกเครื่องเพื่อดูและแก้ไข</div>';
   $('panel2').innerHTML='';
-  setMode(1);
+  setMode(2);
 }
 $('rs').onclick=resetAll;
 // Reset เฉพาะหน้าค้นหา: ล้างคำค้น รายการ และเครื่องที่เปิดอยู่ ไม่แตะสาขา/Location/Filter ของหน้าอื่น
@@ -1457,7 +1853,9 @@ $('rs2').onclick=()=>{
 function fillLoc2(){
   const b=$('loc').value;  // '' = ยังไม่เลือก, '__ALL__' = ทุกสาขา
   const ty=$('typ').value;
-  const locs=[...new Set(R.filter(r=>(b==='__ALL__'||branchOf(r.v[LOC()])===b)&&(!ty||typeOf(r)===ty)).map(r=>r.v[LOC()]).filter(Boolean))].sort();
+  const dl=[...new Set(R.filter(r=>inBranch(r,b)&&(!ty||typeLabel(r)===ty)).map(r=>r.v[LOC()]).filter(Boolean))];
+  const fl=b?listLocs().filter(l=>b==='__ALL__'||locInBranch(l,b)):[];          // Location จากชีต List ของสาขานี้ (ตามลำดับ List)
+  const locs=fl.concat(dl.filter(x=>!fl.includes(x)).sort());                   // ค่าที่มีในข้อมูลแต่ไม่อยู่ใน List ต่อท้าย
   $('loc2').disabled=!b;
   $('loc2').innerHTML=`<option value="">${R.length?'— เลือก Location —':'— กำลังโหลดข้อมูล… —'}</option>`+(b?'<option value="__ALL__">ทั้งหมด</option>':'')+locs.map(x=>`<option>${esc(x)}</option>`).join('');
   fillAsset();
@@ -1477,8 +1875,8 @@ function pickAsset(t){
   const r=R.find(x=>String(x.v[ASSET()]).toLowerCase()===t)||R.find(x=>String(x.v[ASSET()]).toLowerCase().includes(t));
   if(!r){alert('ไม่พบรหัส Asset: '+t);return;}
   $('typ').value='';
-  $('loc').value=branchOf(r.v[LOC()]);
-  if($('loc').value!==branchOf(r.v[LOC()])){alert('รหัสนี้อยู่นอก 5 สาขาที่แสดง ลองใช้ "ค้นหา"');return;}
+  const rb=rowBranch(r);$('loc').value=rb;
+  if($('loc').value!==rb){alert('รหัสนี้อยู่นอกสาขาที่แสดง ลองใช้ "ค้นหา"');return;}
   fillLoc2();$('loc2').value=r.v[LOC()];fillAsset();open(r.n);render();
 }
 function applyVal(id,t){$(id).value=t;render();}
@@ -1815,8 +2213,8 @@ const BRN_LABEL={SNNP:'HQ'};
 function showBranchCounts(){
   $('brt').textContent='ข้อมูลเครื่องแต่ละสาขา';
   const L=LOC(), cnt={};
-  const Z=()=>({rent:0,asset:0,pc:0,nb:0});
-  const bump=(c,r)=>{c[typeOf(r)==='เครื่องเช่า'?'rent':'asset']++; c[isNB(r)?'nb':'pc']++;};
+  const Z=()=>({rent:0,asset:0,pc:0,nb:0,sp:0});
+  const bump=(c,r)=>{c[typeOf(r)==='เครื่องเช่า'?'rent':'asset']++; const ct=compType(r); if(ct==='NB')c.nb++; else if(ct==='SP')c.sp++; else if(ct==='PC')c.pc++;};
   R.forEach(r=>{
     let b=branchOf(r.v[L]); if(!BRANCHES.includes(b)) b='อื่น ๆ';
     const o=cnt[b]=cnt[b]||{t:Z(),locs:{}};
@@ -1826,7 +2224,7 @@ function showBranchCounts(){
   });
   const order=BRANCHES.concat(Object.keys(cnt).filter(k=>!BRANCHES.includes(k)));
   const T=Z();
-  const tds=c=>`<td>${c.rent}</td><td>${c.asset}</td><td>${c.pc}</td><td>${c.nb}</td><td><b>${c.rent+c.asset}</b></td>`;
+  const tds=c=>`<td>${c.rent}</td><td>${c.asset}</td><td>${c.pc}</td><td>${c.nb}</td><td>${c.sp}</td><td><b>${c.rent+c.asset}</b></td>`;
   const rows=order.map((b,i)=>{
     const o=cnt[b]||{t:Z(),locs:{}}; for(const k in T)T[k]+=o.t[k];
     const ls=Object.keys(o.locs).sort((x,y)=>x.localeCompare(y,'th'));
@@ -1835,7 +2233,7 @@ function showBranchCounts(){
   }).join('');
   brnCtx={cnt,order,tds};
   $('brn').classList.remove('os');closeBrs();
-  $('bbd').innerHTML=`<table><thead><tr><th>สาขา / Location</th><th>เครื่องเช่า</th><th>Asset SNNP</th><th>PC</th><th>NB</th><th>รวม</th></tr></thead><tbody>${rows}<tr class="tot"><td>รวมทั้งหมด</td><td>${T.rent}</td><td>${T.asset}</td><td>${T.pc}</td><td>${T.nb}</td><td>${T.rent+T.asset}</td></tr></tbody></table>`;
+  $('bbd').innerHTML=`<table><thead><tr><th>สาขา / Location</th><th>เครื่องเช่า</th><th>Asset SNNP</th><th>PC</th><th>NB</th><th>SP</th><th>รวม</th></tr></thead><tbody>${rows}<tr class="tot"><td>รวมทั้งหมด</td><td>${T.rent}</td><td>${T.asset}</td><td>${T.pc}</td><td>${T.nb}</td><td>${T.sp}</td><td>${T.rent+T.asset}</td></tr></tbody></table>`;
   $('brn').style.display='flex';
 }
 let brnCtx=null;
@@ -1844,11 +2242,11 @@ function closeBrs(){
   $('bbd').querySelectorAll('tr.br.sel').forEach(x=>{x.classList.remove('sel');x.querySelector('.car').textContent='▸';});
 }
 function openBrs(i){
-  const b=brnCtx.order[i], o=brnCtx.cnt[b]||{t:{rent:0,asset:0,pc:0,nb:0},locs:{}};
+  const b=brnCtx.order[i], o=brnCtx.cnt[b]||{t:{rent:0,asset:0,pc:0,nb:0,sp:0},locs:{}};
   const ls=Object.keys(o.locs).sort((x,y)=>x.localeCompare(y,'th')), tds=brnCtx.tds;
   const rows=ls.map(l=>`<tr class="lcr"><td>${esc(l)}</td>${tds(o.locs[l])}</tr>`).join('');
   $('brst').innerHTML=`${esc(BRN_LABEL[b]||b)}<small>${ls.length} Location</small>`;
-  $('brsb').innerHTML=`<table class="t2"><thead><tr><th>Location</th><th>เครื่องเช่า</th><th>Asset SNNP</th><th>PC</th><th>NB</th><th>รวม</th></tr></thead><tbody>${rows||'<tr><td colspan="6">ไม่มีข้อมูล</td></tr>'}<tr class="tot"><td>รวม ${esc(BRN_LABEL[b]||b)}</td>${tds(o.t)}</tr></tbody></table>`;
+  $('brsb').innerHTML=`<table class="t2"><thead><tr><th>Location</th><th>เครื่องเช่า</th><th>Asset SNNP</th><th>PC</th><th>NB</th><th>SP</th><th>รวม</th></tr></thead><tbody>${rows||'<tr><td colspan="7">ไม่มีข้อมูล</td></tr>'}<tr class="tot"><td>รวม ${esc(BRN_LABEL[b]||b)}</td>${tds(o.t)}</tr></tbody></table>`;
   $('brsb').scrollTop=0;
   $('brn').classList.add('two');
   fitBrs();
@@ -1925,6 +2323,28 @@ $('bb').onclick=showBranchCounts;
 $('bo').onclick=showOsOffice;
 $('bx').onclick=()=>{closeBrs();$('brn').style.display='none';};
 $('brn').onclick=e=>{if(e.target===$('brn')){closeBrs();$('brn').style.display='none';}};
+</script>
+<script>
+// มือถือ (≤640px): ย้าย Refresh / Reset All / ข้อมูลสาขา / OS-MS Office / สถิติ เข้าเมนูสไลด์ขวา, จอใหญ่ย้ายกลับที่เดิม
+(function(){
+  var mq=window.matchMedia('(max-width:640px)'),drw=document.getElementById('drw'),drb=document.getElementById('drb');
+  var ids=['rf','rs'],items=[];
+  function reg(el){if(!el)return;var ph=document.createComment('ph');el.parentNode.insertBefore(ph,el);items.push({el:el,ph:ph});}
+  ids.forEach(function(i){reg(document.getElementById(i));});
+  reg(document.querySelector('.sidew'));
+  function place(){
+    if(mq.matches){items.forEach(function(o){drb.appendChild(o.el);});}
+    else{items.forEach(function(o){o.ph.parentNode.insertBefore(o.el,o.ph.nextSibling);});close();}
+  }
+  function open(){drw.classList.add('on');}
+  function close(){drw.classList.remove('on');}
+  document.getElementById('mnu').onclick=open;
+  document.getElementById('drx').onclick=close;
+  document.getElementById('drk').onclick=close;
+  drb.addEventListener('click',function(e){if(e.target.closest('button'))setTimeout(close,0);});
+  if(mq.addEventListener)mq.addEventListener('change',place);else mq.addListener(place);
+  place();
+})();
 </script>
 </body>
 </html>
