@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+<script>if(/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))document.documentElement.classList.add('ipad');</script>
 <base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -779,6 +780,17 @@ main{max-width:1564px;padding-right:14px}
 #hist .sb.bad{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
 #hist .sb.em{background:#eef0f4;color:#475569;border-color:#cbd5e1}
 #hist .sb.ot{background:#e0e7ff;color:#3730a3;border-color:#a5b4fc}
+/* เฉพาะ iPad แนวตั้ง (html.ipad, 641–899px) โหมด Filter: รายการอยู่บน รายละเอียดอยู่ล่าง ให้ช่องกรอกมีที่พอ ไม่ติดกัน */
+@media(min-width:641px) and (max-width:899px){
+  html.ipad #fres #grid.grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"list" "p1";gap:10px}
+  html.ipad #fres #grid #left{position:static}
+  html.ipad #fres #grid .list{height:auto;max-height:30vh}
+  html.ipad #fres #grid #panel .f{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 10px}
+  html.ipad #fres #grid #panel .f>.kc{grid-column:1/-1}
+  html.ipad #fres #grid .panel{padding:10px 12px}
+  html.ipad #fres #grid .ttl{font-size:17px;display:block;word-break:break-all}
+  html.ipad #fres #grid .sub{display:block;margin:2px 0 4px}
+}
 </style>
 </head>
 <body>
