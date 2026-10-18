@@ -852,12 +852,10 @@ main{max-width:1564px;padding-right:14px}
   html.ipad #fwrap:not(.picked) #fres #grid .list{height:auto;max-height:calc(100vh - 80px)}
   html.ipad #fwrap:not(.picked) #fres #grid #panel:has(>.empty){display:none}
 }
-/* ชื่อย่อในตัวกรอง (Windows/MS Office): ใช้เฉพาะ iPad แนวตั้ง */
+/* ชื่อย่อในตัวกรอง (Windows/MS Office): ใช้เฉพาะ iPad ทั้งแนวตั้งและแนวนอน */
 .ls{display:none}
-@media(min-width:641px) and (orientation:portrait){
-  html.ipad .lf{display:none}
-  html.ipad .ls{display:inline}
-}
+html.ipad .lf{display:none}
+html.ipad .ls{display:inline}
 </style>
 </head>
 <body>
