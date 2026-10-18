@@ -791,6 +791,33 @@ main{max-width:1564px;padding-right:14px}
   html.ipad #fres #grid .ttl{font-size:17px;display:block;word-break:break-all}
   html.ipad #fres #grid .sub{display:block;margin:2px 0 4px}
 }
+/* จอ ≥641px (คอม/แท็บเล็ต): ล็อกแถบเมนูซ้ายให้อยู่กับที่ ไม่เลื่อนตามเนื้อหาด้านขวา */
+@media(min-width:641px){
+  .modes{position:sticky;top:8px;align-self:flex-start;z-index:30}
+}
+/* เฉพาะ iPad แนวตั้ง โหมด Filter: พอกดเลือกเครื่อง ซ่อนตัวกรอง → รายละเอียดอยู่ซ้าย รายการเครื่องชิดขอบขวา (ไม่บังกัน) */
+#fshow{display:none}
+@media(min-width:641px) and (orientation:portrait){
+  html.ipad #fwrap.picked #fbox{display:none}
+  html.ipad #fwrap.picked #fres{flex:1 1 100%;width:100%}
+  html.ipad #fwrap.picked #fshow{display:inline-block;margin:0 0 8px;padding:6px 12px;border:1px solid var(--line);background:#fff;border-radius:8px;font:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
+  html.ipad #fwrap.picked #fres #grid.grid{grid-template-columns:minmax(0,1fr) 200px;grid-template-areas:"p1 list";gap:8px}
+  html.ipad #fwrap.picked #fres #grid #left{position:sticky;top:8px}
+  html.ipad #fwrap.picked #fres #grid .list{height:calc(100vh - 70px);max-height:calc(100vh - 70px)}
+  html.ipad #fwrap.picked #fres #grid #panel .f{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+}
+/* เฉพาะ iPad แนวตั้ง: กล่องตัวกรอง (Filter) ปุ่มเล็กลง ตัวอักษรเล็กลง ระยะห่างกระชับ */
+@media(min-width:641px) and (orientation:portrait){
+  html.ipad #fbox .fh{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+  html.ipad #fbox .fh button{padding:2px 8px;font-size:11px;line-height:1.35;border-radius:5px}
+  html.ipad #fbox .fgh{font-size:11.5px;padding:2px 10px;margin:8px 0 5px;border-radius:6px}
+  html.ipad #fbox .fg{grid-template-columns:64px minmax(0,1fr);column-gap:6px;margin-bottom:4px}
+  html.ipad #fbox .fg>b,html.ipad #fbox .fg>b label{font-size:11.5px;line-height:1.25;padding-top:1px;padding-bottom:1px}
+  html.ipad #fbox .fo{gap:1px 8px}
+  html.ipad #fbox .fo label{font-size:11.5px;line-height:1.3;padding:0;gap:4px}
+  html.ipad #fbox .fo input{width:13px;height:13px}
+  html.ipad #fbox .fsel{font-size:11.5px;height:24px;min-height:0;padding:1px 4px}
+}
 </style>
 </head>
 <body>
@@ -817,7 +844,7 @@ main{max-width:1564px;padding-right:14px}
     <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง / IP / Mac / Location / Product Key / Model / Assetname"><button class="ic" data-snap="q2" title="สแกน">📷</button><button type="button" class="ic rs2" id="rs2" title="รีเซ็ตหน้าค้นหา">Reset</button></div></div>
   </div>
   <div class="bar" id="bar3" hidden>
-    <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"></div></div>
+    <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"><button type="button" id="fshow">☰ แสดงตัวกรอง</button></div></div>
   </div>
   </div>
   </div>
@@ -1596,6 +1623,7 @@ function awSync(box){
 })();
 function open(n){
   cur=R.find(r=>r.n===n);
+  $('fwrap').classList.toggle('picked',mode==3&&!!cur);
   document.querySelectorAll('.it').forEach(x=>x.classList.toggle('sel',+x.dataset.n===n));
   $('grid').hidden=false;
   let h=`<p class="ttl">${esc(cur.v[ASSET()])}</p>`;
@@ -1786,16 +1814,19 @@ function placeGrid(){
 PCQ.addEventListener?PCQ.addEventListener('change',placeGrid):PCQ.addListener(placeGrid);
 placeGrid();
 // รีเซ็ตค่าของโหมดหนึ่ง ๆ (ใช้ตอนสลับโหมด เพื่อล้างโหมดอื่นอัตโนมัติ)
+$('fshow').onclick=()=>$('fwrap').classList.remove('picked');
 function resetMode(k){
   if(k==1){$('typ').value='';$('loc').value='';fillLoc2();}
   else if(k==2){$('q2').value='';}
   else if(k==3){
+    $('fwrap').classList.remove('picked');
     SEL.forEach(x=>x.clear());
     $('fbox').querySelectorAll('input').forEach(x=>x.checked=false);
     $('fbox').querySelectorAll('select.fsel').forEach(x=>x.selectedIndex=0);
   }
 }
 function setMode(m){
+  $('fwrap').classList.remove('picked');
   mode=m;cur=null;$('panel2').hidden=true;$('sv').disabled=true;$('hs').disabled=true;$('msg').textContent='';
   [1,2,3].filter(k=>k!==m).forEach(resetMode);
   $('panel').innerHTML='<div class="empty">เลือกเครื่องเพื่อดูและแก้ไข</div>';$('panel2').innerHTML='';$('hist').style.display='none';
