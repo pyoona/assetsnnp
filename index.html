@@ -847,6 +847,9 @@ main{max-width:1564px;padding-right:14px}
   html.ipad #mx button{padding:8px 10px;font-size:13px;white-space:normal;border-radius:6px}
   html.ipad #mx .bgrp #bb,html.ipad #mx .bgrp #bo{padding:8px 10px;font-size:13px;border-radius:6px}
   html.ipad #mx .sidew,html.ipad #mx .bgrp{gap:6px}
+  html.ipad #mx .savebox{display:flex;flex-direction:column;gap:6px;width:100%;margin:0}
+  html.ipad #mx .savebox button,html.ipad #mx>button{width:100%;font-size:14px;padding:8px 10px;border-radius:6px}
+  html.ipad #mx>button{order:0}
   /* รายการเครื่องในโหมด Filter ก่อนเลือกเครื่อง: ยาวจนถึงขอบล่างจอ ซ่อนกล่อง "เลือกเครื่อง..." */
   html.ipad #fwrap:not(.picked) #fres #grid .list{height:auto;max-height:calc(100vh - 80px)}
   html.ipad #fwrap:not(.picked) #fres #grid #panel:has(>.empty){display:none}
@@ -863,7 +866,7 @@ main{max-width:1564px;padding-right:14px}
     <div class="mnuw"><button id="mnu" type="button">☰ เมนู</button></div>
     <button id="m3">Filter</button>
     <div class="savebox" id="savebox"><button id="sv" disabled>Save</button><button id="hs" class="alt" disabled>ประวัติ</button><button id="xl" class="xl" type="button">Print to Excel</button><button id="rf" type="button">Refresh</button><button id="rs" type="button">Reset All</button><span id="msg"></span></div>
-    <button id="mtg" type="button">☰ Menu ▾</button>
+    <div class="mtgw"><button id="mtg" type="button">HOME ▾</button></div>
     <div id="mx"></div>
     <div class="sidew"><div class="bgrp"><button id="bb" type="button" class="bbtn">ข้อมูลเครื่องแต่ละสาขา</button><button id="bo" type="button" class="bbtn">ข้อมูล OS-MS Office</button></div>
     <div id="stats"></div></div>
@@ -2411,14 +2414,15 @@ $('brn').onclick=e=>{if(e.target===$('brn')){closeBrs();$('brn').style.display='
 </script>
 <script>
 // มือถือ (≤640px): ย้าย Refresh / Reset All / ข้อมูลสาขา / OS-MS Office / สถิติ เข้าเมนูสไลด์ขวา
-// iPad แนวตั้ง: ย้าย Print to Excel / Refresh / Reset All / ข้อมูลสาขา / OS-MS Office / สถิติ เข้าปุ่มรวม "เมนูเพิ่มเติม" กดแล้วขยาย
+// iPad แนวตั้ง: ย้ายทุกอย่างในแถบซ้าย (ค้นหา/เลือกตามสาขา/Filter/Save/ประวัติ/Print/Refresh/Reset/ข้อมูลสาขา/OS-MS/สถิติ) เข้าปุ่มรวม Menu กดแล้วขยาย
 // จอใหญ่/แนวนอน: อยู่ที่เดิม
 (function(){
   var mq=window.matchMedia('(max-width:640px)'),ip=window.matchMedia('(min-width:641px) and (orientation:portrait)');
   var drw=document.getElementById('drw'),drb=document.getElementById('drb'),mx=document.getElementById('mx'),mtg=document.getElementById('mtg'),modes=document.querySelector('.modes');
   var isIpad=document.documentElement.classList.contains('ipad'),items=[];
   function reg(el,tg){if(!el)return;var ph=document.createComment('ph');el.parentNode.insertBefore(ph,el);items.push({el:el,ph:ph,tg:tg});}
-  reg(document.getElementById('xl'),'ipad');
+  ['m2','m1','m3'].forEach(function(i){reg(document.getElementById(i),'ipad');});
+  reg(document.getElementById('savebox'),'ipad');
   reg(document.getElementById('rf'),'both');
   reg(document.getElementById('rs'),'both');
   reg(document.querySelector('.sidew'),'both');
@@ -2431,7 +2435,7 @@ $('brn').onclick=e=>{if(e.target===$('brn')){closeBrs();$('brn').style.display='
       else o.ph.parentNode.insertBefore(o.el,o.ph.nextSibling);
     });
     if(to!=='d')closeD();
-    if(to!=='x'){modes.classList.remove('mxo');mtg.textContent='☰ Menu ▾';}
+    if(to!=='x'){modes.classList.remove('mxo');mtg.textContent='HOME ▾';}
   }
   function openD(){drw.classList.add('on');}
   function closeD(){drw.classList.remove('on');}
@@ -2439,7 +2443,8 @@ $('brn').onclick=e=>{if(e.target===$('brn')){closeBrs();$('brn').style.display='
   document.getElementById('drx').onclick=closeD;
   document.getElementById('drk').onclick=closeD;
   drb.addEventListener('click',function(e){if(e.target.closest('button'))setTimeout(closeD,0);});
-  mtg.onclick=function(){var o=modes.classList.toggle('mxo');mtg.textContent=o?'☰ Menu ▴':'☰ Menu ▾';};
+  mx.addEventListener('click',function(e){if(e.target.closest('button'))setTimeout(function(){modes.classList.remove('mxo');mtg.textContent='HOME ▾';},0);});
+  mtg.onclick=function(){var o=modes.classList.toggle('mxo');mtg.textContent=o?'HOME ▴':'HOME ▾';};
   [mq,ip].forEach(function(m){if(m.addEventListener)m.addEventListener('change',place);else m.addListener(place);});
   place();
 })();
