@@ -1205,8 +1205,7 @@ function loadInitial(){
 loadInitial();
 
 // ประเภท Asset มี 2 ชนิด: "เครื่องเช่า" และ "Asset"
-// ดูจากคอลัมน์ "ประเภท Asset" (หรือ ประเภท / Asset Type / Type) ถ้ามี ไม่เช่นนั้นดูจากรหัส Asset
-// ถ้าข้อความมีคำว่า "เช่า" หรือ "rent" = เครื่องเช่า นอกนั้น = Asset
+// ดูจากคอลัมน์ "IT Asset No" เท่านั้น: รหัสขึ้นต้นด้วย PC-R- หรือ NB-R- = เครื่องเช่า นอกนั้น = Asset SNNP
 const TYPECOLS=['ประเภท Asset','ประเภท','Asset Type','Type'];
 const ASSET_TYPES=['Asset SNNP','เครื่องเช่า'];
 let TI=-1;
@@ -1214,11 +1213,11 @@ let TI=-1;
 $('typ').innerHTML='<option value="">ทั้งหมด</option>'+ASSET_TYPES.map(x=>`<option>${esc(x)}</option>`).join('');
 $('loc').innerHTML='<option value="">— เลือกสาขา —</option><option value="__ALL__">ทั้งหมด</option>'+BRANCHES.map(l=>`<option value="${esc(l)}">${l==='SNNP'?'HQ':esc(l)}</option>`).join('');
 $('loc2').innerHTML='<option value="">— กำลังโหลดข้อมูล… —</option>';
-const typeOf=r=>/เช่า|rent/i.test(String(TI>=0?r.v[TI]:r.v[ASSET()])??'')?'เครื่องเช่า':'Asset SNNP';
+const typeOf=r=>/^\s*(PC|NB)-R-/i.test(String(r.v[ASSET()]==null?'':r.v[ASSET()]))?'เครื่องเช่า':'Asset SNNP';
 // ประเภทตามค่าจริงในคอลัมน์ ประเภท Asset (ตรงกับชีต List) · ถ้าช่องว่าง ใช้การเดาแบบเดิม · typeOf ใช้กับตารางสรุปจำนวนเครื่อง (เช่า/Asset) ตามเดิม
 // Computer Type: แยกจากรหัส IT Asset No ที่มี NB- / PC- / SP- (ใช้ทั้งตัวกรองและตารางสรุปรายสาขา)
 const compType=r=>{const t=String(r.v[ASSET()]==null?'':r.v[ASSET()]);return /NB-/i.test(t)?'NB':(/PC-/i.test(t)?'PC':(/SP-/i.test(t)?'SP':''));};
-const typeLabel=r=>{if(TI>=0){const c=String(r.v[TI]==null?'':r.v[TI]).trim();if(c)return c;}return typeOf(r);};
+const typeLabel=r=>typeOf(r);
 const locOf=r=>String(r.v[LOC()]??'').trim();
 
 // ตัวกรอง (เรียงตามนี้): k=ชื่อที่แสดง, c=ชื่อคอลัมน์, l=1 ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ, g=ฟังก์ชันดึงค่าเอง
