@@ -828,6 +828,29 @@ main{max-width:1564px;padding-right:14px}
   html.ipad #fwrap.picked #fres #grid #left:hover,html.ipad #fwrap.picked #fres #grid #left:active,html.ipad #fwrap.picked #fres #grid #left:focus-within{opacity:1}
   html.ipad #fwrap.picked #fres #grid #pclose{display:flex;align-items:center;justify-content:center;position:absolute;top:10px;right:calc(208px + 12px);z-index:5;width:30px;height:30px;padding:0;border-radius:50%;border:1px solid #c9cfdb;background:#fff;color:#334155;font-size:16px;line-height:1;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
 }
+/* iPad แนวตั้ง: ปุ่มรวม "เมนูเพิ่มเติม" กดแล้วขยาย (ย่อ Print/Refresh/Reset/ข้อมูลสาขา/OS-MS/สถิติ ไว้ในปุ่มเดียว) */
+#mtg,#mx{display:none}
+#mx button{width:100%;padding:12px;font:inherit;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;text-align:center;margin:0;white-space:normal}
+#mx #xl{border:0}
+#mx #rf{background:#fff;color:var(--acc);border:2px solid var(--acc)}
+#mx #rs{background:#fff;color:var(--err);border:2px solid var(--err)}
+#mx .bbtn{background:#fff;color:#1d4ed8;border:2px solid #1d4ed8}
+#mx button:disabled{opacity:.5}
+#mx .sidew{display:flex;flex-direction:column;gap:10px;width:100%;margin:0;flex:none}
+#mx .bgrp{display:flex;flex-direction:column;gap:10px;flex:none;width:100%;margin:0;order:0}
+#mx .bgrp #bb,#drb .bgrp #bo{flex:none;width:100%;min-height:0;padding:12px;font-size:15px;white-space:normal;border-radius:8px}
+#mx #stats{display:block;column-count:1;flex:none;order:0;width:100%;min-width:0;margin:0;font-size:13px}
+@media(min-width:641px) and (orientation:portrait){
+  html.ipad #mtg{display:block;width:100%;margin-top:4px;padding:8px 10px;font:inherit;font-size:14px;font-weight:700;text-align:center;border-radius:6px;cursor:pointer;background:#fff;color:#334155;border:2px solid #94a3b8}
+  html.ipad .modes.mxo #mtg{background:#e1ecff;color:#12308f;border-color:#9ec5fe}
+  html.ipad .modes.mxo #mx{display:flex;flex-direction:column;gap:6px;width:100%}
+  html.ipad #mx button{padding:8px 10px;font-size:13px;white-space:normal;border-radius:6px}
+  html.ipad #mx .bgrp #bb,html.ipad #mx .bgrp #bo{padding:8px 10px;font-size:13px;border-radius:6px}
+  html.ipad #mx .sidew,html.ipad #mx .bgrp{gap:6px}
+  /* รายการเครื่องในโหมด Filter ก่อนเลือกเครื่อง: ยาวจนถึงขอบล่างจอ ซ่อนกล่อง "เลือกเครื่อง..." */
+  html.ipad #fwrap:not(.picked) #fres #grid .list{height:auto;max-height:calc(100vh - 80px)}
+  html.ipad #fwrap:not(.picked) #fres #grid #panel:has(>.empty){display:none}
+}
 </style>
 </head>
 <body>
@@ -840,6 +863,8 @@ main{max-width:1564px;padding-right:14px}
     <div class="mnuw"><button id="mnu" type="button">☰ เมนู</button></div>
     <button id="m3">Filter</button>
     <div class="savebox" id="savebox"><button id="sv" disabled>Save</button><button id="hs" class="alt" disabled>ประวัติ</button><button id="xl" class="xl" type="button">Print to Excel</button><button id="rf" type="button">Refresh</button><button id="rs" type="button">Reset All</button><span id="msg"></span></div>
+    <button id="mtg" type="button">☰ Menu ▾</button>
+    <div id="mx"></div>
     <div class="sidew"><div class="bgrp"><button id="bb" type="button" class="bbtn">ข้อมูลเครื่องแต่ละสาขา</button><button id="bo" type="button" class="bbtn">ข้อมูล OS-MS Office</button></div>
     <div id="stats"></div></div>
   </div>
@@ -2385,24 +2410,37 @@ $('bx').onclick=()=>{closeBrs();$('brn').style.display='none';};
 $('brn').onclick=e=>{if(e.target===$('brn')){closeBrs();$('brn').style.display='none';}};
 </script>
 <script>
-// มือถือ (≤640px): ย้าย Refresh / Reset All / ข้อมูลสาขา / OS-MS Office / สถิติ เข้าเมนูสไลด์ขวา, จอใหญ่ย้ายกลับที่เดิม
+// มือถือ (≤640px): ย้าย Refresh / Reset All / ข้อมูลสาขา / OS-MS Office / สถิติ เข้าเมนูสไลด์ขวา
+// iPad แนวตั้ง: ย้าย Print to Excel / Refresh / Reset All / ข้อมูลสาขา / OS-MS Office / สถิติ เข้าปุ่มรวม "เมนูเพิ่มเติม" กดแล้วขยาย
+// จอใหญ่/แนวนอน: อยู่ที่เดิม
 (function(){
-  var mq=window.matchMedia('(max-width:640px)'),drw=document.getElementById('drw'),drb=document.getElementById('drb');
-  var ids=['rf','rs'],items=[];
-  function reg(el){if(!el)return;var ph=document.createComment('ph');el.parentNode.insertBefore(ph,el);items.push({el:el,ph:ph});}
-  ids.forEach(function(i){reg(document.getElementById(i));});
-  reg(document.querySelector('.sidew'));
+  var mq=window.matchMedia('(max-width:640px)'),ip=window.matchMedia('(min-width:641px) and (orientation:portrait)');
+  var drw=document.getElementById('drw'),drb=document.getElementById('drb'),mx=document.getElementById('mx'),mtg=document.getElementById('mtg'),modes=document.querySelector('.modes');
+  var isIpad=document.documentElement.classList.contains('ipad'),items=[];
+  function reg(el,tg){if(!el)return;var ph=document.createComment('ph');el.parentNode.insertBefore(ph,el);items.push({el:el,ph:ph,tg:tg});}
+  reg(document.getElementById('xl'),'ipad');
+  reg(document.getElementById('rf'),'both');
+  reg(document.getElementById('rs'),'both');
+  reg(document.querySelector('.sidew'),'both');
   function place(){
-    if(mq.matches){items.forEach(function(o){drb.appendChild(o.el);});}
-    else{items.forEach(function(o){o.ph.parentNode.insertBefore(o.el,o.ph.nextSibling);});close();}
+    var to=null;
+    if(mq.matches)to='d'; else if(isIpad&&ip.matches)to='x';
+    items.forEach(function(o){
+      if(to==='d'&&o.tg==='both')drb.appendChild(o.el);
+      else if(to==='x')mx.appendChild(o.el);
+      else o.ph.parentNode.insertBefore(o.el,o.ph.nextSibling);
+    });
+    if(to!=='d')closeD();
+    if(to!=='x'){modes.classList.remove('mxo');mtg.textContent='☰ Menu ▾';}
   }
-  function open(){drw.classList.add('on');}
-  function close(){drw.classList.remove('on');}
-  document.getElementById('mnu').onclick=open;
-  document.getElementById('drx').onclick=close;
-  document.getElementById('drk').onclick=close;
-  drb.addEventListener('click',function(e){if(e.target.closest('button'))setTimeout(close,0);});
-  if(mq.addEventListener)mq.addEventListener('change',place);else mq.addListener(place);
+  function openD(){drw.classList.add('on');}
+  function closeD(){drw.classList.remove('on');}
+  document.getElementById('mnu').onclick=openD;
+  document.getElementById('drx').onclick=closeD;
+  document.getElementById('drk').onclick=closeD;
+  drb.addEventListener('click',function(e){if(e.target.closest('button'))setTimeout(closeD,0);});
+  mtg.onclick=function(){var o=modes.classList.toggle('mxo');mtg.textContent=o?'☰ Menu ▴':'☰ Menu ▾';};
+  [mq,ip].forEach(function(m){if(m.addEventListener)m.addEventListener('change',place);else m.addListener(place);});
   place();
 })();
 </script>
