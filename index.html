@@ -357,8 +357,8 @@ header{background:#0f172a;border-bottom:4px solid var(--acc)}
 .bgrp #bb,.bgrp #bo{background:#fff;color:#0033ff;border:1px solid #0033ff;border-radius:6px;padding:6px 10px;font-weight:600;cursor:pointer}
 .bgrp #bb:hover,.bgrp #bo:hover{background:#0033ff;color:#fff}
 /* ปุ่มล้างตัวกรอง = ขาวขอบแดง (แยกจากหัวกลุ่มสีน้ำเงิน) */
-#fclr{background:#fff;border:2px solid var(--err);color:var(--err);font-weight:700}
-#fclr:hover{background:var(--err);border-color:var(--err);color:#fff}
+#fclr{background:#fff;border:2px solid #ff0000;color:#ff0000;font-weight:800}
+#fclr:hover{background:#ff0000;border-color:#ff0000;color:#fff}
 /* ช่องที่แก้ไขแล้ว = เหลืองอำพัน (ไม่ซ้ำกับสีโฟกัสสีน้ำเงิน) */
 .chg input,.chg textarea,.chg select{border-color:var(--amb);background:#fff7e0;box-shadow:0 0 0 1px var(--amb)}
 /* ช่องตรวจเครื่อง = เขียวอมฟ้าอ่อน */
@@ -701,13 +701,13 @@ main{max-width:1564px;padding-right:14px}
   #grid .ttl{font-size:14px}
 }
 /* ปุ่มประวัติแก้ไขทั้งหมด: สไตล์เดียวกับปุ่มล้างค่า แต่เป็นสีน้ำเงินสด */
-#fhs{background:#fff;border:2px solid #0033ff;color:#0033ff;font-weight:700;cursor:pointer}
-#fhs:hover{background:#0033ff;border-color:#0033ff;color:#fff}
+#fhs{background:#fff;border:2px solid #0026ff;color:#0026ff;font-weight:800;cursor:pointer}
+#fhs:hover{background:#0026ff;border-color:#0026ff;color:#fff}
 /* ระยะห่างระหว่างปุ่มในแถบ Filter */
 #fbox .fh{gap:8px 18px;flex-wrap:wrap;margin-bottom:10px}
 /* หน้า Filter: หัวกลุ่มเป็นแถบเส้นสีเต็มความกว้าง + เส้นคั่นบาง ๆ ระหว่างแต่ละหัวข้อ ให้แยกสัดส่วนชัด */
-#fbox .fgh{display:block;width:auto;background:none!important;color:var(--c,#1d4ed8);border-bottom:2px solid var(--c,#1d4ed8);border-radius:0;padding:0 2px 2px;margin:8px 0 3px;font-size:14px;font-weight:700}
-#fbox .fgh.g0{--c:#1d4ed8}#fbox .fgh.g1{--c:#15803d}#fbox .fgh.g2{--c:#7e22ce}#fbox .fgh.g3{--c:#c2410c}
+#fbox .fgh{display:block;width:auto;background:none!important;color:var(--c,#0a3dff);border-bottom:2px solid var(--c,#0a3dff);border-radius:0;padding:0 2px 2px;margin:8px 0 3px;font-size:14px;font-weight:800}
+#fbox .fgh.g0{--c:#0a3dff}#fbox .fgh.g1{--c:#00b020}#fbox .fgh.g2{--c:#a100ff}#fbox .fgh.g3{--c:#ff4d00}
 #fbox .fh+.fgh{margin-top:4px}
 #fbox .fg{margin-bottom:0;padding:2px 0;border-bottom:1px solid #d5dcea;align-items:center}
 #fbox .fg>b,#fbox .fg.act>b{align-self:stretch;display:flex;align-items:center;border-right:1px solid #d5dcea;padding-right:6px}
@@ -719,8 +719,8 @@ main{max-width:1564px;padding-right:14px}
 #hist table.hall td:nth-child(4){white-space:nowrap}
 #hist table.hall td:first-child,#hist table.hall th:first-child{padding-left:4px}
 /* ปุ่มหมายเหตุ (หน้า Filter) + ตารางหมายเหตุ */
-#fnt{background:#fff;border:2px solid #0f766e;color:#0f766e;font-weight:700;cursor:pointer}
-#fnt:hover{background:#0f766e;border-color:#0f766e;color:#fff}
+#fnt{background:#fff;border:2px solid #00b386;color:#00a37a;font-weight:800;cursor:pointer}
+#fnt:hover{background:#00b386;border-color:#00b386;color:#fff}
 #hist table.hnote td:nth-child(5){white-space:normal;min-width:260px;max-width:620px;word-break:break-word}
 /* ตารางหมายเหตุ: หัวตารางสีเขียวอมฟ้า ลายสลับแถว เส้นกรอบอ่อน ป้ายสี Status */
 #hist table.hnote{border-collapse:separate;border-spacing:0;border:1px solid #9fd3cc}
@@ -856,6 +856,16 @@ main{max-width:1564px;padding-right:14px}
 .ls{display:none}
 html.ipad .lf{display:none}
 html.ipad .ls{display:inline}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);z-index:10000;max-width:calc(100vw - 32px);padding:12px 22px;border-radius:10px;font-weight:700;font-size:16px;color:#fff;background:#15803d;box-shadow:0 6px 22px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+#toast.bad{background:#b91c1c}
+#toast.on{opacity:1;transform:translateX(-50%)}
+#panel .cbl .no.ch{position:sticky;top:0;background:#e1ecff;color:#12308f;font-weight:700;font-size:12px;border-bottom:1px solid #9ec5fe}
+#panel .cbl .no.ch.lc{background:#dcfce7;color:#0033ff;border-bottom-color:#86efac}
+/* รายการ dropdown: กว้างตามข้อความ บรรทัดเดียว (ช่องกรอกยังกว้างเท่าเดิม) */
+#panel .cbl{right:auto;width:max-content;min-width:100%;max-width:calc(100vw - 32px);white-space:nowrap}
+#panel .cbl .o{word-break:normal;white-space:nowrap}
+#panel .cbl .o.lc{color:#0033ff}
+#panel .cbl .o small{color:#0033ff;font-weight:400;font-size:11px}
 </style>
 </head>
 <body>
@@ -904,7 +914,7 @@ html.ipad .ls{display:inline}
 <div id="cam"><div id="camw"><video id="vid" playsinline muted></video></div><div id="camz"><button type="button" id="camzm" aria-label="ซูมออก">−</button><input type="range" id="camzr" min="1" max="5" step="0.1" value="1" aria-label="ซูม"><button type="button" id="camzp" aria-label="ซูมเข้า">+</button><span id="camzl">1.0x</span></div><button id="camocr" type="button" style="background:#15803d;color:#fff;font-weight:700">📷 ถ่ายรูปแล้วสแกน</button><button id="camx">ปิดกล้อง</button></div>
 <div id="snapch"><div class="sbox"><div class="stt">เลือกวิธีสแกน</div><button type="button" id="snapcam">📷 ถ่ายรูปแล้วสแกน</button><button type="button" id="snapgal">🖼 เลือกรูปจากเครื่อง</button><button type="button" id="snapx">ยกเลิก</button></div></div>
 <div id="drw"><div class="dbk" id="drk"></div><aside class="dpn"><div class="dh"><span>เมนู</span><button type="button" id="drx" title="ปิด">✕</button></div><div class="db" id="drb"></div></aside></div>
-<div id="dls"></div>
+<div id="dls"></div><div id="toast" role="status" aria-live="polite"></div><div style="position:fixed;right:6px;bottom:2px;font-size:12px;font-weight:700;color:#ff0000;z-index:1;pointer-events:none">v2026-10-18.4</div>
 <div id="qrtmp" style="position:absolute;left:-9999px;width:300px"></div>
 
 <script>
@@ -971,6 +981,21 @@ const ASSET=()=>col('IT Asset No'), LOC=()=>col('Location');
 // ===== ตัวเลือกจากชีต List + การเชื่อม สาขา <-> Location =====
 // LISTS มาจาก getData (อ่านชีต List สดทุกครั้ง) -> เพิ่มค่าใหม่ในชีต List แล้วกด Refresh ตัวเลือกจะขึ้นเอง
 let LISTS={lists:{}}, BRLOC={}, LOCBR={};
+// License (ว่าง): แถวจากชีต "MS Office" (คอลัมน์ IT Asset No, MS Office, Product Key) = license ที่ไม่ได้ใช้งานอยู่ในชีต Asset01
+let LIC=[];
+const licBlank=v=>{v=String(v==null?'':v).trim();return !v||v==='ว่าง';};
+const licKeyEq=(a,b)=>String(a||'').trim().toUpperCase()===String(b||'').trim().toUpperCase();
+function licOpts(){
+  const pk=col('Product Key'); if(pk<0)return;
+  const cur0=(OPTS[pk]||[]).filter(x=>x!=='ว่าง'),add=LIC.map(l=>String(l.key||'').trim()).filter(Boolean).filter(k=>!cur0.includes(k));
+  OPTS[pk]=['ว่าง'].concat(cur0,add);
+}
+// จำลองกติกาเดียวกับฝั่ง Apps Script (syncLicense_) เพื่อให้ตัวกรองตรงกับชีตทันทีหลังบันทึก โดยไม่ต้อง Refresh
+function licSync(asset,oldO,oldK,newO,newK){
+  if(!licBlank(newK))LIC=LIC.filter(l=>!licKeyEq(l.key,newK));                                  // ข้อ 2: นำไปใช้ใน Asset01 แล้ว -> ลบออกจากชีต MS Office
+  if(!licBlank(oldK)&&!licKeyEq(oldK,newK)&&!LIC.some(l=>licKeyEq(l.key,oldK)))                  // ข้อ 1: เลิกใช้ -> ย้ายไปชีต MS Office
+    LIC.push({asset:String(asset||''),office:String(oldO||'').trim(),key:String(oldK).trim()});
+}
 // ช่องที่เลือก "ว่าง" แล้วเก็บคำว่า "ว่าง" และช่องที่ว่างในชีตให้แสดงเป็น "ว่าง" (เหมือน Status)
 const BLANKV=()=>[col('สาขา'),col('ใบถือครองทรัพย์สิน'),col('Product Key')].filter(i=>i>=0);
 const LIST_FIELDS=['สาขา','ใบถือครองทรัพย์สิน','Location'];
@@ -1008,6 +1033,7 @@ function mergeLists(){
   syncLists();
   const pk=col('Product Key');   // Product Key: เพิ่มตัวเลือก "ว่าง" เป็นตัวแรก
   if(pk>=0)OPTS[pk]=['ว่าง'].concat((OPTS[pk]||[]).filter(x=>x!=='ว่าง'));
+  licOpts();   // เพิ่มคีย์ที่ว่างจากชีต MS Office เป็นตัวเลือก
   const L=(LISTS&&LISTS.lists)||{};
   LIST_FIELDS.forEach(n=>{
     const i=col(n); if(i<0||!L[n])return;
@@ -1156,7 +1182,7 @@ if(!IN_GAS&&!API_URL){
       mk(4,'เช่า-004','KH-QC','สมศรี','Windows 10','MS Office 2016','AntiVirus Avira','','ใช้งาน','ตรวจแล้ว','เครื่องเช่า')];
     const mockRun=(ok,fail)=>new Proxy({},{get:(t,k)=>k==='withSuccessHandler'?f=>mockRun(f,fail):k==='withFailureHandler'?f=>mockRun(ok,f):
       (...a)=>setTimeout(()=>{
-        if(k==='getData')ok({headers:HD,rows,lists:{lists:{'สาขา':['SNNP','SDF','KH'],'ใบถือครองทรัพย์สิน':['มี','ไม่มี'],'Location':['SDF-RD','KH-QC','KH-Admin']},branchLocations:{SDF:['SDF-RD'],KH:['KH-QC','KH-Admin']}}});
+        if(k==='getData')ok({headers:HD,rows,licenses:[{asset:'PC-1-61-9',office:'MS Office 2016',key:'AAAAA-BBBBB-CCCCC-DDDDD-EEEEE'},{asset:'NB-1-60-4',office:'MS Office 2019',key:'FFFFF-GGGGG-HHHHH-IIIII-JJJJJ'}],lists:{lists:{'สาขา':['SNNP','SDF','KH'],'ใบถือครองทรัพย์สิน':['มี','ไม่มี'],'Location':['SDF-RD','KH-QC','KH-Admin']},branchLocations:{SDF:['SDF-RD'],KH:['KH-QC','KH-Admin']}}});
         else if(k==='saveRow')ok({saved:Object.keys(a[2]).length});
         else if(k==='verifyExport')ok({ok:String(a[0])==='1234'});   // โหมดทดลอง: รหัส 1234
         else ok([]);
@@ -1197,7 +1223,7 @@ function loadInitial(){
   try{
     GS.withSuccessHandler(d=>{
       clearTimeout(loadTimer);dbg('[6] ได้ข้อมูล '+(d&&d.rows?d.rows.length:0)+' แถว กำลังแสดงผล');
-      try{H=d.headers;R=d.rows;LISTS=d.lists||LISTS;init();$('list').setAttribute('data-ld','0');}
+      try{H=d.headers;R=d.rows;LISTS=d.lists||LISTS;LIC=d.licenses||[];init();$('list').setAttribute('data-ld','0');}
       catch(e){$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>';}
     }).withFailureHandler(e=>{clearTimeout(loadTimer);$('list').setAttribute('data-ld','0');$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'<br><button type="button" id="retry" style="margin-top:8px;padding:6px 14px;border:1px solid var(--acc);background:#fff;color:var(--acc);border-radius:6px;font:inherit;font-weight:600;cursor:pointer">ลองใหม่</button></div>';const r=$('retry');if(r)r.onclick=loadInitial;}).getData();
   }catch(e){clearTimeout(loadTimer);$('list').innerHTML='<div class="empty bad">เชื่อมต่อ Google Apps Script ไม่ได้: '+esc(e.message)+'</div>';}
@@ -1215,8 +1241,11 @@ $('loc').innerHTML='<option value="">— เลือกสาขา —</option
 $('loc2').innerHTML='<option value="">— กำลังโหลดข้อมูล… —</option>';
 const typeOf=r=>/^\s*(PC|NB)-R-/i.test(String(r.v[ASSET()]==null?'':r.v[ASSET()]))?'เครื่องเช่า':'Asset SNNP';
 // ประเภทตามค่าจริงในคอลัมน์ ประเภท Asset (ตรงกับชีต List) · ถ้าช่องว่าง ใช้การเดาแบบเดิม · typeOf ใช้กับตารางสรุปจำนวนเครื่อง (เช่า/Asset) ตามเดิม
-// Computer Type: แยกจากรหัส IT Asset No ที่มี NB- / PC- / SP- (ใช้ทั้งตัวกรองและตารางสรุปรายสาขา)
-const compType=r=>{const t=String(r.v[ASSET()]==null?'':r.v[ASSET()]);return /NB-/i.test(t)?'NB':(/PC-/i.test(t)?'PC':(/SP-/i.test(t)?'SP':''));};
+// Device Type: แยกจากรหัส IT Asset No ที่มี NB- / PC- / SP- (ใช้ทั้งตัวกรองและตารางสรุปรายสาขา)
+const DEV_BASE=['PC','NB','SP'];
+const compCode=r=>{const t=String(r.v[ASSET()]==null?'':r.v[ASSET()]);return /NB-/i.test(t)?'NB':(/PC-/i.test(t)?'PC':(/SP-/i.test(t)?'SP':''));};
+// Device Type: ใช้ค่าจากคอลัมน์ "Device Type" ในชีตก่อน (PC/NB/SP พิมพ์เล็กใหญ่ก็ได้ ค่าอื่นใช้ตามที่พิมพ์) · ถ้าช่องว่างหรือไม่มีคอลัมน์ ใช้การแยกจากรหัส IT Asset No เหมือนเดิม
+const compType=r=>{const i=col('Device Type');if(i>=0){const t=String(r.v[i]??'').trim();if(t){const u=t.toUpperCase();return DEV_BASE.includes(u)?u:t;}}return compCode(r);};
 const typeLabel=r=>typeOf(r);
 const locOf=r=>String(r.v[LOC()]??'').trim();
 
@@ -1228,7 +1257,7 @@ const FORCED_COLS=[['StatusN',STATUS_FORCED],['การตรวจเครื
 const FILTERS=[
   {gh:'ตัวเครื่อง'},
   {k:'ประเภท Asset',g:typeLabel,all:1,force:ASSET_TYPES},
-  {k:'Computer Type',g:compType,opts:[['PC','PC'],['NB','NB'],['SP','SP']]},   // แยกจากรหัส IT Asset No ที่มี PC- / NB- / SP-
+  {k:'Device Type',g:compType,dyn:1,opts:[['PC','PC'],['NB','NB'],['SP','SP']]},   // PC/NB/SP เป็นตัวเลือกหลัก + ค่าใหม่ในคอลัมน์ Device Type จะเพิ่มเองอัตโนมัติ
   {k:'สาขา',g:r=>rowBranch(r),fixed:1},
   {k:'Location',c:'Location',dd:1,lk:'Location'},
   {k:'ส่ง Audit',g:r=>normYN(r.v[col(AUDIT_COL)]),force:AUDIT_OPTS},
@@ -1306,7 +1335,9 @@ function buildFilters(){
     if(f.opts){
       // หัวข้อที่มีตัวเลือกกำหนดตายตัว (เลือกหลายตัว = ตัวใดตัวหนึ่ง)
       const j=FIL.length; FIL.push({k:f.k,get}); SEL.push(new Set());
-      h+=`<div class="fg"><b>${f.k}</b><div class="fo">`+f.opts.map(o=>`<label><input type="checkbox" data-f="${j}" value="${o[0]}">${o[1]}</label>`).join('')+'</div></div>';
+      let ops=f.opts;
+      if(f.dyn){const bs=new Set(f.opts.map(o=>o[0]));const ex=[...new Set(R.map(get))].filter(v=>v&&!bs.has(v)).sort((a,b)=>a.localeCompare(b));ops=f.opts.concat(ex.map(v=>[v,v]));}
+      h+=`<div class="fg"><b>${f.k}</b><div class="fo">`+ops.map(o=>`<label><input type="checkbox" data-f="${j}" value="${esc(o[0])}">${esc(o[1])}</label>`).join('')+'</div></div>';
       return;
     }
     if(!get){const i=col(f.c,f.l); if(i<0)return; get=f.force?(r=>String(r.v[i]??'').trim()||'ว่าง'):(r=>String(r.v[i]??'').trim());}
@@ -1332,6 +1363,7 @@ function buildFilters(){
     h+=`<div class="fg"><b>${f.k}</b><div class="fo${f.v?' v':''}">`+
       (f.all?`<label><input type="checkbox" data-f="${j}" value="${ALL}">ทั้งหมด</label>`:'')+
       vals.map(v=>`<label><input type="checkbox" data-f="${j}" value="${esc(v)}">${ab(v,lab(v))}</label>`).join('')+
+      (f.k==='MS Office'?`<label class="lic" title="License ที่ว่างพร้อมนำไปใช้ (จากชีต MS Office)"><input type="checkbox" data-lic="${j}">License (ว่าง)</label>`:'')+
       '</div></div>';
   });
   $('fbox').innerHTML=h;
@@ -1358,6 +1390,7 @@ function filterRows(){
 }
 $('fbox').onchange=e=>{
   const t=e.target;
+  if(t.dataset.lic!==undefined){ if(t.checked)showLic(); else closeLic(); return; }
   if(t.dataset.tg!==undefined){
     const st=SEL[+t.dataset.tg]; st.clear(); if(t.checked)st.add(HAS);
     render();return;
@@ -1376,12 +1409,14 @@ $('fbox').onchange=e=>{
     s.add(t.value);
   }else s.delete(t.value);
   render();
+  if(licOn())showLic();   // เลือกรุ่น MS Office เพิ่ม/ลด -> รายการ License (ว่าง)ปรับตาม
 };
 $('fbox').onclick=e=>{
   if(e.target.id==='fxl'){guardExport(exportFilterExcel);return;}
   if(e.target.id==='fhs'){showAllHist();return;}
   if(e.target.id==='fnt'){showNotes();return;}
   if(e.target.id==='fclr'){
+    closeLic();
     SEL.forEach(s=>s.clear());
     $('fbox').querySelectorAll('input').forEach(x=>x.checked=false);
     $('fbox').querySelectorAll('select.fsel').forEach(x=>x.selectedIndex=0);
@@ -1715,8 +1750,24 @@ function open(n){
   function fill(cb,filter){
     const inp=cb.querySelector('input'),l=cb.querySelector('.cbl');
     const q=(filter||'').trim().toLowerCase();
+    if(+inp.dataset.i===col('Product Key')){
+      // Product Key: แสดง 2 ส่วน — คีย์ที่มีในชีต Asset01 และ License ว่างจากชีต MS Office
+      const pool=LIC.filter(x=>String(x.key||'').trim()), pk=new Set(pool.map(x=>String(x.key).trim().toUpperCase()));
+      const hit=t=>!q||String(t).toLowerCase().includes(q);
+      // เลือกรุ่น MS Office แล้ว -> แสดงเฉพาะคีย์ของรุ่นนั้น (ทั้งจากเครื่องในชีต Asset01 และ License ว่าง)
+      const oi=col('MS Office'),os=oi>=0?document.querySelector('#panel select[data-i="'+oi+'"]'):null,ver=os?String(os.value||'').trim():'';
+      const useVer=!licBlank(ver),vi=+inp.dataset.i;
+      const inVer=useVer?new Set(R.filter(r=>String(r.v[oi]==null?'':r.v[oi]).trim()===ver).map(r=>String(r.v[vi]==null?'':r.v[vi]).trim().toUpperCase())):null;
+      const a=(OPTS[inp.dataset.i]||[]).filter(x=>x!=='ว่าง'&&!pk.has(String(x).trim().toUpperCase())&&(!useVer||inVer.has(String(x).trim().toUpperCase()))&&hit(x)).slice(0,200);
+      const b=pool.filter(x=>(!useVer||String(x.office||'').trim()===ver)&&hit(x.key+' '+x.office+' '+x.asset)).slice(0,200);
+      let h='';
+      if(hit('ว่าง'))h+=`<div class="o" data-v="ว่าง">ว่าง</div>`;
+      if(a.length)h+=a.map(x=>`<div class="o" data-v="${esc(x)}">${esc(x)}</div>`).join('');
+      if(b.length)h+=b.map(x=>`<div class="o lc" data-v="${esc(x.key)}">${esc(x.key)}${x.office?`<small> — ${esc(x.office)}</small>`:''}</div>`).join('');
+      l.innerHTML=h||'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>';l.hidden=false;return;
+    }
     const o=(OPTS[inp.dataset.i]||[]).filter(x=>!q||String(x).toLowerCase().includes(q)).slice(0,300);
-    l.innerHTML=o.length?o.map(x=>`<div class="o">${esc(x)}</div>`).join(''):'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>';
+    l.innerHTML=o.length?o.map(x=>`<div class="o" data-v="${esc(x)}">${esc(x)}</div>`).join(''):'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>';
     l.hidden=false;
   }
   function closeAll(except){document.querySelectorAll('#panel .cbl').forEach(l=>{if(l.parentNode!==except)l.hidden=true;});}
@@ -1726,7 +1777,7 @@ function open(n){
     if(e.target.closest('.cbb')){
       if(l.hidden){closeAll(cb);fill(cb,'');}else l.hidden=true;
     }else if(e.target.classList.contains('o')){
-      const inp=cb.querySelector('input'); inp.value=e.target.textContent;
+      const inp=cb.querySelector('input'); inp.value=e.target.dataset.v!==undefined?e.target.dataset.v:e.target.textContent;
       inp.dispatchEvent(new Event('input',{bubbles:true})); l.hidden=true;
     }
   });
@@ -1757,6 +1808,40 @@ function open(n){
   });
 })();
 
+// เลือก Product Key จาก License (ว่าง) -> เติมรุ่น MS Office ให้อัตโนมัติ
+(function(){
+  $('panel').addEventListener('input',e=>{
+    const t=e.target,ki=col('Product Key'),oi=col('MS Office');
+    if(!t.dataset||+t.dataset.i!==ki||oi<0)return;
+    if(licBlank(t.value))return;
+    // รุ่น Office ของคีย์: จาก License ว่าง (ชีต MS Office) ก่อน ถ้าไม่มีดูจากเครื่องอื่นในชีต Asset01 ที่ใช้คีย์เดียวกัน
+    let off=(LIC.find(x=>licKeyEq(x.key,t.value))||{}).office;
+    if(licBlank(off)){
+      const m=R.find(r=>r!==cur&&licKeyEq(r.v[ki],t.value)&&!licBlank(r.v[oi]));
+      off=m?String(m.v[oi]).trim():'';
+    }
+    if(licBlank(off))return;
+    const l={office:String(off).trim()};
+    const os=$('panel').querySelector('select[data-i="'+oi+'"]'); if(!os||os.value===l.office)return;
+    if(![...os.options].some(o=>o.value===l.office||o.text===l.office)){const op=document.createElement('option');op.textContent=l.office;os.appendChild(op);}
+    os.value=l.office;
+    const w=os.closest('.f>div');if(w)w.classList.toggle('chg',!eqv(os.dataset.i,os.value));
+  });
+})();
+// แจ้งผลการบันทึกกลางจอ (ไม่ขึ้นกับตำแหน่งช่อง msg ซึ่งอาจซ่อนอยู่ในเมนูบน iPad/มือถือ)
+let toastT=null;
+function toast(t,bad){const e=$('toast');e.textContent=t;e.className=(bad?'bad ':'')+'on';clearTimeout(toastT);toastT=setTimeout(()=>{e.className=bad?'bad':'';},bad?6000:3000);}
+// เลือก MS Office = ว่าง -> Product Key เป็น "ว่าง" อัตโนมัติ
+(function(){
+  $('panel').addEventListener('input',e=>{
+    const t=e.target,oi=col('MS Office'),ki=col('Product Key');
+    if(!t.dataset||t.tagName!=='SELECT'||+t.dataset.i!==oi||ki<0||!licBlank(t.value))return;
+    const kp=$('panel').querySelector('input[data-i="'+ki+'"]');
+    if(!kp||kp.value==='ว่าง')return;
+    kp.value='ว่าง';
+    kp.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+})();
 // ยืนยันก่อนบันทึก: แสดงช่องที่แก้ (ค่าเดิม → ค่าใหม่) ให้กดยืนยันอีกครั้ง
 function confirmSave(ch,go){
   if($('svc'))return;
@@ -1784,15 +1869,18 @@ function save(){
   const ch={};
   document.querySelectorAll('#panel input[data-i],#panel select[data-i],#panel textarea[data-i],#panel2 input[data-i],#panel2 select[data-i]').forEach(x=>{if(!x.readOnly&&!eqv(x.dataset.i,x.value))ch[x.dataset.i]=x.value;});
   const m=$('msg');
-  if(!Object.keys(ch).length){m.className='';m.textContent='ยังไม่มีการแก้ไข';return;}
+  if(!Object.keys(ch).length){m.className='';m.textContent='ยังไม่มีการแก้ไข';toast('ยังไม่มีการแก้ไข',1);return;}
   confirmSave(ch,()=>{
   $('sv').disabled=true;$('hs').disabled=true;m.className='';m.textContent='กำลังบันทึก…';
   GS.withSuccessHandler(r=>{
+    const oi=col('MS Office'),ki=col('Product Key'),oO=cur.v[oi],oK=cur.v[ki];
+    const nO=ch[oi]!==undefined?ch[oi]:oO,nK=ch[ki]!==undefined?ch[ki]:oK;
+    const licCh=(ch[oi]!==undefined||ch[ki]!==undefined);
     Object.keys(ch).forEach(i=>{cur.v[i]=ch[i];const o=OPTS[i];if(o&&ch[i]&&!o.includes(ch[i])){o.push(ch[i]);if(!LIST_FIELDS.concat(['StatusN','การตรวจเครื่อง','Product Key']).some(n=>col(n)===+i))sortOpts(i,o);}});
-    try{buildLinks();rebuildFilters();buildStats();}catch(e){}
-    $('sv').disabled=false;m.className='ok';m.textContent='บันทึกแล้ว '+r.saved+' ช่อง';
+    try{if(licCh){licSync(cur.v[ASSET()],oO,oK,nO,nK);licOpts();}buildLinks();rebuildFilters();buildStats();}catch(e){}
+    $('sv').disabled=false;m.className='ok';m.textContent='บันทึกแล้ว '+r.saved+' ช่อง';toast('✓ บันทึกแล้ว '+r.saved+' ช่อง');
     document.querySelectorAll('#panel .chg,#panel2 .chg').forEach(x=>x.classList.remove('chg'));
-  }).withFailureHandler(e=>{$('sv').disabled=false;m.className='bad';m.textContent=e.message;})
+  }).withFailureHandler(e=>{$('sv').disabled=false;m.className='bad';m.textContent=e.message;toast('บันทึกไม่สำเร็จ: '+e.message,1);})
   .saveRow(cur.n,cur.v[ASSET()],ch);
   });
 }
@@ -1807,6 +1895,31 @@ $('hs').onclick=()=>{
     $('hbd').innerHTML=rs.length?'<table><tr><th>วันที่แก้ไข</th><th>ช่อง</th><th>ค่าเดิม → ค่าใหม่</th><th>ผู้แก้ไข</th></tr>'+rs.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[2])}</td><td><span class="old">${esc(r[3])||'(ว่าง)'}</span> → <span class="new">${esc(r[4])||'(ว่าง)'}</span></td><td>${esc(r[5])}</td></tr>`).join('')+'</table>':'<div class="empty">ยังไม่มีประวัติการแก้ไข</div>';
   }).withFailureHandler(e=>$('hbd').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>').getHistory(cur.v[ASSET()]);
 };
+// License (ว่าง) (หน้า Filter > MS Office): แสดงรายการจากชีต MS Office · ถ้าติ๊กรุ่น MS Office ไว้ จะแสดงเฉพาะรุ่นนั้น
+const licCb=()=>document.querySelector('#fbox input[data-lic]');
+const licOn=()=>{const c=licCb();return !!(c&&c.checked&&$('hdt').textContent.indexOf('License (ว่าง)')===0&&$('hist').style.display==='flex');};
+function closeLic(){const c=licCb();if(c)c.checked=false;if($('hdt').textContent.indexOf('License (ว่าง)')===0)$('hist').style.display='none';}
+function showLic(){
+  const mi=FIL.findIndex(f=>f.k==='MS Office'),pick=mi>=0&&SEL[mi]?[...SEL[mi]].filter(x=>x!==ALL):[];
+  const keep=$('lq')?$('lq').value:'';
+  $('hist').style.display='flex';
+  const base=LIC.slice().sort((a,b)=>verCmp(a.office,b.office)||String(a.key).localeCompare(String(b.key)));
+  const rows=pick.length?base.filter(l=>pick.includes(String(l.office||'').trim())):base;
+  $('hdt').textContent='License (ว่าง) — '+rows.length+' รายการ'+(pick.length?' ('+pick.join(', ')+')':'');
+  if(!base.length){$('hbd').innerHTML='<div class="empty">ไม่มี License (ว่าง)ในชีต MS Office</div>';return;}
+  // สรุปจำนวนตามรุ่น
+  const cnt={};rows.forEach(l=>{const k=String(l.office||'').trim()||'(ไม่ระบุ)';cnt[k]=(cnt[k]||0)+1;});
+  const chips=Object.keys(cnt).map(k=>`<span class="sb ot" style="margin-right:6px">${esc(k)}: ${cnt[k]}</span>`).join('');
+  $('hbd').innerHTML='<div style="padding:10px 0 4px;position:sticky;top:0;background:#fff;z-index:4"><div style="display:flex;gap:10px;align-items:center"><input id="lq" placeholder="ค้นหา รหัส Asset / MS Office / Product Key" style="flex:1"><span id="lcnt" style="color:var(--mut);font-size:13px;white-space:nowrap"></span></div><div style="margin-top:6px">'+chips+'</div></div>'+
+    '<table class="hall hnote"><thead><tr><th>IT Asset No (เจ้าของเดิม)</th><th>MS Office</th><th>Product Key</th></tr></thead><tbody id="lrows"></tbody></table>';
+  const draw=q=>{
+    q=String(q||'').trim().toLowerCase();
+    const f=q?rows.filter(l=>[l.asset,l.office,l.key].join(' ').toLowerCase().includes(q)):rows;
+    $('lrows').innerHTML=f.map(l=>`<tr><td>${esc(l.asset)}</td><td>${esc(l.office)}</td><td style="font-family:monospace">${esc(l.key)}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">ไม่พบรายการ</td></tr>';
+    $('lcnt').textContent=f.length+' รายการ';
+  };
+  $('lq').value=keep;draw(keep);$('lq').oninput=e=>draw(e.target.value);
+}
 // หมายเหตุ (หน้า Filter): แสดงเฉพาะคอลัมน์ IT Asset No และ หมายเหตุ ของเครื่องที่มีหมายเหตุ
 function showNotes(){
   const ni=col('หมายเหตุ'),ai=ASSET(),li=LOC(),si=col('StatusN'),hi=col('ผู้ถือครอง');
@@ -1891,7 +2004,7 @@ function refreshData(){
     asset:cur?String(cur.v[ASSET()]):null,sel:SEL.map(x=>[...x])};
   GS.withSuccessHandler(d=>{
     try{
-      H=d.headers;R=d.rows;LISTS=d.lists||LISTS;
+      H=d.headers;R=d.rows;LISTS=d.lists||LISTS;LIC=d.licenses||[];
       Object.keys(OPTS).forEach(k=>delete OPTS[k]);
       GROUPS.forEach(g=>g[1].forEach(f=>{
         if(f[2]!=='d'&&f[2]!=='c')return;
