@@ -796,11 +796,9 @@ main{max-width:1564px;padding-right:14px}
   .modes{position:sticky;top:8px;align-self:flex-start;z-index:30}
 }
 /* เฉพาะ iPad แนวตั้ง โหมด Filter: พอกดเลือกเครื่อง ซ่อนตัวกรอง → รายละเอียดอยู่ซ้าย รายการเครื่องชิดขอบขวา (ไม่บังกัน) */
-#fshow{display:none}
 @media(min-width:641px) and (orientation:portrait){
   html.ipad #fwrap.picked #fbox{display:none}
   html.ipad #fwrap.picked #fres{flex:1 1 100%;width:100%}
-  html.ipad #fwrap.picked #fshow{display:inline-block;margin:0 0 8px;padding:6px 12px;border:1px solid var(--line);background:#fff;border-radius:8px;font:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
   html.ipad #fwrap.picked #fres #grid.grid{grid-template-columns:minmax(0,1fr) 200px;grid-template-areas:"p1 list";gap:8px}
   html.ipad #fwrap.picked #fres #grid #left{position:sticky;top:8px}
   html.ipad #fwrap.picked #fres #grid .list{height:calc(100vh - 70px);max-height:calc(100vh - 70px)}
@@ -854,6 +852,12 @@ main{max-width:1564px;padding-right:14px}
   html.ipad #fwrap:not(.picked) #fres #grid .list{height:auto;max-height:calc(100vh - 80px)}
   html.ipad #fwrap:not(.picked) #fres #grid #panel:has(>.empty){display:none}
 }
+/* ชื่อย่อในตัวกรอง (Windows/MS Office): ใช้เฉพาะ iPad แนวตั้ง */
+.ls{display:none}
+@media(min-width:641px) and (orientation:portrait){
+  html.ipad .lf{display:none}
+  html.ipad .ls{display:inline}
+}
 </style>
 </head>
 <body>
@@ -882,7 +886,7 @@ main{max-width:1564px;padding-right:14px}
     <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง / IP / Mac / Location / Product Key / Model / Assetname"><button class="ic" data-snap="q2" title="สแกน">📷</button><button type="button" class="ic rs2" id="rs2" title="รีเซ็ตหน้าค้นหา">Reset</button></div></div>
   </div>
   <div class="bar" id="bar3" hidden>
-    <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"><button type="button" id="fshow">☰ แสดงตัวกรอง</button></div></div>
+    <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"></div></div>
   </div>
   </div>
   </div>
@@ -1286,6 +1290,9 @@ function buildFilters(){
   let h='<div class="fh"><button id="fxl" type="button" disabled>Print Filter to Excel</button><button id="fclr" type="button">ล้างค่าทั้งหมด</button><button id="fhs" type="button">ประวัติแก้ไขทั้งหมด</button><button id="fnt" type="button">หมายเหตุ</button></div>';
   let lastSec='';
   let gi=0;
+  // ชื่อย่อ (แสดงเฉพาะ iPad แนวตั้ง ผ่าน CSS) — ค่าที่ใช้กรองยังเป็นชื่อเต็มเดิม
+  const ABBR={'Windows 7':'W 7','Windows 8':'W 8','Windows 10':'W 10','Windows 10-OEM':'W 10-OEM','Windows 11':'W 11','Windows 11-OEM':'W 11-OEM','MS Office 2013':'MS 2013','MS Office 2016':'MS 2016','MS Office 2019':'MS 2019','MS Office 2021':'MS 2021','MS Office 365':'MS 365','MS Office 365 E3':'MS 365 E3'};
+  const ab=(v,t)=>{const k=String(v==null?'':v).trim();return ABBR[k]?`<span class="lf">${t}</span><span class="ls">${ABBR[k]}</span>`:t;};
   FILTERS.forEach(f=>{
     if(f.gh){h+=`<div class="fgh g${gi++%4}">${f.gh}</div>`;return;}
     if(f.grp){
@@ -1327,7 +1334,7 @@ function buildFilters(){
     }
     h+=`<div class="fg"><b>${f.k}</b><div class="fo${f.v?' v':''}">`+
       (f.all?`<label><input type="checkbox" data-f="${j}" value="${ALL}">ทั้งหมด</label>`:'')+
-      vals.map(v=>`<label><input type="checkbox" data-f="${j}" value="${esc(v)}">${lab(v)}</label>`).join('')+
+      vals.map(v=>`<label><input type="checkbox" data-f="${j}" value="${esc(v)}">${ab(v,lab(v))}</label>`).join('')+
       '</div></div>';
   });
   $('fbox').innerHTML=h;
@@ -1853,7 +1860,6 @@ function placeGrid(){
 PCQ.addEventListener?PCQ.addEventListener('change',placeGrid):PCQ.addListener(placeGrid);
 placeGrid();
 // รีเซ็ตค่าของโหมดหนึ่ง ๆ (ใช้ตอนสลับโหมด เพื่อล้างโหมดอื่นอัตโนมัติ)
-$('fshow').onclick=()=>$('fwrap').classList.remove('picked');
 $('pclose').onclick=()=>{ // ปิดรายละเอียดเครื่อง: กลับไปแสดงตัวกรอง
   $('fwrap').classList.remove('picked');cur=null;
   document.querySelectorAll('.it.sel').forEach(x=>x.classList.remove('sel'));
