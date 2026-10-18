@@ -818,6 +818,16 @@ main{max-width:1564px;padding-right:14px}
   html.ipad #fbox .fo input{width:13px;height:13px}
   html.ipad #fbox .fsel{font-size:11.5px;height:24px;min-height:0;padding:1px 4px}
 }
+/* iPad แนวตั้ง: เมื่อเลือกเครื่อง ส่วนแสดงข้อมูลสว่าง/เด่น ส่วนรายการจางลง และมีปุ่ม ✕ ปิด */
+#pclose{display:none}
+@media(min-width:641px) and (orientation:portrait){
+  html.ipad #fwrap.picked #fres #grid{position:relative}
+  html.ipad #fwrap.picked #fres #grid #panel{position:relative;z-index:2;background:#fff;border:2px solid var(--acc);box-shadow:0 0 0 4px rgba(29,78,216,.14),0 8px 22px rgba(0,0,0,.2)}
+  html.ipad #fwrap.picked #fres #grid #panel .ttl{padding-right:36px}
+  html.ipad #fwrap.picked #fres #grid #left{opacity:.5;transition:opacity .15s}
+  html.ipad #fwrap.picked #fres #grid #left:hover,html.ipad #fwrap.picked #fres #grid #left:active,html.ipad #fwrap.picked #fres #grid #left:focus-within{opacity:1}
+  html.ipad #fwrap.picked #fres #grid #pclose{display:flex;align-items:center;justify-content:center;position:absolute;top:10px;right:calc(208px + 12px);z-index:5;width:30px;height:30px;padding:0;border-radius:50%;border:1px solid #c9cfdb;background:#fff;color:#334155;font-size:16px;line-height:1;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+}
 </style>
 </head>
 <body>
@@ -855,6 +865,7 @@ main{max-width:1564px;padding-right:14px}
     </div>
     <div class="panel" id="panel"><div class="empty">เลือกเครื่องเพื่อดูและแก้ไข</div></div>
     <div class="panel" id="panel2" hidden></div>
+    <button type="button" id="pclose" title="ปิด" aria-label="ปิด">✕</button>
   </div>
 </main>
 
@@ -1815,6 +1826,12 @@ PCQ.addEventListener?PCQ.addEventListener('change',placeGrid):PCQ.addListener(pl
 placeGrid();
 // รีเซ็ตค่าของโหมดหนึ่ง ๆ (ใช้ตอนสลับโหมด เพื่อล้างโหมดอื่นอัตโนมัติ)
 $('fshow').onclick=()=>$('fwrap').classList.remove('picked');
+$('pclose').onclick=()=>{ // ปิดรายละเอียดเครื่อง: กลับไปแสดงตัวกรอง
+  $('fwrap').classList.remove('picked');cur=null;
+  document.querySelectorAll('.it.sel').forEach(x=>x.classList.remove('sel'));
+  $('panel').innerHTML='<div class="empty">เลือกเครื่องเพื่อดูและแก้ไข</div>';$('panel2').innerHTML='';$('panel2').hidden=true;
+  $('sv').disabled=true;$('hs').disabled=true;$('msg').textContent='';
+};
 function resetMode(k){
   if(k==1){$('typ').value='';$('loc').value='';fillLoc2();}
   else if(k==2){$('q2').value='';}
