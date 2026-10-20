@@ -891,7 +891,7 @@ html.ipad .ls{display:inline}
     <div class="fld"><label>Location</label><select id="loc2" disabled></select></div>
   </div>
   <div class="bar" id="bar2">
-    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / Computername / Serial / ผู้ถือครอง / IP / Mac / Location / Product Key / Model / Assetname"><button class="ic" data-snap="q2" title="สแกน">📷</button><button type="button" class="ic rs2" id="rs2" title="รีเซ็ตหน้าค้นหา">Reset</button></div></div>
+    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / รหัสบัญชี / Computername / Serial / ผู้ถือครอง / IP / Mac / Location / Product Key / Model / Assetname"><button class="ic" data-snap="q2" title="สแกน">📷</button><button type="button" class="ic rs2" id="rs2" title="รีเซ็ตหน้าค้นหา">Reset</button></div></div>
   </div>
   <div class="bar" id="bar3" hidden>
     <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"></div></div>
@@ -952,8 +952,8 @@ dbg('[1] สคริปต์เริ่มทำงาน');
 })();
 // [ชื่อคอลัมน์ใน Sheet, ชื่อที่แสดง, ชนิด (d=Dropdown, t=จิ้มแล้วแก้ไขได้, r=แสดงอย่างเดียว), 1=ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ]
 const GROUPS = [
-  ['ข้อมูลการใช้งาน', [['StatusN','Status','d'],['การตรวจเครื่อง','การตรวจเครื่อง','d'],['ผู้ถือครอง','ผู้ถือครอง','c'],['สาขา','สาขา','c'],['Location','Location','d'],['ส่ง Audit','ส่ง Audit','d'],['ใบถือครองทรัพย์สิน','ใบถือครองทรัพย์สิน','c'],['Costcenter_Name','Costcenter','t']]],
-  ['Hardware', [['IT Asset No','รหัส Asset','r'],['Computername','Computername','t'],['Serial No','Serial No','t'],['Model','Model','r'],['CPU','CPU','d'],['Ram','RAM','d'],['Mainboard','Mainboard','d'],['Harddisk','Harddisk','d'],['VGA','VGA','d'],['IP Address','IP Address','t']]],
+  ['ข้อมูลการใช้งาน', [['StatusN','Status','d'],['การตรวจเครื่อง','การตรวจเครื่อง','d'],['ผู้ถือครอง','ผู้ถือครอง','c'],['EmpId','รหัสพนักงาน','r'],['Login User','Login User','c'],['สาขา','สาขา','c'],['Location','Location','d'],['ส่ง Audit','ส่ง Audit','d'],['ใบถือครองทรัพย์สิน','ใบถือครองทรัพย์สิน','c'],['Costcenter_Name','Costcenter','t']]],
+  ['Hardware', [['IT Asset No','รหัส Asset','r'],['Ax Asset No','รหัสบัญชี','c'],['Computername','Computername','t'],['Serial No','Serial No','t'],['Model','Model','r'],['CPU','CPU','d'],['Ram','RAM','d'],['Mainboard','Mainboard','d'],['Harddisk','Harddisk','d'],['VGA','VGA','d'],['IP Address','IP Address','t']]],
   ['Standard Software', [['Window','Window','d'],['MS Office','MS Office','d'],['Product Key','Product Key','c'],['Antivirus','Antivirus','d']]],
   ['Additional Software', [['Additional Software','Additional Software','s']]],
   ['หมายเหตุ', [['หมายเหตุ','หมายเหตุ','t']]]
@@ -998,7 +998,7 @@ function licSync(asset,oldO,oldK,newO,newK){
 }
 // ช่องที่เลือก "ว่าง" แล้วเก็บคำว่า "ว่าง" และช่องที่ว่างในชีตให้แสดงเป็น "ว่าง" (เหมือน Status)
 const BLANKV=()=>[col('สาขา'),col('ใบถือครองทรัพย์สิน'),col('Product Key')].filter(i=>i>=0);
-const LIST_FIELDS=['สาขา','ใบถือครองทรัพย์สิน','Location'];
+const LIST_FIELDS=['สาขา','ใบถือครองทรัพย์สิน','Location','Login User'];
 function buildLinks(){
   BRLOC={};LOCBR={};
   const add=(b,l)=>{b=String(b==null?'':b).trim();l=String(l==null?'':l).trim();if(!b||!l||b==='ว่าง')return;(BRLOC[b]=BRLOC[b]||new Set()).add(l);};
@@ -1636,7 +1636,7 @@ function render0(){
   g.hidden=!q;
   if(!q)return;
   // ค้นหาจาก: รหัส Asset, Assetname, Model, Computername, Serial, ผู้ถือครอง, Location, IP Address, Mac (LAN/Wireless), Product Key
-  const ix=['IT Asset No','Assetname','Model','Computername','Serial No','ผู้ถือครอง','Location','IP Address','Lan Mac address','Wireless Mac address','Product Key'].map(n=>col(n)).filter(i=>i>=0);
+  const ix=['IT Asset No','Ax Asset No','Assetname','Model','Computername','Serial No','ผู้ถือครอง','Location','IP Address','Lan Mac address','Wireless Mac address','Product Key'].map(n=>col(n)).filter(i=>i>=0);
   const mx=['Lan Mac address','Wireless Mac address'].map(n=>col(n)).filter(i=>i>=0);
   const qn=q.replace(/[^a-z0-9]/g,'');   // Mac: พิมพ์มีหรือไม่มี : - . ก็ค้นเจอ
   const rows=R.filter(r=>ix.some(i=>String(r.v[i]==null?'':r.v[i]).toLowerCase().includes(q))||(qn.length>=4&&mx.some(i=>String(r.v[i]==null?'':r.v[i]).toLowerCase().replace(/[^a-z0-9]/g,'').includes(qn))));
@@ -1808,6 +1808,38 @@ function open(n){
   });
 })();
 
+// ผู้ถือครอง <-> รหัสพนักงาน (EmpId) ต้องคู่กัน: เปลี่ยนชื่อผู้ถือครองแล้ว EmpId เปลี่ยนตามอัตโนมัติ
+// ชื่อที่มีในชีต -> ใช้ EmpId ที่คู่กับชื่อนั้น (ถ้ามีหลายค่า ใช้ค่าที่พบบ่อยที่สุด) · ชื่อใหม่ที่ยังไม่มีในชีต/ล้างชื่อ -> ล้าง EmpId ให้กรอกเอง · กลับเป็นชื่อเดิม -> คืน EmpId เดิม
+(function(){
+  const pn=$('panel');
+  const empMap=cn=>{
+    const hi=col('ผู้ถือครอง'),ei=col(cn),c={},m={};
+    if(hi<0||ei<0)return m;
+    R.forEach(r=>{const n=String(r.v[hi]==null?'':r.v[hi]).trim(),e=String(r.v[ei]==null?'':r.v[ei]).trim();if(!n||!e)return;c[n]=c[n]||{};c[n][e]=(c[n][e]||0)+1;});
+    Object.keys(c).forEach(n=>{m[n]=Object.keys(c[n]).sort((a,b)=>c[n][b]-c[n][a])[0];});
+    return m;
+  };
+  function sync(t,final,trusted){
+    const hi=col('ผู้ถือครอง');
+    if(hi<0||!cur||!t.dataset||+t.dataset.i!==hi)return;
+    const n=t.value.trim(),same=n===String(cur.v[hi]==null?'':cur.v[hi]).trim();
+    ['EmpId'].forEach(cn=>{
+      const ei=col(cn); if(ei<0)return;
+      const ep=pn.querySelector('[data-i="'+ei+'"]'); if(!ep)return;
+      const m=empMap(cn);
+      let v;
+      if(same)v=String(cur.v[ei]==null?'':cur.v[ei]);
+      else if(m[n]!==undefined)v=m[n];
+      else if(!n||final||!trusted)v='';                 // ว่าง / ชื่อใหม่ / เลือกจากรายการ
+      else return;                                       // ยังพิมพ์ชื่ออยู่ ยังไม่แตะ
+      if(ep.value===v)return;
+      ep.value=v;
+      const w=ep.closest('.f>div');if(w)w.classList.toggle('chg',!eqv(ep.dataset.i,ep.value));
+    });
+  }
+  pn.addEventListener('input',e=>sync(e.target,false,e.isTrusted));
+  pn.addEventListener('change',e=>sync(e.target,true,true));   // ออกจากช่องชื่อ: ถ้าเป็นชื่อใหม่ล้าง EmpId
+})();
 // เลือก Product Key จาก License (ว่าง) -> เติมรุ่น MS Office ให้อัตโนมัติ
 (function(){
   $('panel').addEventListener('input',e=>{
@@ -1867,7 +1899,7 @@ function confirmSave(ch,go){
 }
 function save(){
   const ch={};
-  document.querySelectorAll('#panel input[data-i],#panel select[data-i],#panel textarea[data-i],#panel2 input[data-i],#panel2 select[data-i]').forEach(x=>{if(!x.readOnly&&!eqv(x.dataset.i,x.value))ch[x.dataset.i]=x.value;});
+  document.querySelectorAll('#panel input[data-i],#panel select[data-i],#panel textarea[data-i],#panel2 input[data-i],#panel2 select[data-i]').forEach(x=>{if((!x.readOnly||+x.dataset.i===col('EmpId'))&&!eqv(x.dataset.i,x.value))ch[x.dataset.i]=x.value;});
   const m=$('msg');
   if(!Object.keys(ch).length){m.className='';m.textContent='ยังไม่มีการแก้ไข';toast('ยังไม่มีการแก้ไข',1);return;}
   confirmSave(ch,()=>{
