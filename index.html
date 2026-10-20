@@ -953,7 +953,7 @@ dbg('[1] สคริปต์เริ่มทำงาน');
 // [ชื่อคอลัมน์ใน Sheet, ชื่อที่แสดง, ชนิด (d=Dropdown, t=จิ้มแล้วแก้ไขได้, r=แสดงอย่างเดียว), 1=ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ]
 const GROUPS = [
   ['ข้อมูลการใช้งาน', [['StatusN','Status','d'],['การตรวจเครื่อง','การตรวจเครื่อง','d'],['ผู้ถือครอง','ผู้ถือครอง','c'],['EmpId','รหัสพนักงาน','r'],['Login User','Login User','c'],['สาขา','สาขา','c'],['Location','Location','d'],['ส่ง Audit','ส่ง Audit','d'],['ใบถือครองทรัพย์สิน','ใบถือครองทรัพย์สิน','c'],['Costcenter_Name','Costcenter','r']]],
-  ['Hardware', [['IT Asset No','รหัส Asset','r'],['Ax Asset No','รหัสบัญชี','c'],['Computername','Computername','t'],['Serial No','Serial No','t'],['Model','Model','r'],['CPU','CPU','d'],['Ram','RAM','d'],['Mainboard','Mainboard','d'],['Harddisk','Harddisk','d'],['VGA','VGA','d'],['IP Address','IP Address','t']]],
+  ['Hardware', [['IT Asset No','รหัส Asset','r'],['Ax Asset No','รหัสบัญชี','c'],['Computername','Computername','t'],['Serial No','Serial No','t'],['Model','Model','r'],['CPU','CPU','d'],['Ram','RAM','d'],['Mainboard','Mainboard','d'],['Harddisk','Harddisk','d'],['VGA','VGA','d'],['IP Address','IP Address','c']]],
   ['Standard Software', [['Window','Window','d'],['MS Office','MS Office','d'],['Product Key','Product Key','c'],['Antivirus','Antivirus','d']]],
   ['Additional Software', [['Additional Software','Additional Software','s']]],
   ['หมายเหตุ', [['หมายเหตุ','หมายเหตุ','t']]]
@@ -997,7 +997,7 @@ function licSync(asset,oldO,oldK,newO,newK){
     LIC.push({asset:String(asset||''),office:String(oldO||'').trim(),key:String(oldK).trim()});
 }
 // ช่องที่เลือก "ว่าง" แล้วเก็บคำว่า "ว่าง" และช่องที่ว่างในชีตให้แสดงเป็น "ว่าง" (เหมือน Status)
-const BLANKV=()=>[col('สาขา'),col('ใบถือครองทรัพย์สิน'),col('Product Key')].filter(i=>i>=0);
+const BLANKV=()=>[col('สาขา'),col('ใบถือครองทรัพย์สิน'),col('Product Key'),col('IP Address')].filter(i=>i>=0);
 const LIST_FIELDS=['สาขา','ใบถือครองทรัพย์สิน','Location','Login User'];
 function buildLinks(){
   BRLOC={};LOCBR={};
@@ -1034,6 +1034,8 @@ function mergeLists(){
   const pk=col('Product Key');   // Product Key: เพิ่มตัวเลือก "ว่าง" เป็นตัวแรก
   if(pk>=0)OPTS[pk]=['ว่าง'].concat((OPTS[pk]||[]).filter(x=>x!=='ว่าง'));
   licOpts();   // เพิ่มคีย์ที่ว่างจากชีต MS Office เป็นตัวเลือก
+  const ipc=col('IP Address');   // IP Address: เพิ่มตัวเลือก "ว่าง" เป็นตัวแรก ตามด้วยเลข IP ที่มีในชีต
+  if(ipc>=0)OPTS[ipc]=['ว่าง'].concat(sortOpts(ipc,(OPTS[ipc]||[]).filter(x=>x!=='ว่าง')));
   const L=(LISTS&&LISTS.lists)||{};
   LIST_FIELDS.forEach(n=>{
     const i=col(n); if(i<0||!L[n])return;
@@ -1298,7 +1300,14 @@ const VER_FILTERS=['Window','MS Office'];
 // RAM: เรียงตามขนาดจริง น้อย→มาก (MB<GB<TB) เช่น 4 GB, 8 GB, 16 GB, 32 GB
 const ramSize=v=>{const m=String(v??'').replace(/,/g,'').match(/(\d+(?:\.\d+)?)\s*(tb|gb|g|mb|m)?/i);if(!m)return Infinity;const u=(m[2]||'gb').toLowerCase();return +m[1]*(u==='tb'?1048576:u[0]==='m'?1:1024);};
 const ramCmp=(a,b)=>ramSize(a)-ramSize(b)||String(a).localeCompare(String(b));
-const sortOpts=(i,arr)=>+i===col('Ram')?arr.sort(ramCmp):arr.sort();
+// IP Address: "ว่าง" ก่อน แล้วเรียงเลข IP ตามค่าจริง (192.168.2.5 มาก่อน 192.168.15.22) ค่าที่ไม่ใช่เลข IP (เช่น DHCP, WiFi) ต่อท้าย
+const ipKey=v=>{v=String(v==null?'':v).trim();if(v==='ว่าง')return null;const m=v.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);return m?m.slice(1).map(Number):undefined;};
+const ipCmp=(a,b)=>{const x=ipKey(a),y=ipKey(b);
+  if(x===null||y===null)return (x===null?0:1)-(y===null?0:1);
+  if(x&&y){for(let k=0;k<4;k++)if(x[k]!==y[k])return x[k]-y[k];return 0;}
+  if(x)return -1;if(y)return 1;
+  return String(a).localeCompare(String(b));};
+const sortOpts=(i,arr)=>+i===col('Ram')?arr.sort(ramCmp):+i===col('IP Address')?arr.sort(ipCmp):arr.sort();
 const normYN=v=>{const t=String(v==null?'':v).trim();if(!t&&AUDIT_OPTS.includes('ว่าง'))return 'ว่าง';if(t&&AUDIT_OPTS.includes(t))return t;const y=/^(y|yes|true|1)$/i.test(t)?'Yes':'No';return AUDIT_OPTS.includes(y)?y:(t||AUDIT_OPTS[AUDIT_OPTS.length-1]||y);};
 const yes=v=>{v=String(v??'').trim();return !!v&&!/^(no|n|false|0|-)$/i.test(v);};
 function forceStatusOpts(){
