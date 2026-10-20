@@ -1105,7 +1105,7 @@ const AUTH=(function(){
               del:k=>{try{localStorage.removeItem(k);}catch(e){}}};
     // ช่องใส่รหัสผ่านในหน้าเว็บ (ไม่ใช้ prompt() เพราะบางเบราว์เซอร์/แอปในมือถือบล็อกไว้)
     let pend=null;
-    const REQUIRE_PASSWORD=false; // true = ถามรหัสผ่านก่อนใช้งาน (ต้องตั้ง REQUIRE_PASSWORD ใน Code.gs ให้ตรงกัน)
+    const REQUIRE_PASSWORD=true; // true = ถามรหัสผ่านก่อนใช้งาน (ต้องตั้ง REQUIRE_PASSWORD ใน Code.gs ให้ตรงกัน)
     function creds(){
       if(!REQUIRE_PASSWORD)return Promise.resolve({key:'',who:''});
       const key=LS.get('asset_key'),who=LS.get('asset_who');
