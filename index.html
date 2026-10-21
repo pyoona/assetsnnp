@@ -1008,7 +1008,21 @@ function buildLinks(){
 }
 // ซิงก์ตัวเลือกคงที่ (Status / การตรวจเครื่อง / ส่ง Audit / ประเภท Asset) ให้ตรงกับชีต List คอลัมน์ชื่อเดียวกัน
 // แก้ array เดิมในที่ (ตัวกรองและฟอร์มอ้างอิง array เดียวกัน) · ถ้าชีต List ไม่มีคอลัมน์นั้น ใช้ค่าเริ่มต้นเดิม
+// จัดรูปแบบชีต List: ตัดช่องว่างหัวคอลัมน์/ค่า, จับคู่ชื่อคอลัมน์แบบไม่สนตัวพิมพ์/ช่องว่างซ้ำ, ตัดค่าซ้ำ
+function normLists(){
+  const src=(LISTS&&LISTS.lists)||{}, out={};
+  const nk=k=>String(k==null?'':k).replace(/\s+/g,' ').trim().toLowerCase();
+  const known=['Status','การตรวจเครื่อง','ส่ง Audit','ใบถือครองทรัพย์สิน','ประเภท Asset'].concat(LIST_FIELDS);
+  Object.keys(src).forEach(k=>{
+    const canon=known.find(n=>nk(n)===nk(k))||String(k).replace(/\s+/g,' ').trim();
+    const seen=new Set(out[canon]||[]), arr=out[canon]||[];
+    (src[k]||[]).forEach(v=>{const t=String(v==null?'':v).trim(); if(t&&!seen.has(t)){seen.add(t);arr.push(t);}});
+    out[canon]=arr;
+  });
+  LISTS=Object.assign({},LISTS,{lists:out});
+}
 function syncLists(){
+  normLists();
   TI=TYPECOLS.map(n=>H.indexOf(n)).find(i=>i>=0)??-1;
   const L=(LISTS&&LISTS.lists)||{};
   const setArr=(arr,vals,first)=>{
@@ -1038,9 +1052,12 @@ function mergeLists(){
   if(ipc>=0)OPTS[ipc]=['ว่าง'].concat(sortOpts(ipc,(OPTS[ipc]||[]).filter(x=>x!=='ว่าง')));
   const L=(LISTS&&LISTS.lists)||{};
   LIST_FIELDS.forEach(n=>{
-    const i=col(n); if(i<0||!L[n])return;
-    const ex=(OPTS[i]||[]).filter(x=>!L[n].includes(x));   // เรียงตามชีต List ก่อน ค่าอื่นที่มีในข้อมูลต่อท้าย
-    OPTS[i]=L[n].concat(sortOpts(i,ex));
+    const i=col(n); if(i<0)return;
+    const ln=(L[n]||[]);
+    const cl=x=>String(x==null?'':x).trim();
+    const seen=new Set(ln);
+    const ex=[]; (OPTS[i]||[]).forEach(x=>{const t=cl(x); if(t&&!seen.has(t)){seen.add(t);ex.push(t);}});   // ค่าจาก Asset01 (ตัดช่องว่าง/ซ้ำ)
+    OPTS[i]=ln.concat(sortOpts(i,ex));   // เรียงตามชีต List ก่อน ค่าอื่นที่มีใน Asset01 ต่อท้าย
   });
   buildLinks();
 }
