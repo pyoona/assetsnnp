@@ -50,6 +50,9 @@ select:disabled{background:#eef0f4}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
 .empty{color:var(--mut);padding:30px;text-align:center}
 .ttl{font-size:18px;font-weight:600;margin:0 0 2px}
+.ttlrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 16px}
+.ttlrow .ttl{margin:0}
+.ttype{font-size:14px;font-weight:400;color:var(--mut,#6b7280);background:#eef0f4;border-radius:6px;padding:3px 12px;cursor:default;pointer-events:none}
 .sub{color:var(--mut);margin:0 0 12px}
 .sec{background:#a9d08e;color:var(--ink);padding:6px 10px;font-weight:600;border-radius:6px;margin:16px 0 10px}
 .f{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
@@ -1730,7 +1733,7 @@ function open(n){
   $('fwrap').classList.toggle('picked',mode==3&&!!cur);
   document.querySelectorAll('.it').forEach(x=>x.classList.toggle('sel',+x.dataset.n===n));
   $('grid').hidden=false;
-  let h=`<p class="ttl">${esc(cur.v[ASSET()])}</p>`;
+  let h=`<div class="ttlrow"><p class="ttl">${esc(cur.v[ASSET()])}</p><span class="ttype">${esc((TI>=0&&String(cur.v[TI]??'').trim())||typeLabel(cur))}</span></div>`;
   // โหมด Filter บนคอม: Software/Hardware แยกไปวางในช่อง #panel2 ข้างรายการ
   const split=false; let h2='';
   GROUPS.forEach((g,gi)=>{
