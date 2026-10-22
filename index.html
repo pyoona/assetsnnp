@@ -1734,7 +1734,7 @@ function open(n){
   $('fwrap').classList.toggle('picked',mode==3&&!!cur);
   document.querySelectorAll('.it').forEach(x=>x.classList.toggle('sel',+x.dataset.n===n));
   $('grid').hidden=false;
-  let h=`<div class="ttlrow"><p class="ttl">${esc(cur.v[ASSET()])}</p><span class="ttype"><b>ประเภท Asset:</b> ${esc((TI>=0&&String(cur.v[TI]??'').trim())||typeLabel(cur))}</span></div>`;
+  let h=`<div class="ttlrow"><p class="ttl">${esc(cur.v[ASSET()])}</p><span class="ttype"><b>ประเภท Asset:</b> ${esc((TI>=0&&String(cur.v[TI]??'').trim())||typeLabel(cur))}</span>${(()=>{const li=H.findIndex(n=>String(n).replace(/\s+/g,' ').trim().toLowerCase()==='lenovo monitor sn');return li<0?'':`<span class="ttype"><b>Lenovo Monitor SN:</b> ${esc(String(cur.v[li]??'').trim()||'-')}</span>`})()}</div>`;
   // โหมด Filter บนคอม: Software/Hardware แยกไปวางในช่อง #panel2 ข้างรายการ
   const split=false; let h2='';
   GROUPS.forEach((g,gi)=>{
