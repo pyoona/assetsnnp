@@ -1295,9 +1295,10 @@ const FILTERS=[
   {k:'Antivirus',c:'Antivirus',dd:1},
   {gh:'Network'},
   {grp:'Network',lbl:'IP Address',items:[
-    // ทั้ง 3 รายการดึงจากคอลัมน์ IP Address เท่านั้น
+    // ทั้ง 4 รายการดึงจากคอลัมน์ IP Address เท่านั้น
     {k:'IP',g:()=>{const i=col('IP');return i<0?null:r=>{const t=String(r.v[i]??'').trim();return /\d/.test(t)&&!/dhcp|wi-?fi/i.test(t);};}},
     {k:'DHCP',g:()=>{const i=col('IP');return i<0?null:r=>/dhcp/i.test(String(r.v[i]??''));}},
+    {k:'เลข IP',g:()=>{const i=col('IP');return i<0?null:r=>/\b\d{1,3}(\.\d{1,3}){3}\b/.test(String(r.v[i]??''));}},
     {k:'WiFi',g:()=>{const i=col('IP');return i<0?null:r=>/wi-?fi/i.test(String(r.v[i]??''));}}
   ]}
 ];
@@ -1356,7 +1357,7 @@ function buildFilters(){
       let hh=`<div class="fg"><b>${f.lbl||f.grp}</b><div class="fo">`;
       f.items.forEach(it=>{
         const fn=it.g(); if(!fn)return;
-        const j=FIL.length; FIL.push({k:it.k,get:r=>fn(r)?HAS:'',raw:it.k==='IP'?r=>r.v[col('IP')]:null}); SEL.push(new Set());
+        const j=FIL.length; FIL.push({k:it.k,get:r=>fn(r)?HAS:'',raw:(it.k==='IP'||it.k==='เลข IP')?r=>r.v[col('IP')]:null}); SEL.push(new Set());
         hh+=`<label><input type="checkbox" data-tg="${j}">${it.k}</label>`;
       });
       h+=hh+'</div></div>'; return;
@@ -1657,7 +1658,9 @@ function render0(){
       $('panel').innerHTML='<div class="empty">เลือกเครื่องเพื่อดูและแก้ไข</div>';$('panel2').innerHTML='';$('panel2').hidden=true;
     }
     if(none)return;
-    $('list').innerHTML=`<div class="head">${rows.length} รายการ</div>`+(rows.slice(0,200).map(r=>
+    const ipOn=FIL.some((f,j)=>f.k==='เลข IP'&&SEL[j]&&SEL[j].size);   // ติ๊ก "เลข IP" = รายการแสดงเฉพาะเลข IP (ไม่แสดงชื่อเครื่อง/ผู้ถือครอง)
+    $('list').innerHTML=`<div class="head">${rows.length} รายการ</div>`+((ipOn?rows.slice().sort((a,b)=>ipCmp(a.v[col('IP')],b.v[col('IP')])):rows.slice(0,200)).map(r=>
+      ipOn?`<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(String(r.v[col('IP')]??'').trim())}</b></div>`:
       `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b><span>${esc(r.v[col('ผู้ถือครอง')])}</span></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
     return;
   }
