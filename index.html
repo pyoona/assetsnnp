@@ -1269,7 +1269,7 @@ const DEV_BASE=['PC','NB','SP'];
 const compCode=r=>{const t=String(r.v[ASSET()]==null?'':r.v[ASSET()]);return /NB-/i.test(t)?'NB':(/PC-/i.test(t)?'PC':(/SP-/i.test(t)?'SP':''));};
 // Device Type: ใช้ค่าจากคอลัมน์ "Device Type" ในชีตก่อน (PC/NB/SP พิมพ์เล็กใหญ่ก็ได้ ค่าอื่นใช้ตามที่พิมพ์) · ถ้าช่องว่างหรือไม่มีคอลัมน์ ใช้การแยกจากรหัส IT Asset No เหมือนเดิม
 const compType=r=>{const i=col('Device Type');if(i>=0){const t=String(r.v[i]??'').trim();if(t){const u=t.toUpperCase();return DEV_BASE.includes(u)?u:t;}}return compCode(r);};
-const typeLabel=r=>typeOf(r);
+const typeLabel=r=>{if(TI>=0){const t=String(r.v[TI]??'').trim();if(t){const m=(ASSET_TYPES||[]).find(x=>String(x).trim().toLowerCase()===t.toLowerCase());return m||t;}}return typeOf(r);};
 const locOf=r=>String(r.v[LOC()]??'').trim();
 
 // ตัวกรอง (เรียงตามนี้): k=ชื่อที่แสดง, c=ชื่อคอลัมน์, l=1 ใช้คอลัมน์ล่าสุดถ้าชื่อซ้ำ, g=ฟังก์ชันดึงค่าเอง
