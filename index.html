@@ -52,6 +52,12 @@ select:disabled{background:#eef0f4}
 .ttl{font-size:18px;font-weight:600;margin:0 0 2px}
 .ttlrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 16px}
 .ttlrow .ttl{margin:0}
+#list .ipg{background:#e8f0e0;color:#2f5d1e;font-weight:700;font-size:13px;padding:5px 12px;border-bottom:1px solid #c9d3bd}
+#list .ipg{cursor:pointer;user-select:none}
+#list .ipg i{display:inline-block;font-style:normal;transition:transform .15s;width:12px}
+#list .ipg.open i{transform:rotate(90deg)}
+#list .ipb[hidden]{display:none}
+#list .ipg span{font-weight:400;color:#6b7280}
 .ttype b{font-weight:600;margin-right:4px}
 .ttype{font-size:14px;font-weight:400;color:var(--mut,#6b7280);background:#eef0f4;border-radius:6px;padding:3px 12px;cursor:default;pointer-events:none}
 .sub{color:var(--mut);margin:0 0 12px}
@@ -870,6 +876,28 @@ html.ipad .ls{display:inline}
 #panel .cbl .o{word-break:normal;white-space:nowrap}
 #panel .cbl .o.lc{color:#0033ff}
 #panel .cbl .o small{color:#0033ff;font-weight:400;font-size:11px}
+/* [เฉพาะหน้า Filter] หน้ารายละเอียดเต็มความกว้างจอ: เอาเพดาน main ออก ให้ฝั่งขวาขยายตามหน้าจอ (โน้ตบุ๊กจอเล็กยังปรับตามขนาดจอเดิม) */
+@media(min-width:641px){main:has(#bar3:not([hidden])){max-width:none;width:100%;box-sizing:border-box}}   /* เฉพาะหน้า Filter */
+@media(min-width:1500px){
+  #fres #grid #panel .f{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #fres #grid #panel .f>.kc{grid-column:span 2}
+}
+@media(min-width:1900px){#fbox{max-width:40%}}
+/* แท็บเล็ตแนวนอน (iPad 900px ขึ้นไป): ตัวกรองซ้ายแคบลง ให้หน้ารายละเอียดขวากว้างเต็มที่ ช่องกรอกแบ่งคอลัมน์ตามความกว้างจริง */
+@media(min-width:900px) and (max-width:1499px){
+  html.ipad #fbox{max-width:34%}
+  html.ipad #fres #grid #panel .f{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  html.ipad #fres #grid #panel .f>.kc{grid-column:span 2}
+}
+/* ประวัติการแก้ไขของเครื่อง: 1 รายการต่อ 1 แถว ไม่ตัดขึ้นบรรทัดที่ 2 (กล่องขยายตามความยาว ถ้ายาวเกินจอเลื่อนซ้าย-ขวาได้) */
+@media(min-width:641px){
+  #hist .box:has(table:not(.hall)){width:max-content;max-width:calc(100vw - 24px);min-width:min(760px,calc(100vw - 24px))}
+  #hist table:not(.hall) th,#hist table:not(.hall) td{white-space:nowrap;padding:8px 14px 8px 8px}
+  #hist table:not(.hall){width:auto;min-width:100%;font-size:12.5px}
+  #hist table:not(.hall) th,#hist table:not(.hall) td{padding-top:6px;padding-bottom:6px}
+  #hist table.hall:not(.hnote){font-size:12.5px}   /* ประวัติแก้ไขทั้งหมด */
+  #hist table.hall:not(.hnote) th,#hist table.hall:not(.hnote) td{padding-top:6px;padding-bottom:6px}
+}
 </style>
 </head>
 <body>
@@ -1001,7 +1029,7 @@ function licSync(asset,oldO,oldK,newO,newK){
     LIC.push({asset:String(asset||''),office:String(oldO||'').trim(),key:String(oldK).trim()});
 }
 // ช่องที่เลือก "ว่าง" แล้วเก็บคำว่า "ว่าง" และช่องที่ว่างในชีตให้แสดงเป็น "ว่าง" (เหมือน Status)
-const BLANKV=()=>[col('สาขา'),col('ใบถือครองทรัพย์สิน'),col('Product Key'),col('IP Address')].filter(i=>i>=0);
+const BLANKV=()=>[col('ผู้ถือครอง'),col('สาขา'),col('ใบถือครองทรัพย์สิน'),col('Product Key'),col('IP Address')].filter(i=>i>=0);
 const LIST_FIELDS=['สาขา','ใบถือครองทรัพย์สิน','Location','Login User'];
 function buildLinks(){
   BRLOC={};LOCBR={};
@@ -1063,6 +1091,8 @@ function mergeLists(){
     const ex=[]; (OPTS[i]||[]).forEach(x=>{const t=cl(x); if(t&&!seen.has(t)){seen.add(t);ex.push(t);}});   // ค่าจาก Asset01 (ตัดช่องว่าง/ซ้ำ)
     OPTS[i]=ln.concat(sortOpts(i,ex));   // เรียงตามชีต List ก่อน ค่าอื่นที่มีใน Asset01 ต่อท้าย
   });
+  const hc=col('ผู้ถือครอง');   // ผู้ถือครอง: เพิ่มตัวเลือก "ว่าง" เป็นตัวแรก (เลือกแล้วบันทึกเป็นช่องว่างในชีต)
+  if(hc>=0)OPTS[hc]=['ว่าง'].concat((OPTS[hc]||[]).filter(x=>x!=='ว่าง'));
   buildLinks();
 }
 // ===== ช่อง "สาขา" ด้านบน: ตัวเลือกดึงจากชีต List คอลัมน์ สาขา (+ ค่าที่มีในชีตข้อมูล) =====
@@ -1276,7 +1306,8 @@ const locOf=r=>String(r.v[LOC()]??'').trim();
 const AUDIT_COL='ส่ง Audit', AUDIT_OPTS=['Yes','No'];
 const DOC_OPTS=['ว่าง','Yes','No'];   // ใบถือครองทรัพย์สิน (ซิงก์จากชีต List)
 const STATUS_FORCED=['ว่าง','ใช้งาน','ยืม','เสีย'], CHK_FORCED=['ว่าง','ตรวจแล้ว'];
-const FORCED_COLS=[['StatusN',STATUS_FORCED],['การตรวจเครื่อง',CHK_FORCED]];
+const ANTI_FORCED=['ว่าง'];   // Antivirus: เลือก "ว่าง" = บันทึกคำว่า ว่าง ลงคอลัมน์ · ช่องเปล่าในชีตแสดงเป็น "ว่าง" (เหมือน Status)
+const FORCED_COLS=[['StatusN',STATUS_FORCED],['การตรวจเครื่อง',CHK_FORCED],['Antivirus',ANTI_FORCED]];
 const FILTERS=[
   {gh:'ตัวเครื่อง'},
   {k:'ประเภท Asset',g:typeLabel,all:1,force:ASSET_TYPES},
@@ -1292,7 +1323,7 @@ const FILTERS=[
   {gh:'Software'},
   {k:'Window',c:'Window'},
   {k:'MS Office',c:'MS Office',v:1},
-  {k:'Antivirus',c:'Antivirus',dd:1},
+  {k:'Antivirus',c:'Antivirus',dd:1,force:ANTI_FORCED},
   {gh:'Network'},
   {grp:'Network',lbl:'IP Address',items:[
     // ทั้ง 4 รายการดึงจากคอลัมน์ IP Address เท่านั้น
@@ -1658,9 +1689,24 @@ function render0(){
       $('panel').innerHTML='<div class="empty">เลือกเครื่องเพื่อดูและแก้ไข</div>';$('panel2').innerHTML='';$('panel2').hidden=true;
     }
     if(none)return;
-    const ipOn=FIL.some((f,j)=>f.k==='เลข IP'&&SEL[j]&&SEL[j].size);   // ติ๊ก "เลข IP" = รายการแสดงเฉพาะเลข IP (ไม่แสดงชื่อเครื่อง/ผู้ถือครอง)
-    $('list').innerHTML=`<div class="head">${rows.length} รายการ</div>`+((ipOn?rows.slice().sort((a,b)=>ipCmp(a.v[col('IP')],b.v[col('IP')])):rows.slice(0,200)).map(r=>
-      ipOn?`<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(String(r.v[col('IP')]??'').trim())}</b></div>`:
+    const ipOn=FIL.some((f,j)=>f.k==='เลข IP'&&SEL[j]&&SEL[j].size);   // ติ๊ก "เลข IP" = แสดงเฉพาะเลข IP จัดกลุ่มตามเครือข่าย (a.b.c.x) ไม่แสดงชื่อเครื่อง/ผู้ถือครอง
+    if(ipOn){
+      const ipv=r=>String(r.v[col('IP')]??'').trim();
+      const gk=v=>{const m=v.match(/^(\d+\.\d+\.\d+)\.\d+$/);return m?m[1]+'.x':'อื่นๆ';};
+      const sorted=rows.slice().sort((a,b)=>ipCmp(ipv(a),ipv(b)));
+      const cnt={};sorted.forEach(r=>{const k=gk(ipv(r));cnt[k]=(cnt[k]||0)+1;});
+      window.IPOPEN=window.IPOPEN||new Set();
+      const grp={};sorted.forEach(r=>{(grp[gk(ipv(r))]=grp[gk(ipv(r))]||[]).push(r);});
+      let h='';
+      Object.keys(grp).forEach(k=>{const open=IPOPEN.has(k)||(cur&&grp[k].some(r=>r.n===cur.n));if(open)IPOPEN.add(k);
+        h+=`<div class="ipg${open?' open':''}" data-g="${esc(k)}"><i>▸</i> ${esc(k)} <span>(${grp[k].length})</span></div><div class="ipb"${open?'':' hidden'}>`+
+          grp[k].map(r=>`<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(ipv(r))}</b></div>`).join('')+`</div>`;});
+      const st=$('list').scrollTop;
+      $('list').innerHTML=`<div class="head">${rows.length} รายการ · ${Object.keys(cnt).length} กลุ่ม</div>`+(h||'<div class="empty">ไม่พบข้อมูล</div>');
+      $('list').scrollTop=st;
+      return;
+    }
+    $('list').innerHTML=`<div class="head">${rows.length} รายการ</div>`+(rows.slice(0,200).map(r=>
       `<div class="it${cur&&cur.n===r.n?' sel':''}" data-n="${r.n}"><b>${esc(r.v[ASSET()])}</b><span>${esc(r.v[col('ผู้ถือครอง')])}</span></div>`).join('')||'<div class="empty">ไม่พบข้อมูล</div>');
     return;
   }
@@ -1752,7 +1798,8 @@ function open(n){
       }else if(f[2]==='d'){
         const o=(f[0]==='Location'?locChoices(cur.v[col('สาขา')],v):(OPTS[i]||[]).slice()); if(v&&!o.includes(v))o.push(v);
         const isSt=FORCED_COLS.some(c=>c[0]===f[0]), sv=isSt&&!String(v??'').trim()?'ว่าง':v;
-        c=`<select data-i="${i}">${isSt?'':'<option value="">ว่าง</option>'}${o.map(x=>`<option${x===sv?' selected':''}>${esc(x)}</option>`).join('')}</select>`;
+        const dd=f[0]==='Antivirus',vB=String(v??'').trim()==='ว่าง',o2=(!dd||isSt||vB)?o:o.filter(x=>x!=='ว่าง');   // เฉพาะ Antivirus: กัน "ว่าง" ซ้ำ (ค่า "ว่าง" จากชีต List ซ้ำกับตัวเลือกว่างที่ระบบเพิ่มให้)
+        c=`<select data-i="${i}">${(isSt||(dd&&vB))?'':'<option value="">ว่าง</option>'}${o2.map(x=>`<option${x===sv?' selected':''}>${esc(x)}</option>`).join('')}</select>`;
       }else if(f[2]==='c'){
         c=`<div class="cb"><input data-i="${i}" value="${esc(BLANKV().includes(i)&&!String(v??'').trim()?'ว่าง':v)}" autocomplete="off"><button type="button" class="cbb" tabindex="-1" aria-label="เลือกจากรายการ">▾</button><div class="cbl" hidden></div></div>`;
       }else if(f[2]==='s'){
@@ -1855,7 +1902,7 @@ function open(n){
   function sync(t,final,trusted){
     const hi=col('ผู้ถือครอง');
     if(hi<0||!cur||!t.dataset||+t.dataset.i!==hi)return;
-    const n=t.value.trim(),same=n===String(cur.v[hi]==null?'':cur.v[hi]).trim();
+    const n=t.value.trim()==='ว่าง'?'':t.value.trim(),same=n===String(cur.v[hi]==null?'':cur.v[hi]).trim();
     ['EmpId'].forEach(cn=>{
       const ei=col(cn); if(ei<0)return;
       const ep=pn.querySelector('[data-i="'+ei+'"]'); if(!ep)return;
@@ -1932,7 +1979,7 @@ function confirmSave(ch,go){
 }
 function save(){
   const ch={};
-  document.querySelectorAll('#panel input[data-i],#panel select[data-i],#panel textarea[data-i],#panel2 input[data-i],#panel2 select[data-i]').forEach(x=>{if((!x.readOnly||+x.dataset.i===col('EmpId'))&&!eqv(x.dataset.i,x.value))ch[x.dataset.i]=x.value;});
+  document.querySelectorAll('#panel input[data-i],#panel select[data-i],#panel textarea[data-i],#panel2 input[data-i],#panel2 select[data-i]').forEach(x=>{if((!x.readOnly||+x.dataset.i===col('EmpId'))&&!eqv(x.dataset.i,x.value))ch[x.dataset.i]=(+x.dataset.i===col('ผู้ถือครอง')&&x.value.trim()==='ว่าง')?'':x.value;});
   const m=$('msg');
   if(!Object.keys(ch).length){m.className='';m.textContent='ยังไม่มีการแก้ไข';toast('ยังไม่มีการแก้ไข',1);return;}
   confirmSave(ch,()=>{
@@ -1942,7 +1989,7 @@ function save(){
     const nO=ch[oi]!==undefined?ch[oi]:oO,nK=ch[ki]!==undefined?ch[ki]:oK;
     const licCh=(ch[oi]!==undefined||ch[ki]!==undefined);
     Object.keys(ch).forEach(i=>{cur.v[i]=ch[i];const o=OPTS[i];if(o&&ch[i]&&!o.includes(ch[i])){o.push(ch[i]);if(!LIST_FIELDS.concat(['StatusN','การตรวจเครื่อง','Product Key']).some(n=>col(n)===+i))sortOpts(i,o);}});
-    try{if(licCh){licSync(cur.v[ASSET()],oO,oK,nO,nK);licOpts();}buildLinks();rebuildFilters();buildStats();}catch(e){}
+    try{if(licCh){licSync(cur.v[ASSET()],oO,oK,nO,nK);licOpts();}buildLinks();rebuildFilters();buildStats();render();}catch(e){}
     $('sv').disabled=false;m.className='ok';m.textContent='บันทึกแล้ว '+r.saved+' ช่อง';toast('✓ บันทึกแล้ว '+r.saved+' ช่อง');
     document.querySelectorAll('#panel .chg,#panel2 .chg').forEach(x=>x.classList.remove('chg'));
   }).withFailureHandler(e=>{$('sv').disabled=false;m.className='bad';m.textContent=e.message;toast('บันทึกไม่สำเร็จ: '+e.message,1);})
@@ -2629,6 +2676,7 @@ $('brn').onclick=e=>{if(e.target===$('brn')){closeBrs();$('brn').style.display='
   [mq,ip].forEach(function(m){if(m.addEventListener)m.addEventListener('change',place);else m.addListener(place);});
   place();
 })();
+document.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest('#list .ipg');if(!g)return;const k=g.dataset.g,o=g.classList.toggle('open');g.nextElementSibling.hidden=!o;window.IPOPEN=window.IPOPEN||new Set();o?IPOPEN.add(k):IPOPEN.delete(k);});
 </script>
 </body>
 </html>
