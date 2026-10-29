@@ -898,6 +898,9 @@ html.ipad .ls{display:inline}
   #hist table.hall:not(.hnote){font-size:12.5px}   /* ประวัติแก้ไขทั้งหมด */
   #hist table.hall:not(.hnote) th,#hist table.hall:not(.hnote) td{padding-top:6px;padding-bottom:6px}
 }
+/* ปุ่ม All ในหัวข้อ Standard Software: แสดงรายชื่อ Software ทั้งหมดของเครื่อง (อ่านอย่างเดียว) */
+.swall{margin-left:12px;padding:1px 14px;border-radius:999px;border:1px solid #fff;background:#fff;color:#166534;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;line-height:1.5}
+.swall.on{background:#166534;color:#fff;border-color:#166534}
 </style>
 </head>
 <body>
@@ -1015,6 +1018,9 @@ const ASSET=()=>col('IT Asset No'), LOC=()=>col('Location');
 let LISTS={lists:{}}, BRLOC={}, LOCBR={};
 // License (ว่าง): แถวจากชีต "MS Office" (คอลัมน์ IT Asset No, MS Office, Product Key) = license ที่ไม่ได้ใช้งานอยู่ในชีต Asset01
 let LIC=[];
+// ชีต "MS office_email" (Display name | Product Key | MS Office): 3 ค่านี้สัมพันธ์กัน -> เลือก/แก้ค่าใดค่าหนึ่งต้องไปด้วยกัน
+let EML=[],EMLINFO='';
+const emlFind=k=>licBlank(k)?null:(EML.find(x=>licKeyEq(x.key,k))||null);
 const licBlank=v=>{v=String(v==null?'':v).trim();return !v||v==='ว่าง';};
 const licKeyEq=(a,b)=>String(a||'').trim().toUpperCase()===String(b||'').trim().toUpperCase();
 function licOpts(){
@@ -1276,7 +1282,7 @@ function loadInitial(){
   try{
     GS.withSuccessHandler(d=>{
       clearTimeout(loadTimer);dbg('[6] ได้ข้อมูล '+(d&&d.rows?d.rows.length:0)+' แถว กำลังแสดงผล');
-      try{H=d.headers;R=d.rows;LISTS=d.lists||LISTS;LIC=d.licenses||[];init();$('list').setAttribute('data-ld','0');}
+      try{H=d.headers;R=d.rows;LISTS=d.lists||LISTS;LIC=d.licenses||[];EML=d.emails||[];EMLINFO=d.emailsInfo||'Code.gs ที่ใช้อยู่ยังเป็นตัวเก่า (ไม่ส่งข้อมูลชีตนี้มา) → วาง Code.gs ใหม่แล้ว Deploy เวอร์ชันใหม่';init();$('list').setAttribute('data-ld','0');}
       catch(e){$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>';}
     }).withFailureHandler(e=>{clearTimeout(loadTimer);$('list').setAttribute('data-ld','0');$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'<br><button type="button" id="retry" style="margin-top:8px;padding:6px 14px;border:1px solid var(--acc);background:#fff;color:var(--acc);border-radius:6px;font:inherit;font-weight:600;cursor:pointer">ลองใหม่</button></div>';const r=$('retry');if(r)r.onclick=loadInitial;}).getData();
   }catch(e){clearTimeout(loadTimer);$('list').innerHTML='<div class="empty bad">เชื่อมต่อ Google Apps Script ไม่ได้: '+esc(e.message)+'</div>';}
@@ -1396,7 +1402,7 @@ function buildFilters(){
     let get=f.g;
     if(f.opts){
       // หัวข้อที่มีตัวเลือกกำหนดตายตัว (เลือกหลายตัว = ตัวใดตัวหนึ่ง)
-      const j=FIL.length; FIL.push({k:f.k,get}); SEL.push(new Set());
+      const j=FIL.length; FIL.push({k:f.k,get,raw:f.k==='การถือครอง'?r=>{const t=String(r.v[col('ผู้ถือครอง')]??'').trim();return yes(t)?t:'ว่าง';}:null}); SEL.push(new Set());   // Print to Excel: การถือครอง = ชื่อผู้ถือครองจริง
       let ops=f.opts;
       if(f.dyn){const bs=new Set(f.opts.map(o=>o[0]));const ex=[...new Set(R.map(get))].filter(v=>v&&!bs.has(v)).sort((a,b)=>a.localeCompare(b));ops=f.opts.concat(ex.map(v=>[v,v]));}
       h+=`<div class="fg"><b>${f.k}</b><div class="fo">`+ops.map(o=>`<label><input type="checkbox" data-f="${j}" value="${esc(o[0])}">${esc(o[1])}</label>`).join('')+'</div></div>';
@@ -1404,7 +1410,7 @@ function buildFilters(){
     }
     if(!get){const i=col(f.c,f.l); if(i<0)return; get=f.force?(r=>String(r.v[i]??'').trim()||'ว่าง'):(r=>String(r.v[i]??'').trim());}
     lastSec=f.sec||'';
-    const j=FIL.length; FIL.push({k:f.k,get}); SEL.push(new Set());
+    const j=FIL.length; FIL.push({k:f.k,get,raw:f.k==='การถือครอง'?r=>{const t=String(r.v[col('ผู้ถือครอง')]??'').trim();return yes(t)?t:'ว่าง';}:null}); SEL.push(new Set());   // Print to Excel: การถือครอง = ชื่อผู้ถือครองจริง
     if(f.sec){
       // ติ๊กอย่างเดียว ไม่แสดงรายการ: ติ๊ก = กรองเฉพาะเครื่องที่มีข้อมูลในช่องนั้น
       const g0=get; FIL[j].get=r=>g0(r)?HAS:'';
@@ -1788,6 +1794,9 @@ function open(n){
   const split=false; let h2='';
   GROUPS.forEach((g,gi)=>{
     const h0=h; h='';
+    if(g[0]==='Standard Software')   // ปุ่ม All: เปิดหน้า Dashboard สรุป Software ทุกเครื่องแยกตามสาขา
+      h+=`<div class="sec">${g[0]}<button type="button" class="swall">All</button></div><div class="f">`;
+    else
     h+=`<div class="sec">${g[0]}</div><div class="f">`;
     g[1].forEach(f=>{
       const i=col(f[0],f[3]); if(i<0)return;
@@ -1817,7 +1826,7 @@ function open(n){
   $('panel').innerHTML=h;
   $('panel2').innerHTML=h2;$('panel2').hidden=!split;
   const onIn=e=>{if(e.target.dataset.i)e.target.closest('.f>div').classList.toggle('chg',!eqv(e.target.dataset.i,e.target.value));};
-  $('panel').onclick=null;
+  $('panel').onclick=e=>{if(e.target.closest&&e.target.closest('.swall'))showSoftwareAll();};
   $('panel').oninput=e=>{onIn(e);autoFit(e.target);};$('panel2').oninput=onIn;
   fitFields();
   $('sv').disabled=false;$('hs').disabled=false;$('msg').textContent='';
@@ -1832,19 +1841,26 @@ function open(n){
     const q=(filter||'').trim().toLowerCase();
     if(+inp.dataset.i===col('Product Key')){
       // Product Key: แสดง 2 ส่วน — คีย์ที่มีในชีต Asset01 และ License ว่างจากชีต MS Office
-      const pool=LIC.filter(x=>String(x.key||'').trim()), pk=new Set(pool.map(x=>String(x.key).trim().toUpperCase()));
+      const pool=LIC.filter(x=>String(x.key||'').trim()), pk=new Set(pool.map(x=>String(x.key).trim().toUpperCase())), ek=new Set(EML.map(x=>String(x.key||'').trim().toUpperCase()).filter(Boolean));
       const hit=t=>!q||String(t).toLowerCase().includes(q);
       // เลือกรุ่น MS Office แล้ว -> แสดงเฉพาะคีย์ของรุ่นนั้น (ทั้งจากเครื่องในชีต Asset01 และ License ว่าง)
       const oi=col('MS Office'),os=oi>=0?document.querySelector('#panel select[data-i="'+oi+'"]'):null,ver=os?String(os.value||'').trim():'';
       const useVer=!licBlank(ver),vi=+inp.dataset.i;
-      const inVer=useVer?new Set(R.filter(r=>String(r.v[oi]==null?'':r.v[oi]).trim()===ver).map(r=>String(r.v[vi]==null?'':r.v[vi]).trim().toUpperCase())):null;
-      const a=(OPTS[inp.dataset.i]||[]).filter(x=>x!=='ว่าง'&&!pk.has(String(x).trim().toUpperCase())&&(!useVer||inVer.has(String(x).trim().toUpperCase()))&&hit(x)).slice(0,200);
-      const b=pool.filter(x=>(!useVer||String(x.office||'').trim()===ver)&&hit(x.key+' '+x.office+' '+x.asset)).slice(0,200);
+      const nz=x=>String(x==null?'':x).replace(/\s+/g,' ').trim().toLowerCase(), sameV=x=>nz(x)===nz(ver);   // เทียบรุ่น MS Office ไม่สนตัวพิมพ์เล็ก-ใหญ่/ช่องว่างเกิน
+      const inVer=useVer?new Set(R.filter(r=>sameV(r.v[oi])).map(r=>String(r.v[vi]==null?'':r.v[vi]).trim().toUpperCase())):null;
+      const a=(OPTS[inp.dataset.i]||[]).filter(x=>x!=='ว่าง'&&!pk.has(String(x).trim().toUpperCase())&&!ek.has(String(x).trim().toUpperCase())&&(!useVer||inVer.has(String(x).trim().toUpperCase()))&&hit(x)).slice(0,200);
+      const is365=nz(ver)==='ms office 365';   // คีย์จากชีต MS office_email ค้นได้เมื่อเลือก MS Office 365 ก่อนเท่านั้น
+      const c=is365?EML.filter(x=>String(x.key||'').trim()&&hit(x.key)).slice(0,300):[];   // ชีต MS office_email: ดึงเฉพาะคอลัมน์ Product Key (ค้นและแสดงเฉพาะคีย์)
+      const b=pool.filter(x=>!ek.has(String(x.key).trim().toUpperCase())&&(!useVer||sameV(x.office))&&hit(x.key+' '+x.office+' '+x.asset)).slice(0,200);
       let h='';
       if(hit('ว่าง'))h+=`<div class="o" data-v="ว่าง">ว่าง</div>`;
       if(a.length)h+=a.map(x=>`<div class="o" data-v="${esc(x)}">${esc(x)}</div>`).join('');
+      if(c.length)h+=c.map(x=>`<div class="o lc" data-v="${esc(x.key)}">${esc(x.key)}</div>`).join('');
       if(b.length)h+=b.map(x=>`<div class="o lc" data-v="${esc(x.key)}">${esc(x.key)}${x.office?`<small> — ${esc(x.office)}</small>`:''}</div>`).join('');
-      l.innerHTML=h||'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>';l.hidden=false;return;
+      const noEml=(is365&&!EML.length)?'<div class="no" style="color:#b45309">ยังไม่ได้รับข้อมูลชีต MS office_email — '+esc(EMLINFO)+'</div>':'';
+      const gate=!is365?'<div class="no" style="color:#b45309">เลือก MS Office 365 ก่อน จึงจะค้นหา Product Key จากชีต MS office_email ได้</div>':'';
+      const any=a.length||c.length||b.length||hit('ว่าง');
+      l.innerHTML=h+(any?'':'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>')+gate+noEml;l.hidden=false;return;
     }
     const o=(OPTS[inp.dataset.i]||[]).filter(x=>!q||String(x).toLowerCase().includes(q)).slice(0,300);
     l.innerHTML=o.length?o.map(x=>`<div class="o" data-v="${esc(x)}">${esc(x)}</div>`).join(''):'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>';
@@ -2116,7 +2132,7 @@ function refreshData(){
     asset:cur?String(cur.v[ASSET()]):null,sel:SEL.map(x=>[...x])};
   GS.withSuccessHandler(d=>{
     try{
-      H=d.headers;R=d.rows;LISTS=d.lists||LISTS;LIC=d.licenses||[];
+      H=d.headers;R=d.rows;LISTS=d.lists||LISTS;LIC=d.licenses||[];EML=d.emails||[];EMLINFO=d.emailsInfo||'Code.gs ที่ใช้อยู่ยังเป็นตัวเก่า (ไม่ส่งข้อมูลชีตนี้มา) → วาง Code.gs ใหม่แล้ว Deploy เวอร์ชันใหม่';
       Object.keys(OPTS).forEach(k=>delete OPTS[k]);
       GROUPS.forEach(g=>g[1].forEach(f=>{
         if(f[2]!=='d'&&f[2]!=='c')return;
@@ -2585,15 +2601,17 @@ $('bbd').onclick=e=>{
   openBrs(+tr.dataset.i);
 };
 $('brsx').onclick=closeBrs;
-function showOsOffice(){
-  $('brt').textContent='ข้อมูล OS-MS Office';
-  const L=LOC(), cols=[['OS (Window)',col('Window')],['MS Office',col('MS Office')]];
+function showSoftware(title,cols,fit){
+  $('brt').textContent=title;
+  const L=LOC();
   const has={}; const data=cols.map(()=>({}));
   R.forEach(r=>{
     let b=branchOf(r.v[L]); if(!BRANCHES.includes(b)) b='อื่น ๆ'; has[b]=1;
     cols.forEach(([,ci],k)=>{
-      const v=(ci>=0?String(r.v[ci]??'').trim():'')||'(ไม่ระบุ)';
-      const o=data[k][v]=data[k][v]||{t:0}; o[b]=(o[b]||0)+1; o.t++;
+      const raw=ci>=0?String(r.v[ci]??'').trim():'';
+      let vs=cols[k][2]?[...new Set(awParse(raw).map(x=>x[0]).filter(Boolean))]:[raw];   // Additional Software: 1 เครื่องมีได้หลายโปรแกรม
+      if(!vs.length||(vs.length===1&&!vs[0]))vs=['(ไม่ระบุ)'];
+      vs.forEach(v=>{const o=data[k][v]=data[k][v]||{t:0}; o[b]=(o[b]||0)+1; o.t++;});
     });
   });
   const bs=BRANCHES.concat(has['อื่น ๆ']?['อื่น ๆ']:[]);
@@ -2620,6 +2638,26 @@ function showOsOffice(){
     return `<table class="${k?'t2':''}" style="margin-top:8px"><thead><tr><th>${esc(title)}</th>${bs.map(b=>`<th>${esc(BRN_LABEL[b]||b)}</th>`).join('')}<th>รวม</th></tr></thead><tbody>${rows||'<tr><td colspan="'+(bs.length+2)+'">ไม่มีข้อมูล</td></tr>'}<tr class="tot"><td>รวมทั้งหมด</td>${bs.map(b=>`<td>${T[b]||0}</td>`).join('')}<td>${T.t}</td></tr></tbody></table>`;
   };
   $('bbd').innerHTML=cols.map(tbl).join('<div class="gap"></div>');
+  closeBrs();
+  $('brn').classList.add('os');
+  $('brn').style.display='flex';
+  if(fit)fitOsOffice(); else {$('brn').style.setProperty('--py','6px');$('brn').style.setProperty('--fs','13px');}
+}
+const colCI=n=>{const k=String(n).replace(/\s+/g,' ').trim().toLowerCase();const i=H.findIndex(x=>String(x).replace(/\s+/g,' ').trim().toLowerCase()===k);return i>=0?i:col(n);};
+function showOsOffice(){showSoftware('ข้อมูล OS-MS Office',[['OS (Window)',col('Window')],['MS Office',col('MS Office')]],true);}
+// ปุ่ม All (Standard Software): หน้าต่างสรุป Software ของ "เครื่องที่เปิดอยู่" เท่านั้น จากชีต Asset01 (อ่านอย่างเดียว)
+function showSoftwareAll(){
+  if(!cur)return;
+  const val=n=>{const i=colCI(n);return i<0?'':String(cur.v[i]==null?'':cur.v[i]).trim();};
+  const rows=[];
+  [['Window','Window'],['MS Office','MS Office'],['PDF Reader','Pdf Reader'],['Zip','Zip'],['Antivirus','Antivirus'],['Teamviewer','Teamviewer'],['Browser','Browser'],['Dynamic AX','Dynamic AX'],['Forticlient','Forticlient']]
+    .forEach(([lb,n])=>rows.push([lb,val(n)||'-']));
+  const aw=awParse(val('Additional Software'));
+  if(!aw.length)rows.push(['Additional Software','-']);
+  else aw.forEach((r,k)=>rows.push([k?'':'Additional Software',r[0]+(r[1]?'  ('+r[1]+')':'')]));
+  $('brt').textContent='Software — '+String(cur.v[ASSET()]||'');
+  $('bbd').innerHTML='<table style="margin-top:8px"><thead><tr><th>Software</th><th style="text-align:left">รายการ</th></tr></thead><tbody>'+
+    rows.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td style="text-align:left;white-space:normal">${esc(r[1])}</td></tr>`).join('')+'</tbody></table>';
   closeBrs();
   $('brn').classList.add('os');
   $('brn').style.display='flex';
