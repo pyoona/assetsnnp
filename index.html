@@ -926,7 +926,7 @@ html.ipad .ls{display:inline}
     <div class="fld"><label>Location</label><select id="loc2" disabled></select></div>
   </div>
   <div class="bar" id="bar2">
-    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / รหัสบัญชี / Computername / Serial / ผู้ถือครอง / IP / Mac / Location / Product Key / Model / Assetname"><button class="ic" data-snap="q2" title="สแกน">📷</button><button type="button" class="ic rs2" id="rs2" title="รีเซ็ตหน้าค้นหา">Reset</button></div></div>
+    <div class="fld"><label>ค้นหา</label><div class="in"><input id="q2" placeholder="ค้นหา รหัส Asset / รหัสบัญชี / Computername / Serial / ผู้ถือครอง / IP / Mac (LAN/Wireless) / Location / Product Key / MS Office / Additional Software / Model / Assetname"><button class="ic" data-snap="q2" title="สแกน">📷</button><button type="button" class="ic rs2" id="rs2" title="รีเซ็ตหน้าค้นหา">Reset</button></div></div>
   </div>
   <div class="bar" id="bar3" hidden>
     <div class="fld" id="fwrap"><div id="fbox"></div><div id="fres"></div></div>
@@ -1720,8 +1720,8 @@ function render0(){
   const q=$('q2').value.trim().toLowerCase();
   g.hidden=!q;
   if(!q)return;
-  // ค้นหาจาก: รหัส Asset, Assetname, Model, Computername, Serial, ผู้ถือครอง, Location, IP Address, Mac (LAN/Wireless), Product Key
-  const ix=['IT Asset No','Ax Asset No','Assetname','Model','Computername','Serial No','ผู้ถือครอง','Location','IP Address','Lan Mac address','Wireless Mac address','Product Key'].map(n=>col(n)).filter(i=>i>=0);
+  // ค้นหาจาก: รหัส Asset, Assetname, Model, Computername, Serial, ผู้ถือครอง, Location, IP Address, Mac (LAN/Wireless), Product Key, MS Office, Additional Software
+  const ix=['IT Asset No','Ax Asset No','Assetname','Model','Computername','Serial No','ผู้ถือครอง','Location','IP Address','Lan Mac address','Wireless Mac address','Product Key','MS Office','Additional Software'].map(n=>col(n)).filter(i=>i>=0);
   const mx=['Lan Mac address','Wireless Mac address'].map(n=>col(n)).filter(i=>i>=0);
   const qn=q.replace(/[^a-z0-9]/g,'');   // Mac: พิมพ์มีหรือไม่มี : - . ก็ค้นเจอ
   const rows=R.filter(r=>ix.some(i=>String(r.v[i]==null?'':r.v[i]).toLowerCase().includes(q))||(qn.length>=4&&mx.some(i=>String(r.v[i]==null?'':r.v[i]).toLowerCase().replace(/[^a-z0-9]/g,'').includes(qn))));
