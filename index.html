@@ -899,11 +899,12 @@ html.ipad .ls{display:inline}
   #hist table.hall:not(.hnote) th,#hist table.hall:not(.hnote) td{padding-top:6px;padding-bottom:6px}
 }
 /* ปุ่ม All ในหัวข้อ Standard Software: แสดงรายชื่อ Software ทั้งหมดของเครื่อง (อ่านอย่างเดียว) */
-.swall{margin-left:12px;padding:1px 14px;border-radius:999px;border:1px solid #fff;background:#fff;color:#166534;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;line-height:1.5}
-.swall.on{background:#166534;color:#fff;border-color:#166534}
-/* ช่อง Update Product Key: ตัวหนังสือหนา สีแดงสด */
+.swall{margin-left:12px;padding:1px 14px;border-radius:999px;border:1px solid var(--acc);background:var(--acc);color:#fff;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;line-height:1.5}
+.swall:hover{background:#1e40af;border-color:#1e40af}
+/* ช่อง Update Product Key / ใบถือครองทรัพย์สิน / ส่ง Audit / Antivirus: ตัวหนังสือหนา สีแดงสด */
 .upk>label{color:#ff0000;font-weight:700}
 .upk select{color:#ff0000;font-weight:700}
+.upk input{color:#ff0000;font-weight:700}
 .upk select option{color:#0b1426;font-weight:400}
 </style>
 </head>
@@ -1091,7 +1092,11 @@ function mergeLists(){
   if(pk>=0)OPTS[pk]=['ว่าง'].concat((OPTS[pk]||[]).filter(x=>x!=='ว่าง'));
   licOpts();   // เพิ่มคีย์ที่ว่างจากชีต MS Office เป็นตัวเลือก
   const ipc=col('IP Address');   // IP Address: เพิ่มตัวเลือก "ว่าง" เป็นตัวแรก ตามด้วยเลข IP ที่มีในชีต
-  if(ipc>=0)OPTS[ipc]=['ว่าง'].concat(sortOpts(ipc,(OPTS[ipc]||[]).filter(x=>x!=='ว่าง')));
+  if(ipc>=0){   // + ตัวเลือกจากชีต List คอลัมน์ IP Address (รวมกับเลข IP ที่ใช้อยู่จริงในชีตข้อมูล ไม่ซ้ำ เรียงตามเลข IP)
+    const ll=(((LISTS&&LISTS.lists)||{})['IP Address']||[]).map(x=>String(x==null?'':x).trim()).filter(Boolean);
+    const lf=[...new Set(ll.filter(x=>x!=='ว่าง'))];   // ค่าจากชีต List (เช่น DHCP) เรียงตามชีต อยู่ต่อจาก "ว่าง" ก่อนเลข IP
+    OPTS[ipc]=['ว่าง'].concat(lf,sortOpts(ipc,[...new Set((OPTS[ipc]||[]).filter(x=>x!=='ว่าง'&&!lf.includes(x)))]));
+  }
   const L=(LISTS&&LISTS.lists)||{};
   LIST_FIELDS.forEach(n=>{
     const i=col(n); if(i<0)return;
@@ -1821,7 +1826,7 @@ function open(n){
       }else if(f[0]==='หมายเหตุ'){
         c=`<textarea data-i="${i}" rows="1">${esc(v)}</textarea>`;
       }else c=`<input data-i="${i}" value="${esc(v)}"${f[2]==='r'?' readonly':''}>`;
-      const wc=((f[0]==='การตรวจเครื่อง'||f[0]==='StatusN')?' chk':'')+(f[0]==='Product Key'?' kc':'')+(f[0]==='Update Product Key'?' upk':'')+((f[0]==='หมายเหตุ'||f[0]==='Additional Software')?' wfull':'')+(f[0]==='Additional Software'?' aswc':'');
+      const wc=((f[0]==='การตรวจเครื่อง'||f[0]==='StatusN')?' chk':'')+(f[0]==='Product Key'?' kc':'')+(['Update Product Key','ใบถือครองทรัพย์สิน','ส่ง Audit','Antivirus'].includes(f[0])?' upk':'')+((f[0]==='หมายเหตุ'||f[0]==='Additional Software')?' wfull':'')+(f[0]==='Additional Software'?' aswc':'');
       h+=`<div${wc?' class="'+wc.trim()+'"':''}><label>${f[1]}</label>${c}</div>`;
     });
     h+='</div>';
