@@ -901,6 +901,10 @@ html.ipad .ls{display:inline}
 /* ปุ่ม All ในหัวข้อ Standard Software: แสดงรายชื่อ Software ทั้งหมดของเครื่อง (อ่านอย่างเดียว) */
 .swall{margin-left:12px;padding:1px 14px;border-radius:999px;border:1px solid #fff;background:#fff;color:#166534;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;line-height:1.5}
 .swall.on{background:#166534;color:#fff;border-color:#166534}
+/* ช่อง Update Product Key: ตัวหนังสือหนา สีแดงสด */
+.upk>label{color:#ff0000;font-weight:700}
+.upk select{color:#ff0000;font-weight:700}
+.upk select option{color:#0b1426;font-weight:400}
 </style>
 </head>
 <body>
@@ -989,7 +993,7 @@ dbg('[1] สคริปต์เริ่มทำงาน');
 const GROUPS = [
   ['ข้อมูลการใช้งาน', [['StatusN','Status','d'],['การตรวจเครื่อง','การตรวจเครื่อง','d'],['ผู้ถือครอง','ผู้ถือครอง','c'],['EmpId','รหัสพนักงาน','r'],['Login User','Login User','c'],['สาขา','สาขา','c'],['Location','Location','d'],['ส่ง Audit','ส่ง Audit','d'],['ใบถือครองทรัพย์สิน','ใบถือครองทรัพย์สิน','c'],['Costcenter_Name','Costcenter','r']]],
   ['Hardware', [['IT Asset No','รหัส Asset','r'],['Ax Asset No','รหัสบัญชี','c'],['Computername','Computername','t'],['Serial No','Serial No','t'],['Model','Model','r'],['CPU','CPU','d'],['Ram','RAM','d'],['Mainboard','Mainboard','d'],['Harddisk','Harddisk','d'],['VGA','VGA','d'],['IP Address','IP Address','c']]],
-  ['Standard Software', [['Window','Window','d'],['MS Office','MS Office','d'],['Product Key','Product Key','c'],['Antivirus','Antivirus','d']]],
+  ['Standard Software', [['Window','Window','d'],['MS Office','MS Office','d'],['Product Key','Product Key','c'],['Update Product Key','Update Product Key','d'],['Antivirus','Antivirus','d']]],
   ['Additional Software', [['Additional Software','Additional Software','s']]],
   ['หมายเหตุ', [['หมายเหตุ','หมายเหตุ','t']]]
 ];
@@ -1036,7 +1040,7 @@ function licSync(asset,oldO,oldK,newO,newK){
 }
 // ช่องที่เลือก "ว่าง" แล้วเก็บคำว่า "ว่าง" และช่องที่ว่างในชีตให้แสดงเป็น "ว่าง" (เหมือน Status)
 const BLANKV=()=>[col('ผู้ถือครอง'),col('สาขา'),col('ใบถือครองทรัพย์สิน'),col('Product Key'),col('IP Address')].filter(i=>i>=0);
-const LIST_FIELDS=['สาขา','ใบถือครองทรัพย์สิน','Location','Login User'];
+const LIST_FIELDS=['สาขา','ใบถือครองทรัพย์สิน','Location','Login User','Update Product Key'];   // ตัวเลือกดึงจากชีต List คอลัมน์ชื่อเดียวกัน
 function buildLinks(){
   BRLOC={};LOCBR={};
   const add=(b,l)=>{b=String(b==null?'':b).trim();l=String(l==null?'':l).trim();if(!b||!l||b==='ว่าง')return;(BRLOC[b]=BRLOC[b]||new Set()).add(l);};
@@ -1152,7 +1156,7 @@ document.querySelectorAll('.modes>button').forEach(b=>b.addEventListener('click'
 // ===== ตั้งค่าตรงนี้ =====
 // วาง Web app URL ของ Apps Script (ลงท้ายด้วย /exec) เพื่อใช้ข้อมูลจริงเมื่อเปิดจาก GitHub Pages
 // ถ้าเว้นว่างไว้ และไม่ได้เปิดผ่าน Apps Script จะเข้าโหมดทดลอง (ข้อมูลตัวอย่าง)
-const API_URL='https://script.google.com/macros/s/AKfycbw-KP-DDCAOBDLisiWmvAVCuKj8etvPmwRHNASnKjykJ8eH-Yz5OAVP241KffwnUWLt/exec';
+const API_URL='https://script.google.com/macros/s/AKfycbzowvtP1NOSRPoKbNR7Ci6BNNANMIqIm3ubWLflaM0108P4z9aZN28HDzsIa2sKG1xW/exec';
 // ========================
 const IN_GAS=!!(window.google&&google.script&&google.script.run);
 
@@ -1807,7 +1811,7 @@ function open(n){
       }else if(f[2]==='d'){
         const o=(f[0]==='Location'?locChoices(cur.v[col('สาขา')],v):(OPTS[i]||[]).slice()); if(v&&!o.includes(v))o.push(v);
         const isSt=FORCED_COLS.some(c=>c[0]===f[0]), sv=isSt&&!String(v??'').trim()?'ว่าง':v;
-        const dd=f[0]==='Antivirus',vB=String(v??'').trim()==='ว่าง',o2=(!dd||isSt||vB)?o:o.filter(x=>x!=='ว่าง');   // เฉพาะ Antivirus: กัน "ว่าง" ซ้ำ (ค่า "ว่าง" จากชีต List ซ้ำกับตัวเลือกว่างที่ระบบเพิ่มให้)
+        const dd=f[0]==='Antivirus'||f[0]==='Update Product Key',vB=String(v??'').trim()==='ว่าง',o2=(!dd||isSt||vB)?o:o.filter(x=>x!=='ว่าง');   // เฉพาะ Antivirus: กัน "ว่าง" ซ้ำ (ค่า "ว่าง" จากชีต List ซ้ำกับตัวเลือกว่างที่ระบบเพิ่มให้)
         c=`<select data-i="${i}">${(isSt||(dd&&vB))?'':'<option value="">ว่าง</option>'}${o2.map(x=>`<option${x===sv?' selected':''}>${esc(x)}</option>`).join('')}</select>`;
       }else if(f[2]==='c'){
         c=`<div class="cb"><input data-i="${i}" value="${esc(BLANKV().includes(i)&&!String(v??'').trim()?'ว่าง':v)}" autocomplete="off"><button type="button" class="cbb" tabindex="-1" aria-label="เลือกจากรายการ">▾</button><div class="cbl" hidden></div></div>`;
@@ -1817,7 +1821,7 @@ function open(n){
       }else if(f[0]==='หมายเหตุ'){
         c=`<textarea data-i="${i}" rows="1">${esc(v)}</textarea>`;
       }else c=`<input data-i="${i}" value="${esc(v)}"${f[2]==='r'?' readonly':''}>`;
-      const wc=((f[0]==='การตรวจเครื่อง'||f[0]==='StatusN')?' chk':'')+(f[0]==='Product Key'?' kc':'')+((f[0]==='หมายเหตุ'||f[0]==='Additional Software')?' wfull':'')+(f[0]==='Additional Software'?' aswc':'');
+      const wc=((f[0]==='การตรวจเครื่อง'||f[0]==='StatusN')?' chk':'')+(f[0]==='Product Key'?' kc':'')+(f[0]==='Update Product Key'?' upk':'')+((f[0]==='หมายเหตุ'||f[0]==='Additional Software')?' wfull':'')+(f[0]==='Additional Software'?' aswc':'');
       h+=`<div${wc?' class="'+wc.trim()+'"':''}><label>${f[1]}</label>${c}</div>`;
     });
     h+='</div>';
