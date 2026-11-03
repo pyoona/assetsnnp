@@ -906,6 +906,14 @@ html.ipad .ls{display:inline}
 .upk select{color:#ff0000;font-weight:700}
 .upk input{color:#ff0000;font-weight:700}
 .upk select option{color:#0b1426;font-weight:400}
+/* ช่อง Update Product Key: พื้นสี #D46A72 (จางลงอีก 20% จาก #C9454F) ตัวหนังสือขาวหนา */
+.upk.upkb select{background:#f7c7ac;color:#fff;border-color:#d99a7a;font-weight:700}
+.upk.upkb select option{background:#fff;color:#0b1426;font-weight:400}
+/* ช่อง 1-6: สไตล์เดียวกับ Update Product Key (พื้นแดงอ่อน) ตัวหนังสือสีดำ ไม่หนา */
+.upk>label,.upk select,.upk input,.upk.upkb select{color:#000;font-weight:400}
+.upk input,.upk select{background:#f7c7ac;border-color:#d99a7a}
+.upk .cbb{background:#efb594;border-left-color:#d99a7a;color:#000}
+.upk select option{color:#0b1426}
 </style>
 </head>
 <body>
@@ -1826,7 +1834,7 @@ function open(n){
       }else if(f[0]==='หมายเหตุ'){
         c=`<textarea data-i="${i}" rows="1">${esc(v)}</textarea>`;
       }else c=`<input data-i="${i}" value="${esc(v)}"${f[2]==='r'?' readonly':''}>`;
-      const wc=((f[0]==='การตรวจเครื่อง'||f[0]==='StatusN')?' chk':'')+(f[0]==='Product Key'?' kc':'')+(['Update Product Key','ใบถือครองทรัพย์สิน','ส่ง Audit','Antivirus'].includes(f[0])?' upk':'')+((f[0]==='หมายเหตุ'||f[0]==='Additional Software')?' wfull':'')+(f[0]==='Additional Software'?' aswc':'');
+      const wc=(f[0]==='Product Key'?' kc':'')+(['StatusN','การตรวจเครื่อง','ส่ง Audit','ใบถือครองทรัพย์สิน','Antivirus','Update Product Key'].includes(f[0])?' upk upkb':'')+((f[0]==='หมายเหตุ'||f[0]==='Additional Software')?' wfull':'')+(f[0]==='Additional Software'?' aswc':'');
       h+=`<div${wc?' class="'+wc.trim()+'"':''}><label>${f[1]}</label>${c}</div>`;
     });
     h+='</div>';
