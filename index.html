@@ -1227,7 +1227,7 @@ if(!IN_GAS&&API_URL){
       dbg('[5] ได้รับคำตอบแล้ว');
       const j=await res.json();
       if(!j.ok){
-        if(j.error==='unauthorized'){LS.del('asset_key');LS.del('asset_data_v1');throw new Error('รหัสผ่านไม่ถูกต้อง รีเฟรชหน้าแล้วใส่ใหม่');}
+        if(j.error==='unauthorized'){LS.del('asset_key');throw new Error('รหัสผ่านไม่ถูกต้อง รีเฟรชหน้าแล้วใส่ใหม่');}
         throw new Error(j.error||'เกิดข้อผิดพลาด');
       }
       return j.data;
@@ -1276,7 +1276,7 @@ const GS=(function(){
   const call=(fn,args)=>creds().then(c=>new Promise((ok,fail)=>{
     real.withSuccessHandler(ok).withFailureHandler(e=>{
       const m=String(e&&e.message||e);
-      if(m.indexOf('unauthorized')>=0){LS.del('asset_key');LS.del('asset_data_v1');fail(new Error('รหัสผ่านไม่ถูกต้อง รีเฟรชหน้าแล้วใส่ใหม่'));}
+      if(m.indexOf('unauthorized')>=0){LS.del('asset_key');fail(new Error('รหัสผ่านไม่ถูกต้อง รีเฟรชหน้าแล้วใส่ใหม่'));}
       else fail(new Error(m));
     })['gs_'+fn](c.key,c.who,...args);
   }));
@@ -1285,13 +1285,23 @@ const GS=(function(){
   return run();
 })();
 
+// ===== แคชข้อมูลในเบราว์เซอร์ (เปิดครั้งต่อไปเห็นข้อมูลทันที แล้วโหลดของใหม่เบื้องหลัง) =====
+const CACHE_KEY='asset_cache_v1_'+(API_URL||'gas');
+const CACHE_TTL_MS=5*60*1000;   // แคชในเบราว์เซอร์อยู่ได้ 5 นาที (เกินนี้ไม่ใช้ โหลดสดใหม่)
+const dataSig=d=>{try{return JSON.stringify([d.headers,d.rows]);}catch(e){return '';}};
+function saveCache(d){try{localStorage.setItem(CACHE_KEY,JSON.stringify({t:Date.now(),d:{headers:d.headers,rows:d.rows,lists:d.lists,licenses:d.licenses,emails:d.emails,emailsInfo:d.emailsInfo}}));}catch(e){}}
+function loadCache(){try{if(!AUTH.LS.get('asset_key')&&(IN_GAS||API_URL))return null;const s=localStorage.getItem(CACHE_KEY);if(!s)return null;const o=JSON.parse(s);if(!o||!o.t||Date.now()-o.t>CACHE_TTL_MS){localStorage.removeItem(CACHE_KEY);return null;}return o&&o.d&&o.d.rows&&o.d.rows.length&&o.d.headers?o:null;}catch(e){return null;}}
+window.addEventListener('pagehide',()=>{try{if(H&&H.length&&R&&R.length)saveCache({headers:H,rows:R,lists:LISTS,licenses:LIC,emails:EML,emailsInfo:EMLINFO});}catch(e){}});
 let loadTimer=null;
 function loadInitial(){
   clearTimeout(loadTimer);
   dbg('[2] เริ่มดึงข้อมูล ('+(IN_GAS?'ในหน้า Apps Script':API_URL?'ผ่าน URL /exec':'โหมดทดลอง')+')');
-  $('list').removeAttribute('data-ld');$('list').innerHTML='<div class="empty">กำลังโหลดข้อมูล…</div>';
+  const cacheO=loadCache();let usedCache=!!cacheO;
+  if(usedCache){   // มีแคช: แสดงทันที (รอให้สคริปต์โหลดครบก่อน) แล้วดึงข้อมูลล่าสุดเบื้องหลัง
+    setTimeout(()=>{try{H=cacheO.d.headers;R=cacheO.d.rows;LISTS=cacheO.d.lists||LISTS;LIC=cacheO.d.licenses||[];EML=cacheO.d.emails||[];EMLINFO=cacheO.d.emailsInfo||'';init();$('list').setAttribute('data-ld','0');const m=$('msg');if(m){m.className='';m.textContent='แสดงข้อมูลที่บันทึกไว้ · กำลังอัปเดต…';}}catch(e){usedCache=false;}},0);
+  }else{$('list').removeAttribute('data-ld');$('list').innerHTML='<div class="empty">กำลังโหลดข้อมูล…</div>';}
   // ถ้าโหลดนานเกิน 25 วินาที แสดงข้อความช่วยตรวจสอบ พร้อมปุ่มลองใหม่ (ไม่ค้างเงียบ ๆ)
-  loadTimer=setTimeout(()=>{
+  if(!usedCache)loadTimer=setTimeout(()=>{
     $('list').setAttribute('data-ld','0');
     $('list').innerHTML='<div class="empty bad">โหลดข้อมูลนานผิดปกติ<br><span style="font-size:12px;color:#3f485c">ตรวจอินเทอร์เน็ต/รหัสผ่าน และดูแถบแจ้งข้อผิดพลาดด้านบนสุดของหน้า</span><br><button type="button" id="retry" style="margin-top:8px;padding:6px 14px;border:1px solid var(--acc);background:#fff;color:var(--acc);border-radius:6px;font:inherit;font-weight:600;cursor:pointer">ลองใหม่</button></div>';
     const r=$('retry'); if(r)r.onclick=loadInitial;
@@ -1299,54 +1309,19 @@ function loadInitial(){
   try{
     GS.withSuccessHandler(d=>{
       clearTimeout(loadTimer);dbg('[6] ได้ข้อมูล '+(d&&d.rows?d.rows.length:0)+' แถว กำลังแสดงผล');
-      try{H=d.headers;R=d.rows;LISTS=d.lists||LISTS;LIC=d.licenses||[];EML=d.emails||[];EMLINFO=d.emailsInfo||'Code.gs ที่ใช้อยู่ยังเป็นตัวเก่า (ไม่ส่งข้อมูลชีตนี้มา) → วาง Code.gs ใหม่แล้ว Deploy เวอร์ชันใหม่';init();$('list').setAttribute('data-ld','0');saveDataCache(d);}
+      if(usedCache){   // อัปเดตเบื้องหลัง: ถ้าข้อมูลเหมือนเดิมไม่ทำอะไร · ถ้าต่าง และยังไม่ได้เปิดเครื่องไหน อัปเดตหน้าจอเงียบ ๆ · ถ้าเปิดเครื่องอยู่ ให้กด Refresh เอง (กันงานที่กำลังแก้หาย)
+        usedCache=false;const same=dataSig(d)===dataSig(cacheO.d);saveCache(d);const m=$('msg');
+        if(same){if(m){m.className='';m.textContent='';}return;}
+        if(!cur){try{refreshData(d);}catch(e){}}else if(m){m.className='';m.textContent='มีข้อมูลใหม่ในชีต — กด Refresh เพื่ออัปเดต';}
+        return;
+      }
+      saveCache(d);
+      try{H=d.headers;R=d.rows;LISTS=d.lists||LISTS;LIC=d.licenses||[];EML=d.emails||[];EMLINFO=d.emailsInfo||'Code.gs ที่ใช้อยู่ยังเป็นตัวเก่า (ไม่ส่งข้อมูลชีตนี้มา) → วาง Code.gs ใหม่แล้ว Deploy เวอร์ชันใหม่';init();$('list').setAttribute('data-ld','0');}
       catch(e){$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'</div>';}
-    }).withFailureHandler(e=>{clearTimeout(loadTimer);$('list').setAttribute('data-ld','0');$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'<br><button type="button" id="retry" style="margin-top:8px;padding:6px 14px;border:1px solid var(--acc);background:#fff;color:var(--acc);border-radius:6px;font:inherit;font-weight:600;cursor:pointer">ลองใหม่</button></div>';const r=$('retry');if(r)r.onclick=loadInitial;}).getData();
+    }).withFailureHandler(e=>{clearTimeout(loadTimer);if(usedCache){usedCache=false;const m=$('msg');if(m){m.className='bad';m.textContent='เชื่อมต่อชีตไม่ได้ — ใช้ข้อมูลที่บันทึกไว้';}return;}$('list').setAttribute('data-ld','0');$('list').innerHTML='<div class="empty bad">'+esc(e.message)+'<br><button type="button" id="retry" style="margin-top:8px;padding:6px 14px;border:1px solid var(--acc);background:#fff;color:var(--acc);border-radius:6px;font:inherit;font-weight:600;cursor:pointer">ลองใหม่</button></div>';const r=$('retry');if(r)r.onclick=loadInitial;}).getData();
   }catch(e){clearTimeout(loadTimer);$('list').innerHTML='<div class="empty bad">เชื่อมต่อ Google Apps Script ไม่ได้: '+esc(e.message)+'</div>';}
 }
-// (เริ่มโหลดข้อมูลที่ท้ายสคริปต์ startLoad() เพื่อให้แสดงข้อมูลที่เก็บไว้ในเครื่องได้ทันที)
-
-// ===== แคชในเครื่อง: เปิดหน้าแล้วเห็นข้อมูลชุดล่าสุดทันที แล้วอัปเดตจาก Google Sheet เบื้องหลัง =====
-// เก็บเฉพาะเมื่อเข้าใช้งานด้วยรหัสผ่านแล้ว และลบทิ้งทันทีเมื่อรหัสผ่านไม่ถูกต้อง
-const DCACHE='asset_data_v1';
-const CAN_CACHE=IN_GAS||!!API_URL;     // โหมดทดลองไม่ต้องเก็บ
-let DLAST='',DWRITE=0;
-function saveDataCache(d){
-  if(!CAN_CACHE)return;
-  try{const s=JSON.stringify(d);DLAST=s;AUTH.LS.set(DCACHE,s);}catch(e){}
-}
-function curData(){return {headers:H,rows:R,lists:LISTS,licenses:LIC,emails:EML,emailsInfo:EMLINFO};}
-function readDataCache(){
-  if(!CAN_CACHE||!AUTH.LS.get('asset_key'))return null;
-  try{const s=AUTH.LS.get(DCACHE);if(!s)return null;const d=JSON.parse(s);if(d&&Array.isArray(d.rows)&&Array.isArray(d.headers)){DLAST=s;return d;}}catch(e){}
-  return null;
-}
-// โหลดข้อมูลล่าสุดเบื้องหลัง (ไม่ล้างหน้าจอ) ถ้าข้อมูลเปลี่ยนค่อยอัปเดต
-function bgRefresh(){
-  const gen=DWRITE;
-  GS.withSuccessHandler(d=>{
-    if(gen!==DWRITE)return bgRefresh();            // ระหว่างรอมีการบันทึก -> ขอข้อมูลใหม่อีกรอบ
-    if(JSON.stringify(d)===DLAST)return;            // ไม่มีอะไรเปลี่ยน
-    if(document.querySelector('#panel .chg,#panel2 .chg')){   // กำลังแก้ไขค้างอยู่ -> ไม่ทับ ให้ผู้ใช้กด Refresh เอง
-      toast('มีข้อมูลใหม่จาก Google Sheet · กด Refresh เพื่ออัปเดต');return;
-    }
-    try{applyRefreshed(d,true);}catch(e){}
-  }).withFailureHandler(e=>{
-    const m=String(e&&e.message||e);
-    if(m.indexOf('รหัสผ่านไม่ถูกต้อง')>=0){toast(m,1);setTimeout(()=>location.reload(),1500);return;}
-    toast('อัปเดตข้อมูลล่าสุดไม่สำเร็จ (กำลังแสดงข้อมูลที่เก็บไว้): '+m,1);
-  }).getData();
-}
-function startLoad(){
-  const d=readDataCache();
-  if(!d){loadInitial();return;}
-  dbg('[2] แสดงข้อมูลที่เก็บไว้ในเครื่อง แล้วอัปเดตเบื้องหลัง');
-  try{
-    H=d.headers;R=d.rows;LISTS=d.lists||LISTS;LIC=d.licenses||[];EML=d.emails||[];EMLINFO=d.emailsInfo||'';
-    init();$('list').setAttribute('data-ld','0');
-  }catch(e){AUTH.LS.del(DCACHE);DLAST='';loadInitial();return;}
-  bgRefresh();
-}
+loadInitial();
 
 // ประเภท Asset มี 2 ชนิด: "เครื่องเช่า" และ "Asset"
 // ดูจากคอลัมน์ "IT Asset No" เท่านั้น: รหัสขึ้นต้นด้วย PC-R- หรือ NB-R- = เครื่องเช่า นอกนั้น = Asset SNNP
@@ -1905,10 +1880,10 @@ function open(n){
       // เลือกรุ่น MS Office แล้ว -> แสดงเฉพาะคีย์ของรุ่นนั้น (ทั้งจากเครื่องในชีต Asset01 และ License ว่าง)
       const oi=col('MS Office'),os=oi>=0?document.querySelector('#panel select[data-i="'+oi+'"]'):null,ver=os?String(os.value||'').trim():'';
       const useVer=!licBlank(ver),vi=+inp.dataset.i;
-      const nz=x=>String(x==null?'':x).replace(/\s+/g,' ').trim().toLowerCase(), sameV=x=>nz(x)===nz(ver);   // เทียบรุ่น MS Office ไม่สนตัวพิมพ์เล็ก-ใหญ่/ช่องว่างเกิน
+      const nz=x=>String(x==null?'':x).replace(/\s+/g,' ').trim().toLowerCase(), vn=x=>nz(x).replace(/^(microsoft|ms)\s+/,''), sameV=x=>vn(x)===vn(ver);   // เทียบรุ่น MS Office ไม่สนตัวพิมพ์เล็ก-ใหญ่/ช่องว่างเกิน
       const inVer=useVer?new Set(R.filter(r=>sameV(r.v[oi])).map(r=>String(r.v[vi]==null?'':r.v[vi]).trim().toUpperCase())):null;
       const a=(OPTS[inp.dataset.i]||[]).filter(x=>x!=='ว่าง'&&!pk.has(String(x).trim().toUpperCase())&&!ek.has(String(x).trim().toUpperCase())&&(!useVer||inVer.has(String(x).trim().toUpperCase()))&&hit(x)).slice(0,200);
-      const is365=nz(ver)==='ms office 365';   // คีย์จากชีต MS office_email ค้นได้เมื่อเลือก MS Office 365 ก่อนเท่านั้น
+      const is365=/365/.test(nz(ver));   // คีย์จากชีต MS office_email ค้นได้เมื่อเลือก MS Office 365   // คีย์จากชีต MS office_email ค้นได้เมื่อเลือก MS Office 365 ก่อนเท่านั้น
       const c=is365?EML.filter(x=>String(x.key||'').trim()&&hit(x.key)).slice(0,300):[];   // ชีต MS office_email: ดึงเฉพาะคอลัมน์ Product Key (ค้นและแสดงเฉพาะคีย์)
       const b=pool.filter(x=>!ek.has(String(x.key).trim().toUpperCase())&&(!useVer||sameV(x.office))&&hit(x.key+' '+x.office+' '+x.asset)).slice(0,200);
       // ชีต List คอลัมน์ Product Key: เลือกได้ทุกเวอร์ชัน (ไม่ต้องเลือก MS Office ก่อน)
@@ -1923,8 +1898,12 @@ function open(n){
       if(b.length)h+=b.map(x=>`<div class="o lc" data-v="${esc(x.key)}">${esc(x.key)}${x.office?`<small> — ${esc(x.office)}</small>`:''}</div>`).join('');
       const noEml=(is365&&!EML.length)?'<div class="no" style="color:#b45309">ยังไม่ได้รับข้อมูลชีต MS office_email — '+esc(EMLINFO)+'</div>':'';
       const gate=!is365?'<div class="no" style="color:#b45309">เลือก MS Office 365 ก่อน จึงจะค้นหา Product Key จากชีต MS office_email ได้</div>':'';
+      const dbg=[];
+      if(!lkn)dbg.push('ไม่พบคอลัมน์ "Product Key" ในชีต List');
+      if(useVer&&!b.length){const ov=[...new Set(pool.map(x=>String(x.office||'').trim()).filter(Boolean))];dbg.push(pool.length?('ชีต MS Office มี License '+pool.length+' รายการ แต่ไม่มีรุ่น "'+ver+'" (รุ่นที่พบ: '+(ov.join(', ')||'-')+')'):'ไม่ได้รับข้อมูล License จากชีต MS Office');}
+      const dbgH=(!lk.length&&!a.length&&!c.length&&!b.length&&dbg.length)?'<div class="no" style="color:#b45309">'+esc(dbg.join(' · '))+'</div>':'';
       const any=a.length||c.length||b.length||lk.length||hit('ว่าง');
-      l.innerHTML=h+(any?'':'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>')+gate+noEml;l.hidden=false;return;
+      l.innerHTML=h+(any?'':'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>')+gate+noEml+dbgH;l.hidden=false;return;
     }
     const o=(OPTS[inp.dataset.i]||[]).filter(x=>!q||String(x).toLowerCase().includes(q)).slice(0,300);
     l.innerHTML=o.length?o.map(x=>`<div class="o" data-v="${esc(x)}">${esc(x)}</div>`).join(''):'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>';
@@ -2070,7 +2049,6 @@ function save(){
     const licCh=(ch[oi]!==undefined||ch[ki]!==undefined);
     Object.keys(ch).forEach(i=>{cur.v[i]=ch[i];const o=OPTS[i];if(o&&ch[i]&&!o.includes(ch[i])){o.push(ch[i]);if(!LIST_FIELDS.concat(['StatusN','การตรวจเครื่อง','Product Key']).some(n=>col(n)===+i))sortOpts(i,o);}});
     try{if(licCh){licSync(cur.v[ASSET()],oO,oK,nO,nK);licOpts();}buildLinks();rebuildFilters();buildStats();render();}catch(e){}
-    DWRITE++;saveDataCache(curData());
     $('sv').disabled=false;m.className='ok';m.textContent='บันทึกแล้ว '+r.saved+' ช่อง';toast('✓ บันทึกแล้ว '+r.saved+' ช่อง');
     document.querySelectorAll('#panel .chg,#panel2 .chg').forEach(x=>x.classList.remove('chg'));
   }).withFailureHandler(e=>{$('sv').disabled=false;m.className='bad';m.textContent=e.message;toast('บันทึกไม่สำเร็จ: '+e.message,1);})
@@ -2190,21 +2168,14 @@ function setMode(m){
 }
 
 // Refresh: โหลดข้อมูลล่าสุดจาก Google Sheet ใหม่ โดยคงสาขา/Location/ค้นหา/Filter/เครื่องที่เปิดอยู่ไว้
-function refreshData(){
+function refreshData(pre){
   const m=$('msg'),b=$('rf');
   b.disabled=true;m.className='';m.textContent='กำลังรีเฟรช…';
-  GS.withSuccessHandler(d=>{
-    try{
-      applyRefreshed(d);
-      m.className='ok';m.textContent='รีเฟรชแล้ว ('+R.length+' รายการ)';
-    }catch(e){m.className='bad';m.textContent=e.message;}
-    b.disabled=false;
-  }).withFailureHandler(e=>{b.disabled=false;m.className='bad';m.textContent=e.message;}).getData();
-}
-// แสดงข้อมูลชุดใหม่ โดยคงสาขา/Location/ค้นหา/Filter/เครื่องที่เปิดอยู่ไว้ (ใช้ทั้งปุ่ม Refresh และการอัปเดตเบื้องหลัง)
-function applyRefreshed(d,quiet){
   const keep={typ:$('typ').value,loc:$('loc').value,loc2:$('loc2').value,
     asset:cur?String(cur.v[ASSET()]):null,sel:SEL.map(x=>[...x])};
+  const onOk=d=>{
+    try{
+      if(!(pre&&pre.rows))saveCache(d);
       H=d.headers;R=d.rows;LISTS=d.lists||LISTS;LIC=d.licenses||[];EML=d.emails||[];EMLINFO=d.emailsInfo||'Code.gs ที่ใช้อยู่ยังเป็นตัวเก่า (ไม่ส่งข้อมูลชีตนี้มา) → วาง Code.gs ใหม่แล้ว Deploy เวอร์ชันใหม่';
       Object.keys(OPTS).forEach(k=>delete OPTS[k]);
       GROUPS.forEach(g=>g[1].forEach(f=>{
@@ -2227,7 +2198,12 @@ function applyRefreshed(d,quiet){
       fillBranchSel(keep.loc);fillTypeSel(keep.typ);$('typ').value=keep.typ;$('loc').value=keep.loc;fillLoc2();$('loc2').value=keep.loc2;
       cur=null;render();
       if(keep.asset){const r=R.find(x=>String(x.v[ASSET()])===keep.asset);if(r)open(r.n);}
-  saveDataCache(d);
+      m.className='ok';m.textContent='รีเฟรชแล้ว ('+R.length+' รายการ)';
+    }catch(e){m.className='bad';m.textContent=e.message;}
+    b.disabled=false;
+  };
+  if(pre&&pre.rows){onOk(pre);return;}
+  GS.withSuccessHandler(onOk).withFailureHandler(e=>{b.disabled=false;m.className='bad';m.textContent=e.message;}).getData();
 }
 $('rf').onclick=refreshData;
 
@@ -2747,7 +2723,6 @@ $('bb').onclick=showBranchCounts;
 $('bo').onclick=showOsOffice;
 $('bx').onclick=()=>{closeBrs();$('brn').style.display='none';};
 $('brn').onclick=e=>{if(e.target===$('brn')){closeBrs();$('brn').style.display='none';}};
-startLoad();
 </script>
 <script>
 // มือถือ (≤640px): ย้าย Refresh / Reset All / ข้อมูลสาขา / OS-MS Office / สถิติ เข้าเมนูสไลด์ขวา
