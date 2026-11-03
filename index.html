@@ -1869,14 +1869,19 @@ function open(n){
       const is365=nz(ver)==='ms office 365';   // คีย์จากชีต MS office_email ค้นได้เมื่อเลือก MS Office 365 ก่อนเท่านั้น
       const c=is365?EML.filter(x=>String(x.key||'').trim()&&hit(x.key)).slice(0,300):[];   // ชีต MS office_email: ดึงเฉพาะคอลัมน์ Product Key (ค้นและแสดงเฉพาะคีย์)
       const b=pool.filter(x=>!ek.has(String(x.key).trim().toUpperCase())&&(!useVer||sameV(x.office))&&hit(x.key+' '+x.office+' '+x.asset)).slice(0,200);
+      // ชีต List คอลัมน์ Product Key: เลือกได้ทุกเวอร์ชัน (ไม่ต้องเลือก MS Office ก่อน)
+      const LL=(LISTS&&LISTS.lists)||{},lkn=Object.keys(LL).find(k=>k.trim().toLowerCase()==='product key');
+      const shown=new Set(a.concat(c.map(x=>x.key),b.map(x=>x.key)).map(x=>String(x).trim().toUpperCase()));
+      const lk=(lkn?LL[lkn]:[]).map(x=>String(x==null?'':x).trim()).filter((x,i,arr)=>x&&x!=='ว่าง'&&arr.indexOf(x)===i&&!shown.has(x.toUpperCase())&&hit(x)).slice(0,300);
       let h='';
       if(hit('ว่าง'))h+=`<div class="o" data-v="ว่าง">ว่าง</div>`;
+      if(lk.length)h+=lk.map(x=>`<div class="o" data-v="${esc(x)}">${esc(x)}</div>`).join('');
       if(a.length)h+=a.map(x=>`<div class="o" data-v="${esc(x)}">${esc(x)}</div>`).join('');
       if(c.length)h+=c.map(x=>`<div class="o lc" data-v="${esc(x.key)}">${esc(x.key)}</div>`).join('');
       if(b.length)h+=b.map(x=>`<div class="o lc" data-v="${esc(x.key)}">${esc(x.key)}${x.office?`<small> — ${esc(x.office)}</small>`:''}</div>`).join('');
       const noEml=(is365&&!EML.length)?'<div class="no" style="color:#b45309">ยังไม่ได้รับข้อมูลชีต MS office_email — '+esc(EMLINFO)+'</div>':'';
       const gate=!is365?'<div class="no" style="color:#b45309">เลือก MS Office 365 ก่อน จึงจะค้นหา Product Key จากชีต MS office_email ได้</div>':'';
-      const any=a.length||c.length||b.length||hit('ว่าง');
+      const any=a.length||c.length||b.length||lk.length||hit('ว่าง');
       l.innerHTML=h+(any?'':'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>')+gate+noEml;l.hidden=false;return;
     }
     const o=(OPTS[inp.dataset.i]||[]).filter(x=>!q||String(x).toLowerCase().includes(q)).slice(0,300);
