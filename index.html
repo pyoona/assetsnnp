@@ -1286,6 +1286,7 @@ const GS=(function(){
 })();
 
 // ===== แคชข้อมูลในเบราว์เซอร์ (เปิดครั้งต่อไปเห็นข้อมูลทันที แล้วโหลดของใหม่เบื้องหลัง) =====
+const NEED_LIC='ต้องการ License';   // ตัวเลือกคงที่ของ Product Key อันดับ 2 รองจาก ว่าง
 const CACHE_KEY='asset_cache_v1_'+(API_URL||'gas');
 const CACHE_TTL_MS=5*60*1000;   // แคชในเบราว์เซอร์อยู่ได้ 5 นาที (เกินนี้ไม่ใช้ โหลดสดใหม่)
 const dataSig=d=>{try{return JSON.stringify([d.headers,d.rows]);}catch(e){return '';}};
@@ -1882,16 +1883,17 @@ function open(n){
       const useVer=!licBlank(ver),vi=+inp.dataset.i;
       const nz=x=>String(x==null?'':x).replace(/\s+/g,' ').trim().toLowerCase(), vn=x=>nz(x).replace(/^(microsoft|ms)\s+/,''), sameV=x=>vn(x)===vn(ver);   // เทียบรุ่น MS Office ไม่สนตัวพิมพ์เล็ก-ใหญ่/ช่องว่างเกิน
       const inVer=useVer?new Set(R.filter(r=>sameV(r.v[oi])).map(r=>String(r.v[vi]==null?'':r.v[vi]).trim().toUpperCase())):null;
-      const a=(OPTS[inp.dataset.i]||[]).filter(x=>x!=='ว่าง'&&!pk.has(String(x).trim().toUpperCase())&&!ek.has(String(x).trim().toUpperCase())&&(!useVer||inVer.has(String(x).trim().toUpperCase()))&&hit(x)).slice(0,200);
+      const a=(OPTS[inp.dataset.i]||[]).filter(x=>x!=='ว่าง'&&String(x).trim().toLowerCase()!==NEED_LIC.toLowerCase()&&!pk.has(String(x).trim().toUpperCase())&&!ek.has(String(x).trim().toUpperCase())&&(!useVer||inVer.has(String(x).trim().toUpperCase()))&&hit(x)).slice(0,200);
       const is365=/365/.test(nz(ver));   // คีย์จากชีต MS office_email ค้นได้เมื่อเลือก MS Office 365   // คีย์จากชีต MS office_email ค้นได้เมื่อเลือก MS Office 365 ก่อนเท่านั้น
       const c=is365?EML.filter(x=>String(x.key||'').trim()&&hit(x.key)).slice(0,300):[];   // ชีต MS office_email: ดึงเฉพาะคอลัมน์ Product Key (ค้นและแสดงเฉพาะคีย์)
       const b=pool.filter(x=>!ek.has(String(x.key).trim().toUpperCase())&&(!useVer||sameV(x.office))&&hit(x.key+' '+x.office+' '+x.asset)).slice(0,200);
       // ชีต List คอลัมน์ Product Key: เลือกได้ทุกเวอร์ชัน (ไม่ต้องเลือก MS Office ก่อน)
-      const LL=(LISTS&&LISTS.lists)||{},lkn=Object.keys(LL).find(k=>k.trim().toLowerCase()==='product key');
+      const LL=(LISTS&&LISTS.lists)||{},lkn=(()=>{const ks=Object.keys(LL),n=k=>k.replace(/\s+/g,' ').trim().toLowerCase();return ks.find(k=>n(k)==='product key')||ks.find(k=>/product\s*key|license|ไลเซนส์/.test(n(k)));})();
       const shown=new Set(a.concat(c.map(x=>x.key),b.map(x=>x.key)).map(x=>String(x).trim().toUpperCase()));
-      const lk=(lkn?LL[lkn]:[]).map(x=>String(x==null?'':x).trim()).filter((x,i,arr)=>x&&x!=='ว่าง'&&arr.indexOf(x)===i&&!shown.has(x.toUpperCase())&&hit(x)).slice(0,300);
+      const lk=(lkn?LL[lkn]:[]).map(x=>String(x==null?'':x).trim()).filter((x,i,arr)=>x&&x!=='ว่าง'&&x.toLowerCase()!==NEED_LIC.toLowerCase()&&arr.indexOf(x)===i&&!shown.has(x.toUpperCase())&&hit(x)).slice(0,300);
       let h='';
       if(hit('ว่าง'))h+=`<div class="o" data-v="ว่าง">ว่าง</div>`;
+      if(hit(NEED_LIC))h+=`<div class="o" data-v="${esc(NEED_LIC)}">${esc(NEED_LIC)}</div>`;   // ตัวเลือกอันดับ 2 เสมอ (ทุกรุ่น)
       if(lk.length)h+=lk.map(x=>`<div class="o" data-v="${esc(x)}">${esc(x)}</div>`).join('');
       if(a.length)h+=a.map(x=>`<div class="o" data-v="${esc(x)}">${esc(x)}</div>`).join('');
       if(c.length)h+=c.map(x=>`<div class="o lc" data-v="${esc(x.key)}">${esc(x.key)}</div>`).join('');
@@ -1899,10 +1901,10 @@ function open(n){
       const noEml=(is365&&!EML.length)?'<div class="no" style="color:#b45309">ยังไม่ได้รับข้อมูลชีต MS office_email — '+esc(EMLINFO)+'</div>':'';
       const gate=!is365?'<div class="no" style="color:#b45309">เลือก MS Office 365 ก่อน จึงจะค้นหา Product Key จากชีต MS office_email ได้</div>':'';
       const dbg=[];
-      if(!lkn)dbg.push('ไม่พบคอลัมน์ "Product Key" ในชีต List');
+      if(!lkn)dbg.push('ไม่พบคอลัมน์ "Product Key" ในชีต List (คอลัมน์ที่ได้รับ: '+(Object.keys(LL).join(', ')||'ไม่มี')+') — ถ้าเพิ่งเพิ่ม ให้กด Refresh')
       if(useVer&&!b.length){const ov=[...new Set(pool.map(x=>String(x.office||'').trim()).filter(Boolean))];dbg.push(pool.length?('ชีต MS Office มี License '+pool.length+' รายการ แต่ไม่มีรุ่น "'+ver+'" (รุ่นที่พบ: '+(ov.join(', ')||'-')+')'):'ไม่ได้รับข้อมูล License จากชีต MS Office');}
-      const dbgH=(!lk.length&&!a.length&&!c.length&&!b.length&&dbg.length)?'<div class="no" style="color:#b45309">'+esc(dbg.join(' · '))+'</div>':'';
-      const any=a.length||c.length||b.length||lk.length||hit('ว่าง');
+      const dbgH=((!lkn||(!lk.length&&!a.length&&!c.length&&!b.length))&&dbg.length)?'<div class="no" style="color:#b45309">'+esc(dbg.join(' · '))+'</div>':'';
+      const any=a.length||c.length||b.length||lk.length||hit('ว่าง')||hit(NEED_LIC);
       l.innerHTML=h+(any?'':'<div class="no">ไม่พบในรายการ — พิมพ์เพิ่มได้เลย</div>')+gate+noEml+dbgH;l.hidden=false;return;
     }
     const o=(OPTS[inp.dataset.i]||[]).filter(x=>!q||String(x).toLowerCase().includes(q)).slice(0,300);
