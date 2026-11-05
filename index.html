@@ -2045,7 +2045,10 @@ function save(){
   if(!Object.keys(ch).length){m.className='';m.textContent='ยังไม่มีการแก้ไข';toast('ยังไม่มีการแก้ไข',1);return;}
   confirmSave(ch,()=>{
   $('sv').disabled=true;$('hs').disabled=true;m.className='';m.textContent='กำลังบันทึก…';
+  // กันค้าง: ถ้าเซิร์ฟเวอร์ตอบช้า แจ้งสถานะ และปลดปุ่มให้กดใหม่ได้ (บันทึกซ้ำปลอดภัย เพราะเซิร์ฟเวอร์ข้ามช่องที่ค่าเท่าเดิม)
+  let svDone=false;const t1=setTimeout(()=>{if(!svDone){m.className='';m.textContent='กำลังบันทึก… ใช้เวลานานกว่าปกติ (รอคิวหรือเซิร์ฟเวอร์ช้า)';}},12000),t2=setTimeout(()=>{if(!svDone){$('sv').disabled=false;$('hs').disabled=false;m.className='bad';m.textContent='ยังไม่ได้รับคำตอบ — ตรวจในชีตก่อน แล้วกดบันทึกอีกครั้งได้ (ไม่บันทึกซ้ำ)';}},45000);
   GS.withSuccessHandler(r=>{
+    svDone=true;clearTimeout(t1);clearTimeout(t2);$('hs').disabled=false;
     const oi=col('MS Office'),ki=col('Product Key'),oO=cur.v[oi],oK=cur.v[ki];
     const nO=ch[oi]!==undefined?ch[oi]:oO,nK=ch[ki]!==undefined?ch[ki]:oK;
     const licCh=(ch[oi]!==undefined||ch[ki]!==undefined);
@@ -2053,7 +2056,7 @@ function save(){
     try{if(licCh){licSync(cur.v[ASSET()],oO,oK,nO,nK);licOpts();}buildLinks();rebuildFilters();buildStats();render();}catch(e){}
     $('sv').disabled=false;m.className='ok';m.textContent='บันทึกแล้ว '+r.saved+' ช่อง';toast('✓ บันทึกแล้ว '+r.saved+' ช่อง');
     document.querySelectorAll('#panel .chg,#panel2 .chg').forEach(x=>x.classList.remove('chg'));
-  }).withFailureHandler(e=>{$('sv').disabled=false;m.className='bad';m.textContent=e.message;toast('บันทึกไม่สำเร็จ: '+e.message,1);})
+  }).withFailureHandler(e=>{svDone=true;clearTimeout(t1);clearTimeout(t2);$('sv').disabled=false;$('hs').disabled=false;m.className='bad';m.textContent=e.message;toast('บันทึกไม่สำเร็จ: '+e.message,1);})
   .saveRow(cur.n,cur.v[ASSET()],ch);
   });
 }
