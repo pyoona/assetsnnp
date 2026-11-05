@@ -1288,10 +1288,11 @@ const GS=(function(){
 // ===== แคชข้อมูลในเบราว์เซอร์ (เปิดครั้งต่อไปเห็นข้อมูลทันที แล้วโหลดของใหม่เบื้องหลัง) =====
 const NEED_LIC='ต้องการ License';   // ตัวเลือกคงที่ของ Product Key อันดับ 2 รองจาก ว่าง
 const CACHE_KEY='asset_cache_v1_'+(API_URL||'gas');
+const USE_CACHE=false;   // false = ปิดแคชในเบราว์เซอร์ (โหลดสดทุกครั้ง) · true = เปิด
 const CACHE_TTL_MS=5*60*1000;   // แคชในเบราว์เซอร์อยู่ได้ 5 นาที (เกินนี้ไม่ใช้ โหลดสดใหม่)
 const dataSig=d=>{try{return JSON.stringify([d.headers,d.rows]);}catch(e){return '';}};
-function saveCache(d){try{localStorage.setItem(CACHE_KEY,JSON.stringify({t:Date.now(),d:{headers:d.headers,rows:d.rows,lists:d.lists,licenses:d.licenses,emails:d.emails,emailsInfo:d.emailsInfo}}));}catch(e){}}
-function loadCache(){try{if(!AUTH.LS.get('asset_key')&&(IN_GAS||API_URL))return null;const s=localStorage.getItem(CACHE_KEY);if(!s)return null;const o=JSON.parse(s);if(!o||!o.t||Date.now()-o.t>CACHE_TTL_MS){localStorage.removeItem(CACHE_KEY);return null;}return o&&o.d&&o.d.rows&&o.d.rows.length&&o.d.headers?o:null;}catch(e){return null;}}
+function saveCache(d){if(!USE_CACHE)return;try{localStorage.setItem(CACHE_KEY,JSON.stringify({t:Date.now(),d:{headers:d.headers,rows:d.rows,lists:d.lists,licenses:d.licenses,emails:d.emails,emailsInfo:d.emailsInfo}}));}catch(e){}}
+function loadCache(){if(!USE_CACHE){try{localStorage.removeItem(CACHE_KEY);}catch(e){}return null;}try{if(!AUTH.LS.get('asset_key')&&(IN_GAS||API_URL))return null;const s=localStorage.getItem(CACHE_KEY);if(!s)return null;const o=JSON.parse(s);if(!o||!o.t||Date.now()-o.t>CACHE_TTL_MS){localStorage.removeItem(CACHE_KEY);return null;}return o&&o.d&&o.d.rows&&o.d.rows.length&&o.d.headers?o:null;}catch(e){return null;}}
 window.addEventListener('pagehide',()=>{try{if(H&&H.length&&R&&R.length)saveCache({headers:H,rows:R,lists:LISTS,licenses:LIC,emails:EML,emailsInfo:EMLINFO});}catch(e){}});
 let loadTimer=null;
 function loadInitial(){
