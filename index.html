@@ -727,6 +727,7 @@ main{max-width:1564px;padding-right:14px}
 #hist .box:has(table.hall){width:max-content;max-width:calc(100vw - 24px);min-width:min(760px,calc(100vw - 24px))}
 #hist table.hall th,#hist table.hall td{white-space:nowrap;padding:8px 14px 8px 8px}
 #hist table.hall td:nth-child(4){white-space:nowrap}
+#hist table.hspare a.sa{color:#1d4ed8;font-weight:600;cursor:pointer;text-decoration:none;border-bottom:1px dotted #1d4ed8}#hist table.hspare a.sa:hover{background:#e8f1ff}
 #hist table.hspare{font-size:13.5px}   /* ตาราง Spare: เล็กลง 1px จากตารางปกติ (14.5px) */
 #hist table.hspare td.nt{white-space:normal;min-width:160px;max-width:340px;word-break:break-word}
 #hist table.hall td:first-child,#hist table.hall th:first-child{padding-left:4px}
@@ -2127,10 +2128,10 @@ function showNotes(){
 // ติ๊ก Status = Spare: แสดงตารางกลางจอ เครื่องละ 1 แถว ตามคอลัมน์ 1-12 (ตามเครื่องที่ผ่านตัวกรองตอนนี้)
 function showSpare(){
   const ai=ASSET(),gv=(r,n)=>{const i=col(n);return i<0?'':String(r.v[i]==null?'':r.v[i]).trim();};
-  const cols=[['รหัส Asset',r=>String(r.v[ai]??'')],['Status',r=>gv(r,'StatusN')||'ว่าง'],['การตรวจเครื่อง',r=>gv(r,'การตรวจเครื่อง')||'ว่าง'],['ผู้ถือครอง',r=>gv(r,'ผู้ถือครอง')||'ว่าง'],['สาขา',r=>gv(r,'สาขา')],['Location',r=>gv(r,'Location')],['Model',r=>gv(r,'Model')],['CPU',r=>gv(r,'CPU')],['RAM',r=>gv(r,'Ram')],['Harddisk',r=>gv(r,'Harddisk')],['Window',r=>gv(r,'Window')],['MS Office',r=>gv(r,'MS Office')],['หมายเหตุ',r=>gv(r,'หมายเหตุ'),'nt']];
+  const cols=[['รหัส Asset',r=>'<a class="sa" data-n="'+r.n+'" title="คลิกเพื่อเปิดดู/แก้ไข">'+esc(String(r.v[ai]??''))+'</a>',1],['Status',r=>gv(r,'StatusN')||'ว่าง'],['การตรวจเครื่อง',r=>gv(r,'การตรวจเครื่อง')||'ว่าง'],['ผู้ถือครอง',r=>gv(r,'ผู้ถือครอง')||'ว่าง'],['สาขา',r=>gv(r,'สาขา')],['Location',r=>gv(r,'Location')],['Model',r=>gv(r,'Model')],['CPU',r=>gv(r,'CPU')],['RAM',r=>gv(r,'Ram')],['Harddisk',r=>gv(r,'Harddisk')],['Window',r=>gv(r,'Window')],['MS Office',r=>gv(r,'MS Office')],['หมายเหตุ',r=>gv(r,'หมายเหตุ'),'nt']];
   const rows=(filterRows()||[]).slice().sort((a,b)=>String(a.v[ai]).localeCompare(String(b.v[ai]),'th',{numeric:true}));
   $('hdt').textContent='Status: Spare — '+rows.length+' เครื่อง';$('hist').style.display='flex';
-  $('hbd').innerHTML=rows.length?'<table class="hall hspare"><tr>'+cols.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+cols.map(c=>'<td'+(c[2]?' class="'+c[2]+'"':'')+'>'+esc(c[1](r))+'</td>').join('')+'</tr>').join('')+'</table>':'<div class="empty">ไม่มีเครื่องที่ตรงเงื่อนไข</div>';
+  $('hbd').innerHTML=rows.length?'<table class="hall hspare"><tr>'+cols.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+cols.map(c=>'<td'+(c[2]==='nt'?' class="nt"':'')+'>'+(c[2]===1?c[1](r):esc(c[1](r)))+'</td>').join('')+'</tr>').join('')+'</table>':'<div class="empty">ไม่มีเครื่องที่ตรงเงื่อนไข</div>';
 }
 // ประวัติแก้ไขทั้งหมด (หน้า Filter): ดึงจาก Apps Script ฟังก์ชัน getAllHistory
 function showAllHist(){
@@ -2150,6 +2151,8 @@ function showAllHist(){
   }).withFailureHandler(e=>{const m=String(e&&e.message||e);$('hbd').innerHTML='<div class="empty bad">'+(/not a function|unknown|ไม่พบ/i.test(m)?'ฝั่ง Apps Script ยังไม่มีฟังก์ชัน getAllHistory (และ gs_getAllHistory) ต้องเพิ่มใน Code.gs แล้ว Deploy ใหม่':esc(m))+'</div>';}).getAllHistory();
 }
 $('hx').onclick=()=>$('hist').style.display='none';
+// คลิกรหัส Asset ในตาราง Spare -> ปิดตาราง แล้วเปิดเครื่องนั้นให้แก้ไขได้ทันที
+$('hbd').addEventListener('click',e=>{const a=e.target.closest('a.sa');if(!a)return;$('hist').style.display='none';open(+a.dataset.n);});
 $('hist').onclick=e=>{if(e.target.id==='hist')$('hist').style.display='none';};
 // PC + โหมด Filter: ย้ายรายการ/หน้าแก้ไขไปไว้ข้างตัวกรอง / มือถือและโหมดอื่น: อยู่ด้านล่างตามเดิม
 const PCQ=window.matchMedia('(min-width:641px)');
