@@ -1355,7 +1355,7 @@ const FILTERS=[
   {k:'ประเภท Asset',g:typeLabel,all:1,force:ASSET_TYPES},
   {k:'Device Type',g:compType,dyn:1,opts:[['PC','PC'],['NB','NB'],['SP','SP']]},   // PC/NB/SP เป็นตัวเลือกหลัก + ค่าใหม่ในคอลัมน์ Device Type จะเพิ่มเองอัตโนมัติ
   {k:'สาขา',g:r=>rowBranch(r),fixed:1},
-  {k:'Costcenter',c:'Costcenter_Name'},   // ดึงจากคอลัมน์ Costcenter_Name (ชีต Asset01)
+  {k:'Costcenter',g:r=>{const t=String(r.v[col('Costcenter_Name')]??'').trim();return t&&t!=='ว่าง'?'HAS':'NONE';},opts:[['HAS','มีข้อมูล'],['NONE','ไม่มีข้อมูล']]},   // ดึงจากคอลัมน์ Costcenter_Name: มีข้อมูล / ไม่มีข้อมูล
   {k:'Location',c:'Location',dd:1,lk:'Location'},
   {k:'ส่ง Audit',g:r=>normYN(r.v[col(AUDIT_COL)]),force:AUDIT_OPTS},
   {gh:'การใช้งาน'},
@@ -1451,7 +1451,7 @@ function buildFilters(){
     if(f.sec){
       // ติ๊กอย่างเดียว ไม่แสดงรายการ: ติ๊ก = กรองเฉพาะเครื่องที่มีข้อมูลในช่องนั้น
       const g0=get; FIL[j].get=r=>g0(r)?HAS:'';
-      h+=`<div class="fg"><b><label><input type="checkbox" data-tg="${j}">${f.k}</label></b></div>`;
+      h+=`<div class="fg"><b>${f.k}</b><div class="fo"><label><input type="checkbox" data-tg="${j}">มีข้อมูล</label></div></div>`;
       return;
     }
     let vals=[...new Set(R.map(get))].sort(VER_FILTERS.includes(f.k)?verCmp:(a,b)=>a.localeCompare(b));
