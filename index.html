@@ -72,7 +72,7 @@ label{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
 #msg{position:absolute;right:0;top:100%;margin-top:4px;font-size:13px;white-space:nowrap}
 .savebox{gap:6px}
 .savebox button.alt{background:#fff;color:var(--ink);border:1px solid var(--line)}
-#hist{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:8;padding:12px}
+#hist{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:60;padding:12px}
 #hist .box{background:#fff;border-radius:12px;max-width:760px;width:100%;max-height:85vh;display:flex;flex-direction:column}
 #hist .hd{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);font-weight:600}
 #hist .hd button{border:0;background:none;font-size:20px;cursor:pointer}
@@ -284,7 +284,7 @@ textarea:focus{outline:3px solid var(--acc);outline-offset:1px}
 .bgrp{display:flex;flex-direction:column;gap:6px;width:fit-content;margin-top:4px}
 .bgrp #bb,.bgrp #bo{width:100%;white-space:nowrap;font-size:12px;text-align:center;margin:0}
 @media(max-width:640px){.sidew{flex:1 1 100%;width:100%}.sidew #stats{width:100%;min-width:0}.bgrp{width:100%}.bgrp #bb,.bgrp #bo{white-space:normal}}
-#brn{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:8;padding:12px}
+#brn{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:60;padding:12px}
 #brn .box{background:#fff;border-radius:12px;max-width:760px;width:100%;max-height:85vh;display:flex;flex-direction:column}
 #brn .hd{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);font-weight:600}
 #brn .hd button{border:0;background:none;font-size:20px;cursor:pointer}
@@ -2124,7 +2124,7 @@ function showNotes(){
 // ติ๊ก Status = Spare: แสดงตารางกลางจอ เครื่องละ 1 แถว ตามคอลัมน์ 1-12 (ตามเครื่องที่ผ่านตัวกรองตอนนี้)
 function showSpare(){
   const ai=ASSET(),gv=(r,n)=>{const i=col(n);return i<0?'':String(r.v[i]==null?'':r.v[i]).trim();};
-  const cols=[['รหัส Asset',r=>String(r.v[ai]??'')],['1 Status',r=>gv(r,'StatusN')||'ว่าง'],['2 การตรวจเครื่อง',r=>gv(r,'การตรวจเครื่อง')||'ว่าง'],['3 ผู้ถือครอง',r=>gv(r,'ผู้ถือครอง')||'ว่าง'],['4 สาขา',r=>gv(r,'สาขา')],['5 Location',r=>gv(r,'Location')],['6 Model',r=>gv(r,'Model')],['7 CPU',r=>gv(r,'CPU')],['8 RAM',r=>gv(r,'Ram')],['9 Window',r=>gv(r,'Window')],['10 MS Office',r=>gv(r,'MS Office')],['11 หมายเหตุ',r=>gv(r,'หมายเหตุ'),'nt'],['12 Harddisk',r=>gv(r,'Harddisk')]];
+  const cols=[['รหัส Asset',r=>String(r.v[ai]??'')],['Status',r=>gv(r,'StatusN')||'ว่าง'],['การตรวจเครื่อง',r=>gv(r,'การตรวจเครื่อง')||'ว่าง'],['ผู้ถือครอง',r=>gv(r,'ผู้ถือครอง')||'ว่าง'],['สาขา',r=>gv(r,'สาขา')],['Location',r=>gv(r,'Location')],['Model',r=>gv(r,'Model')],['CPU',r=>gv(r,'CPU')],['RAM',r=>gv(r,'Ram')],['Harddisk',r=>gv(r,'Harddisk')],['Window',r=>gv(r,'Window')],['MS Office',r=>gv(r,'MS Office')],['หมายเหตุ',r=>gv(r,'หมายเหตุ'),'nt']];
   const rows=(filterRows()||[]).slice().sort((a,b)=>String(a.v[ai]).localeCompare(String(b.v[ai]),'th',{numeric:true}));
   $('hdt').textContent='Status: Spare — '+rows.length+' เครื่อง';$('hist').style.display='flex';
   $('hbd').innerHTML=rows.length?'<table class="hall hspare"><tr>'+cols.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+cols.map(c=>'<td'+(c[2]?' class="'+c[2]+'"':'')+'>'+esc(c[1](r))+'</td>').join('')+'</tr>').join('')+'</table>':'<div class="empty">ไม่มีเครื่องที่ตรงเงื่อนไข</div>';
