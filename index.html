@@ -1355,7 +1355,7 @@ const FILTERS=[
   {k:'ประเภท Asset',g:typeLabel,all:1,force:ASSET_TYPES},
   {k:'Device Type',g:compType,dyn:1,opts:[['PC','PC'],['NB','NB'],['SP','SP']]},   // PC/NB/SP เป็นตัวเลือกหลัก + ค่าใหม่ในคอลัมน์ Device Type จะเพิ่มเองอัตโนมัติ
   {k:'สาขา',g:r=>rowBranch(r),fixed:1},
-  {k:'Costcenter',g:r=>{const t=String(r.v[col('Costcenter_Name')]??'').trim();return t&&t!=='ว่าง'?'HAS':'NONE';},opts:[['HAS','มีข้อมูล'],['NONE','ไม่มีข้อมูล']]},   // ดึงจากคอลัมน์ Costcenter_Name: มีข้อมูล / ไม่มีข้อมูล
+  {k:'Costcenter',g:r=>{const t=String(r.v[col('Costcenter_Name')]??'').trim();return t&&t!=='ว่าง'?'HAS':'NONE';},all:1,opts:[['HAS','มีข้อมูล'],['NONE','ไม่มีข้อมูล']]},   // ดึงจากคอลัมน์ Costcenter_Name: มีข้อมูล / ไม่มีข้อมูล
   {k:'Location',c:'Location',dd:1,lk:'Location'},
   {k:'ส่ง Audit',g:r=>normYN(r.v[col(AUDIT_COL)]),force:AUDIT_OPTS},
   {gh:'การใช้งาน'},
@@ -1442,7 +1442,7 @@ function buildFilters(){
       const j=FIL.length; FIL.push({k:f.k,get,raw:f.k==='การถือครอง'?r=>{const t=String(r.v[col('ผู้ถือครอง')]??'').trim();return yes(t)?t:'ว่าง';}:null}); SEL.push(new Set());   // Print to Excel: การถือครอง = ชื่อผู้ถือครองจริง
       let ops=f.opts;
       if(f.dyn){const bs=new Set(f.opts.map(o=>o[0]));const ex=[...new Set(R.map(get))].filter(v=>v&&!bs.has(v)).sort((a,b)=>a.localeCompare(b));ops=f.opts.concat(ex.map(v=>[v,v]));}
-      h+=`<div class="fg"><b>${f.k}</b><div class="fo">`+ops.map(o=>`<label><input type="checkbox" data-f="${j}" value="${esc(o[0])}">${esc(o[1])}</label>`).join('')+'</div></div>';
+      h+=`<div class="fg"><b>${f.k}</b><div class="fo">`+(f.all?`<label><input type="checkbox" data-f="${j}" value="${ALL}">ทั้งหมด</label>`:'')+ops.map(o=>`<label><input type="checkbox" data-f="${j}" value="${esc(o[0])}">${esc(o[1])}</label>`).join('')+'</div></div>';
       return;
     }
     if(!get){const i=col(f.c,f.l); if(i<0)return; get=f.force?(r=>String(r.v[i]??'').trim()||'ว่าง'):(r=>String(r.v[i]??'').trim());}
