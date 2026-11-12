@@ -1355,6 +1355,7 @@ const FILTERS=[
   {k:'ประเภท Asset',g:typeLabel,all:1,force:ASSET_TYPES},
   {k:'Device Type',g:compType,dyn:1,opts:[['PC','PC'],['NB','NB'],['SP','SP']]},   // PC/NB/SP เป็นตัวเลือกหลัก + ค่าใหม่ในคอลัมน์ Device Type จะเพิ่มเองอัตโนมัติ
   {k:'สาขา',g:r=>rowBranch(r),fixed:1},
+  {k:'Costcenter',c:'Costcenter_Name'},   // ดึงจากคอลัมน์ Costcenter_Name (ชีต Asset01)
   {k:'Location',c:'Location',dd:1,lk:'Location'},
   {k:'ส่ง Audit',g:r=>normYN(r.v[col(AUDIT_COL)]),force:AUDIT_OPTS},
   {gh:'การใช้งาน'},
