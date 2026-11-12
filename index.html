@@ -1852,7 +1852,7 @@ function open(n){
         c=`<div class="asw"><input type="hidden" data-i="${i}" value="${esc(v)}"><div class="awh"><span>ชื่อโปรแกรม</span><span>License / Key</span><span></span></div><div class="awl">${rs.map(r=>awRow(r[0],r[1])).join('')}</div><button type="button" class="awa">+ เพิ่มโปรแกรม</button></div>`;
       }else if(f[0]==='หมายเหตุ'){
         c=`<textarea data-i="${i}" rows="1">${esc(v)}</textarea>`;
-      }else c=`<input data-i="${i}" value="${esc(v)}"${f[2]==='r'?' readonly':''}>`;
+      }else c=`<input data-i="${i}" value="${esc(v)}"${f[2]==='r'&&!(f[0]==='Costcenter_Name'&&!String(v??'').trim())?' readonly':''}>`;   // Costcenter: ถ้าว่าง พิมพ์ใส่ได้ · ถ้ามีข้อมูลแล้ว แก้ไม่ได้
       const wc=(f[0]==='Product Key'?' kc':'')+(['StatusN','การตรวจเครื่อง','ส่ง Audit','ใบถือครองทรัพย์สิน','Antivirus','Update Product Key'].includes(f[0])?' upk upkb':'')+((f[0]==='หมายเหตุ'||f[0]==='Additional Software')?' wfull':'')+(f[0]==='Additional Software'?' aswc':'');
       h+=`<div${wc?' class="'+wc.trim()+'"':''}><label>${f[1]}</label>${c}</div>`;
     });
