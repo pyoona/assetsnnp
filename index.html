@@ -727,6 +727,7 @@ main{max-width:1564px;padding-right:14px}
 #hist .box:has(table.hall){width:max-content;max-width:calc(100vw - 24px);min-width:min(760px,calc(100vw - 24px))}
 #hist table.hall th,#hist table.hall td{white-space:nowrap;padding:8px 14px 8px 8px}
 #hist table.hall td:nth-child(4){white-space:nowrap}
+#hist table.hspare td.nt{white-space:normal;min-width:160px;max-width:340px;word-break:break-word}
 #hist table.hall td:first-child,#hist table.hall th:first-child{padding-left:4px}
 /* ปุ่มหมายเหตุ (หน้า Filter) + ตารางหมายเหตุ */
 #fnt{background:#fff;border:2px solid #00b386;color:#00a37a;font-weight:800;cursor:pointer}
@@ -1514,6 +1515,7 @@ $('fbox').onchange=e=>{
     s.add(t.value);
   }else s.delete(t.value);
   render();
+  if(t.checked&&t.value==='Spare'&&FIL[+t.dataset.f]&&FIL[+t.dataset.f].k==='Status')showSpare();   // ติ๊ก Status = Spare -> แสดงตารางกลางจอ
   if(licOn())showLic();   // เลือกรุ่น MS Office เพิ่ม/ลด -> รายการ License (ว่าง)ปรับตาม
 };
 $('fbox').onclick=e=>{
@@ -2118,6 +2120,14 @@ function showNotes(){
   };
   draw('');$('nq').oninput=e=>draw(e.target.value);
   $('nrows').onclick=e=>{const tr=e.target.closest('tr');if(tr&&PCQ&&!PCQ.matches)tr.classList.toggle('open');};
+}
+// ติ๊ก Status = Spare: แสดงตารางกลางจอ เครื่องละ 1 แถว ตามคอลัมน์ 1-12 (ตามเครื่องที่ผ่านตัวกรองตอนนี้)
+function showSpare(){
+  const ai=ASSET(),gv=(r,n)=>{const i=col(n);return i<0?'':String(r.v[i]==null?'':r.v[i]).trim();};
+  const cols=[['รหัส Asset',r=>String(r.v[ai]??'')],['1 Status',r=>gv(r,'StatusN')||'ว่าง'],['2 การตรวจเครื่อง',r=>gv(r,'การตรวจเครื่อง')||'ว่าง'],['3 ผู้ถือครอง',r=>gv(r,'ผู้ถือครอง')||'ว่าง'],['4 สาขา',r=>gv(r,'สาขา')],['5 Location',r=>gv(r,'Location')],['6 Model',r=>gv(r,'Model')],['7 CPU',r=>gv(r,'CPU')],['8 RAM',r=>gv(r,'Ram')],['9 Window',r=>gv(r,'Window')],['10 MS Office',r=>gv(r,'MS Office')],['11 หมายเหตุ',r=>gv(r,'หมายเหตุ'),'nt'],['12 Harddisk',r=>gv(r,'Harddisk')]];
+  const rows=(filterRows()||[]).slice().sort((a,b)=>String(a.v[ai]).localeCompare(String(b.v[ai]),'th',{numeric:true}));
+  $('hdt').textContent='Status: Spare — '+rows.length+' เครื่อง';$('hist').style.display='flex';
+  $('hbd').innerHTML=rows.length?'<table class="hall hspare"><tr>'+cols.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+cols.map(c=>'<td'+(c[2]?' class="'+c[2]+'"':'')+'>'+esc(c[1](r))+'</td>').join('')+'</tr>').join('')+'</table>':'<div class="empty">ไม่มีเครื่องที่ตรงเงื่อนไข</div>';
 }
 // ประวัติแก้ไขทั้งหมด (หน้า Filter): ดึงจาก Apps Script ฟังก์ชัน getAllHistory
 function showAllHist(){
