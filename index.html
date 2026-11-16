@@ -1802,7 +1802,7 @@ function awParse(v){
   });
 }
 function awRow(n,l){
-  return `<div class="awr"><input class="aw-n" placeholder="ชื่อโปรแกรม" value="${esc(n)}" autocomplete="off"><input class="aw-l" placeholder="License / Key" value="${esc(l)}" autocomplete="off"><button type="button" class="awx" aria-label="ลบ" title="ลบแถวนี้">✕</button></div>`;
+  return `<div class="awr"><input class="aw-n" list="awsug" placeholder="ชื่อโปรแกรม" value="${esc(n)}" autocomplete="off"><input class="aw-l" placeholder="License / Key" value="${esc(l)}" autocomplete="off"><button type="button" class="awx" aria-label="ลบ" title="ลบแถวนี้">✕</button></div>`;
 }
 function awSync(box){
   const out=[...box.querySelectorAll('.awr')].map(r=>{
@@ -1827,8 +1827,15 @@ function awSync(box){
     }
   });
 })();
+// ตัวเลือกชื่อโปรแกรม: รวมจากคอลัมน์ Additional Software ของทุกเครื่องใน Asset01 (เรียงจากที่ใช้บ่อยไปน้อย)
+function awSuggest(){
+  const i=H.indexOf('Aditional Software')>=0?H.indexOf('Aditional Software'):H.indexOf('Additional Software'),cnt=new Map();
+  if(i>=0)R.forEach(r=>{const seen=new Set();String(r.v[i]||'').split(/\r?\n|\s*,\s*/).forEach(x=>{const k=x.split('|')[0].trim();if(k&&!seen.has(k)){seen.add(k);cnt.set(k,(cnt.get(k)||0)+1);}});});   // คั่นด้วย , (รองรับทั้ง "A ,B" และ "A , B") ตัดส่วน | license ออก
+  let dl=document.getElementById('awsug');if(!dl){dl=document.createElement('datalist');dl.id='awsug';document.body.appendChild(dl);}
+  dl.innerHTML=[...cnt.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'th')).map(x=>'<option value="'+esc(x[0])+'">').join('');
+}
 function open(n){
-  cur=R.find(r=>r.n===n);
+  cur=R.find(r=>r.n===n);awSuggest();
   $('fwrap').classList.toggle('picked',mode==3&&!!cur);
   document.querySelectorAll('.it').forEach(x=>x.classList.toggle('sel',+x.dataset.n===n));
   $('grid').hidden=false;
