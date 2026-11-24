@@ -2149,7 +2149,7 @@ let SP=null;
 function spRender(){
   if(!SP)return;const {rows,cols,gs,keys,sel}=SP,show=sel==='ทั้งหมด'?keys:keys.filter(k=>k===sel);
   $('hdt').innerHTML='Status: Spare — '+rows.length+' เครื่อง<span class="spt">'+['ทั้งหมด'].concat(keys).map(k=>'<button type="button" data-g="'+esc(k)+'" class="'+(k===sel?'on':'')+'">'+esc(k)+' '+(k==='ทั้งหมด'?rows.length:gs[k].length)+'</button>').join('')+'</span>';
-  $('hbd').innerHTML=rows.length?'<table class="hall hspare"><tr>'+cols.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr>'+show.map(k=>'<tr class="sg"><td colspan="'+cols.length+'">'+esc(k)+' — '+gs[k].length+' เครื่อง</td></tr>'+gs[k].map(r=>'<tr>'+cols.map(c=>'<td'+(c[2]==='nt'?' class="nt"':'')+'>'+(c[2]===1?c[1](r):esc(c[1](r)))+'</td>').join('')+'</tr>').join('')).join('')+'</table>':'<div class="empty">ไม่มีเครื่องที่ตรงเงื่อนไข</div>';
+  $('hbd').innerHTML=rows.length?'<table class="hall hspare"><tr>'+cols.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr>'+show.map(k=>(sel==='ทั้งหมด'?'<tr class="sg"><td colspan="'+cols.length+'">'+esc(k)+' — '+gs[k].length+' เครื่อง</td></tr>':'')+gs[k].map(r=>'<tr>'+cols.map(c=>'<td'+(c[2]==='nt'?' class="nt"':'')+'>'+(c[2]===1?c[1](r):esc(c[1](r)))+'</td>').join('')+'</tr>').join('')).join('')+'</table>':'<div class="empty">ไม่มีเครื่องที่ตรงเงื่อนไข</div>';
 }
 $('hdt').addEventListener('click',e=>{const b=e.target.closest('.spt button');if(!b||!SP)return;SP.sel=b.dataset.g;spRender();});
 
