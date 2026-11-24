@@ -728,6 +728,7 @@ main{max-width:1564px;padding-right:14px}
 #hist table.hall th,#hist table.hall td{white-space:nowrap;padding:8px 14px 8px 8px}
 #hist table.hall td:nth-child(4){white-space:nowrap}
 #hist table.hspare a.sa{color:#1d4ed8;font-weight:600;cursor:pointer;text-decoration:none;border-bottom:1px dotted #1d4ed8}#hist table.hspare a.sa:hover{background:#e8f1ff}
+#hist .box.spbox:has(table.hall){width:calc(100vw - 24px);max-width:1700px;min-width:0;height:calc(100vh - 48px);max-height:calc(100vh - 48px)}
 #hist .spt{display:inline-flex;gap:8px;margin-left:18px;vertical-align:middle}#hist .spt button{border:1.5px solid #9db8ee;background:#fff;color:#1d3f8f;border-radius:999px;padding:3px 14px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}#hist .spt button.on{background:#1d4ed8;border-color:#1d4ed8;color:#fff}#hist .spt button:hover:not(.on){background:#e8f1ff}
 #hist table.hspare tr.sg td{background:#e8f1ff;color:#1d3f8f;font-weight:700;font-size:1.08em;padding:7px 8px;border-top:2px solid #9db8ee;white-space:nowrap}
 #hist table.hspare{font-size:13.5px}   /* ตาราง Spare: เล็กลง 1px จากตารางปกติ (14.5px) */
@@ -2147,10 +2148,11 @@ function showSpare(){
 // ตาราง Spare: หัวข้อ (ทั้งหมด / PC / NB ...) อยู่ในแถบหัวหน้าต่าง คลิกเพื่อดูเฉพาะกลุ่มนั้น
 let SP=null;
 function spRender(){
-  if(!SP)return;const {rows,cols,gs,keys,sel}=SP,show=sel==='ทั้งหมด'?keys:keys.filter(k=>k===sel);
+  if(!SP)return;$('hist').querySelector('.box').classList.add('spbox');const {rows,cols,gs,keys,sel}=SP,show=sel==='ทั้งหมด'?keys:keys.filter(k=>k===sel);
   $('hdt').innerHTML='Status: Spare — '+rows.length+' เครื่อง<span class="spt">'+['ทั้งหมด'].concat(keys).map(k=>'<button type="button" data-g="'+esc(k)+'" class="'+(k===sel?'on':'')+'">'+esc(k)+' '+(k==='ทั้งหมด'?rows.length:gs[k].length)+'</button>').join('')+'</span>';
   $('hbd').innerHTML=rows.length?'<table class="hall hspare"><tr>'+cols.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr>'+show.map(k=>(sel==='ทั้งหมด'?'<tr class="sg"><td colspan="'+cols.length+'">'+esc(k)+' — '+gs[k].length+' เครื่อง</td></tr>':'')+gs[k].map(r=>'<tr>'+cols.map(c=>'<td'+(c[2]==='nt'?' class="nt"':'')+'>'+(c[2]===1?c[1](r):esc(c[1](r)))+'</td>').join('')+'</tr>').join('')).join('')+'</table>':'<div class="empty">ไม่มีเครื่องที่ตรงเงื่อนไข</div>';
 }
+new MutationObserver(()=>{if(!$('hdt').querySelector('.spt'))$('hist').querySelector('.box').classList.remove('spbox');}).observe($('hdt'),{childList:true});   // หน้าต่างอื่นใช้กล่องเดียวกัน: ถอดขนาดคงที่ออก
 $('hdt').addEventListener('click',e=>{const b=e.target.closest('.spt button');if(!b||!SP)return;SP.sel=b.dataset.g;spRender();});
 
 // ประวัติแก้ไขทั้งหมด (หน้า Filter): ดึงจาก Apps Script ฟังก์ชัน getAllHistory
