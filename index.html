@@ -957,8 +957,11 @@ html.ipad .ls{display:inline}
   /* แท็บเล็ต: ปรับพื้นที่กล่อง Filter ให้พอดีกับข้อมูล */
   html.tab #fbox{width:330px;max-width:none;flex:0 0 330px}
   html.tab #fbox .fg{grid-template-columns:90px minmax(0,1fr);column-gap:8px;padding:3px 0;align-items:center}
-  html.tab #fbox .fo{gap:3px 12px;align-items:center}
-  html.tab #fbox .fo input[type=checkbox]{width:11px;height:11px;margin:0!important;flex:0 0 auto;transform:translateY(1px)}
+  html.tab #fbox .fo{gap:3px 10px;align-items:center}
+  /* วาดกล่อง checkbox เอง เพื่อให้ Safari/iPad กับ Chrome เว้นระยะเท่ากัน */
+  html.tab #fbox .fo input[type=checkbox]{-webkit-appearance:none;appearance:none;width:10px;height:10px;margin:0!important;padding:0!important;flex:0 0 auto;position:relative;top:1px;border:1px solid #64748b;border-radius:2px;background:#fff;cursor:pointer}
+  html.tab #fbox .fo input[type=checkbox]:checked{background:#0a3dff;border-color:#0a3dff}
+  html.tab #fbox .fo input[type=checkbox]:checked::after{content:'';position:absolute;left:2.5px;top:0.5px;width:3px;height:6px;border:solid #fff;border-width:0 1.5px 1.5px 0;transform:rotate(45deg);box-sizing:border-box}
   html.tab #fbox .fo label{display:inline-flex;align-items:center;gap:2px;line-height:1.15;padding:1px 0}
   html.tab #fbox .fo label .lf,html.tab #fbox .fo label .ls,html.tab #fbox .fo label span{margin:0;padding:0}
   /* แท็บเล็ต: ตัวหนังสือในกล่อง Filter ลด 4px */
