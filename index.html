@@ -945,8 +945,12 @@ html.ipad .ls{display:inline}
   html.tab main .top .modes .sidew #stats{display:none!important}   /* ซ่อนช่องสรุป การตรวจเครื่อง บนแท็บเล็ตแนวนอน */
   html.tab main .top .modes .sidew #stats.x{display:flex;flex-direction:row;align-items:center;gap:12px;width:auto;min-width:0;margin:0 0 0 auto;padding:4px 10px;overflow:visible}
   html.tab main .top .modes .savebox{display:contents}   /* ให้ปุ่มใน savebox เรียงร่วมกับปุ่มอื่นได้ */
-  html.tab main .top .modes .bgrp{order:1}
-  html.tab main .top .modes .savebox #xl{order:2;margin-left:6px}   /* Print to Excel อยู่ท้ายสุด */
+  html.tab main .top .modes .savebox #sv{order:1}
+  html.tab main .top .modes .savebox #hs{order:2}
+  html.tab main .top .modes .savebox #xl{order:3}
+  html.tab main .top .modes .savebox #rs{order:4}
+  html.tab main .top .modes .bgrp{order:0}
+
   html.tab main .top .modes .savebox #rf{display:none!important}   /* ซ่อนปุ่ม Refresh บนแท็บเล็ตแนวนอน */
   html.tab main .top .modes #stats .r{border:0;padding:0;gap:5px}
   html.tab main .top .modes #stats .r.s{padding-left:0}
