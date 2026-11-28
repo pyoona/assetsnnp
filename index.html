@@ -5,6 +5,13 @@
 <base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* iPad/แท็บเล็ต: แนวตั้งแสดงหน้าเว็บ "เหมือนแนวนอน" โดยกำหนดความกว้างหน้า 1024px แล้วให้เบราว์เซอร์ย่อทั้งหน้า (รวมตัวอักษร) ให้พอดีจออัตโนมัติ · คอม/มือถือไม่เกี่ยว */
+(function(){var d=document.documentElement,m=document.querySelector('meta[name=viewport]');
+function isTab(){try{return d.classList.contains('ipad')||(matchMedia('(pointer:coarse)').matches&&matchMedia('(hover:none)').matches&&Math.min(screen.width,screen.height)>=600);}catch(e){return false;}}
+function apply(){var t=isTab();d.classList.toggle('tab',t);if(!m||!t)return;var c=matchMedia('(orientation:portrait)').matches?'width=1024':'width=device-width, initial-scale=1';if(m.getAttribute('content')!==c)m.setAttribute('content',c);}
+apply();window.addEventListener('orientationchange',function(){setTimeout(apply,50);});window.addEventListener('resize',apply);})();
+</script>
 <title>IT Asset SNNP</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -812,7 +819,7 @@ main{max-width:1564px;padding-right:14px}
   .modes{position:sticky;top:8px;align-self:flex-start;z-index:30}
 }
 /* เฉพาะ iPad แนวตั้ง โหมด Filter: พอกดเลือกเครื่อง ซ่อนตัวกรอง → รายละเอียดอยู่ซ้าย รายการเครื่องชิดขอบขวา (ไม่บังกัน) */
-@media(min-width:641px) and (orientation:portrait){
+@media(min-width:641px) and (max-width:899px) and (orientation:portrait){
   html.ipad #fwrap.picked #fbox{display:none}
   html.ipad #fwrap.picked #fres{flex:1 1 100%;width:100%}
   html.ipad #fwrap.picked #fres #grid.grid{grid-template-columns:minmax(0,1fr) 200px;grid-template-areas:"p1 list";gap:8px}
@@ -821,7 +828,7 @@ main{max-width:1564px;padding-right:14px}
   html.ipad #fwrap.picked #fres #grid #panel .f{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 }
 /* เฉพาะ iPad แนวตั้ง: กล่องตัวกรอง (Filter) ปุ่มเล็กลง ตัวอักษรเล็กลง ระยะห่างกระชับ */
-@media(min-width:641px) and (orientation:portrait){
+@media(min-width:641px) and (max-width:899px) and (orientation:portrait){
   html.ipad #fbox .fh{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
   html.ipad #fbox .fh button{padding:2px 8px;font-size:11px;line-height:1.35;border-radius:5px}
   html.ipad #fbox .fgh{font-size:11.5px;padding:2px 10px;margin:8px 0 5px;border-radius:6px}
@@ -834,7 +841,7 @@ main{max-width:1564px;padding-right:14px}
 }
 /* iPad แนวตั้ง: เมื่อเลือกเครื่อง ส่วนแสดงข้อมูลสว่าง/เด่น ส่วนรายการจางลง และมีปุ่ม ✕ ปิด */
 #pclose{display:none}
-@media(min-width:641px) and (orientation:portrait){
+@media(min-width:641px) and (max-width:899px) and (orientation:portrait){
   html.ipad #fwrap.picked #fres #grid{position:relative}
   html.ipad #fwrap.picked #fres #grid #panel{position:relative;z-index:2;background:#fff;border:2px solid var(--acc);box-shadow:0 0 0 4px rgba(29,78,216,.14),0 8px 22px rgba(0,0,0,.2)}
   html.ipad #fwrap.picked #fres #grid #panel .ttl{padding-right:36px}
@@ -854,7 +861,7 @@ main{max-width:1564px;padding-right:14px}
 #mx .bgrp{display:flex;flex-direction:column;gap:10px;flex:none;width:100%;margin:0;order:0}
 #mx .bgrp #bb,#drb .bgrp #bo{flex:none;width:100%;min-height:0;padding:12px;font-size:15px;white-space:normal;border-radius:8px}
 #mx #stats{display:block;column-count:1;flex:none;order:0;width:100%;min-width:0;margin:0;font-size:13px}
-@media(min-width:641px) and (orientation:portrait){
+@media(min-width:641px) and (max-width:899px) and (orientation:portrait){
   html.ipad #mtg{display:block;width:100%;margin-top:4px;padding:8px 10px;font:inherit;font-size:14px;font-weight:700;text-align:center;border-radius:6px;cursor:pointer;background:#fff;color:#334155;border:2px solid #94a3b8}
   html.ipad .modes.mxo #mtg{background:#e1ecff;color:#12308f;border-color:#9ec5fe}
   html.ipad .modes.mxo #mx{display:flex;flex-direction:column;gap:6px;width:100%}
@@ -925,24 +932,24 @@ html.ipad .ls{display:inline}
 /* หน้าค้นหา: คำว่า ค้นหา อยู่ซ้ายของช่องพิมพ์ ในแถวเดียวกัน (จอกว้าง) */
 @media(min-width:641px){#bar2 .fld{display:flex;align-items:center;gap:12px}#bar2 .fld>label{margin:0;flex:0 0 auto;white-space:nowrap;font-size:17px}#bar2 .fld>.in{flex:1 1 auto;min-width:0}}
 /* ===== แท็บเล็ต/iPad แนวนอน: ย้ายเมนูฝั่งซ้าย (ค้นหา, เลือกตามสาขา, Filter, Save ... ข้อมูล OS-MS Office) ขึ้นเป็นแถบบนสุด ===== */
-@media(min-width:641px) and (max-width:1400px) and (pointer:coarse) and (hover:none) and (orientation:landscape){
-  main .top{flex-direction:column;align-items:stretch;gap:8px}
-  main .top .modes{flex-direction:row;flex-wrap:wrap;align-items:center;align-self:stretch;width:100%;gap:6px;position:sticky;top:0;z-index:30;background:var(--bg);padding:6px 0}
-  main .top .modes>button{width:auto;min-width:0;padding:8px 14px;font-size:14px;text-align:center}
-  main .top .modes .savebox{flex:0 0 auto!important;width:auto;flex-direction:row;align-items:center;gap:6px;margin:0}
-  main .top .modes .savebox button,main .top .modes .savebox #rf,main .top .modes .savebox #rs{width:auto!important;flex:0 0 auto;padding:8px 12px;font-size:13px;white-space:nowrap}
-  main .top .modes #msg{white-space:nowrap}
-  main .top .modes .sidew{display:contents}
-  main .top .modes .bgrp{display:flex;flex-direction:row;gap:6px;margin:0;width:auto!important;flex:0 0 auto}
-  main .top .modes .bgrp #bb,main .top .modes .bgrp #bo{width:auto!important;flex:0 0 auto!important;min-height:0;padding:8px 12px;font-size:13px;white-space:nowrap}
-  main .top .modes .sidew #stats{display:none!important}   /* ซ่อนช่องสรุป การตรวจเครื่อง บนแท็บเล็ตแนวนอน */
-  main .top .modes .sidew #stats.x{display:flex;flex-direction:row;align-items:center;gap:12px;width:auto;min-width:0;margin:0 0 0 auto;padding:4px 10px;overflow:visible}
-  main .top .modes .savebox{display:contents}   /* ให้ปุ่มใน savebox เรียงร่วมกับปุ่มอื่นได้ */
-  main .top .modes .bgrp{order:1}
-  main .top .modes .savebox #xl{order:2;margin-left:6px}   /* Print to Excel อยู่ท้ายสุด */
-  main .top .modes .savebox #rf{display:none!important}   /* ซ่อนปุ่ม Refresh บนแท็บเล็ตแนวนอน */
-  main .top .modes #stats .r{border:0;padding:0;gap:5px}
-  main .top .modes #stats .r.s{padding-left:0}
+@media(min-width:641px){
+  html.tab main .top{flex-direction:column;align-items:stretch;gap:8px}
+  html.tab main .top .modes{flex-direction:row;flex-wrap:wrap;align-items:center;align-self:stretch;width:100%;gap:6px;position:sticky;top:0;z-index:30;background:var(--bg);padding:6px 0}
+  html.tab main .top .modes>button{width:auto;min-width:0;padding:8px 14px;font-size:14px;text-align:center}
+  html.tab main .top .modes .savebox{flex:0 0 auto!important;width:auto;flex-direction:row;align-items:center;gap:6px;margin:0}
+  html.tab main .top .modes .savebox button,main .top .modes .savebox #rf,main .top .modes .savebox #rs{width:auto!important;flex:0 0 auto;padding:8px 12px;font-size:13px;white-space:nowrap}
+  html.tab main .top .modes #msg{white-space:nowrap}
+  html.tab main .top .modes .sidew{display:contents}
+  html.tab main .top .modes .bgrp{display:flex;flex-direction:row;gap:6px;margin:0;width:auto!important;flex:0 0 auto}
+  html.tab main .top .modes .bgrp #bb,main .top .modes .bgrp #bo{width:auto!important;flex:0 0 auto!important;min-height:0;padding:8px 12px;font-size:13px;white-space:nowrap}
+  html.tab main .top .modes .sidew #stats{display:none!important}   /* ซ่อนช่องสรุป การตรวจเครื่อง บนแท็บเล็ตแนวนอน */
+  html.tab main .top .modes .sidew #stats.x{display:flex;flex-direction:row;align-items:center;gap:12px;width:auto;min-width:0;margin:0 0 0 auto;padding:4px 10px;overflow:visible}
+  html.tab main .top .modes .savebox{display:contents}   /* ให้ปุ่มใน savebox เรียงร่วมกับปุ่มอื่นได้ */
+  html.tab main .top .modes .bgrp{order:1}
+  html.tab main .top .modes .savebox #xl{order:2;margin-left:6px}   /* Print to Excel อยู่ท้ายสุด */
+  html.tab main .top .modes .savebox #rf{display:none!important}   /* ซ่อนปุ่ม Refresh บนแท็บเล็ตแนวนอน */
+  html.tab main .top .modes #stats .r{border:0;padding:0;gap:5px}
+  html.tab main .top .modes #stats .r.s{padding-left:0}
 }
 </style>
 </head>
@@ -2796,7 +2803,7 @@ $('brn').onclick=e=>{if(e.target===$('brn')){closeBrs();$('brn').style.display='
 // iPad แนวตั้ง: ย้ายทุกอย่างในแถบซ้าย (ค้นหา/เลือกตามสาขา/Filter/Save/ประวัติ/Print/Refresh/Reset/ข้อมูลสาขา/OS-MS/สถิติ) เข้าปุ่มรวม Menu กดแล้วขยาย
 // จอใหญ่/แนวนอน: อยู่ที่เดิม
 (function(){
-  var mq=window.matchMedia('(max-width:640px)'),ip=window.matchMedia('(min-width:641px) and (orientation:portrait)');
+  var mq=window.matchMedia('(max-width:640px)'),ip=window.matchMedia('(min-width:641px) and (max-width:899px) and (orientation:portrait)');
   var drw=document.getElementById('drw'),drb=document.getElementById('drb'),mx=document.getElementById('mx'),mtg=document.getElementById('mtg'),modes=document.querySelector('.modes');
   var isIpad=document.documentElement.classList.contains('ipad'),items=[];
   function reg(el,tg){if(!el)return;var ph=document.createComment('ph');el.parentNode.insertBefore(ph,el);items.push({el:el,ph:ph,tg:tg});}
